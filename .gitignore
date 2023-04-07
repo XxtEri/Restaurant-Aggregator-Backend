@@ -142,6 +142,7 @@ project.lock.json
 nupkg/
 appsettings.Development.json
 appsettings.Develop.json
+appsettings.json
 
 # Rider
 .idea
