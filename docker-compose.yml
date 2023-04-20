@@ -12,7 +12,7 @@ services:
   database2:
     image: postgres:latest
     ports:
-      - "5433:5433"
+      - "5433:5432"
     environment:
       POSTGRES_DB: hits-restaurant-aggregator
       POSTGRES_USER: elena
