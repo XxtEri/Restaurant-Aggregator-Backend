@@ -2,11 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.API.Common.Enums;
 
-namespace RestaurantAggregatorService.Models;
+namespace RestaurantAggregator.API.Common.DTO;
 
-public class Dish
+public class DishDTO
 {
-    [Key]
     public Guid Id { get; set; }
     
     [MinLength(1)]

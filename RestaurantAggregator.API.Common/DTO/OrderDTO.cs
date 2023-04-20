@@ -2,11 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.API.Common.Enums;
 
-namespace RestaurantAggregatorService.Models;
+namespace RestaurantAggregator.API.Common.DTO;
 
-public class Order
+public class OrderDTO
 {
-    [Key]
     public Guid Id { get; set; }
     
     [DataType(DataType.DateTime)]
@@ -28,16 +27,11 @@ public class Order
     public OrderStatus Status { get; set; }
     
     [MaybeNull]
-    public Cook Cook { get; set; }
+    public CookDTO Cook { get; set; }
     
     [MaybeNull]
-    public Courier Courier { get; set; }
+    public CourierDTO Courier { get; set; }
     
-    [MaybeNull]
-    public ICollection<DishInCart> DishInCarts { get; set; }
-
-    public Order()
-    {
-        DishInCarts = new List<DishInCart>();
-    }
+    // [MaybeNull]
+    // public ICollection<DishInCart> DishInCarts { get; set; }
 }

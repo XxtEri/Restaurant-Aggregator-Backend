@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace RestaurantAggregatorService.Enum;
+namespace RestaurantAggregator.API.Common.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrderStatus
