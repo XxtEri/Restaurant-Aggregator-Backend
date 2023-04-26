@@ -1,27 +1,29 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Identity;
+using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.AuthApi.DAL.Etities;
 
-public class User: IdentityUser<long>
+public class User: IdentityUser<Guid>
 {
-    [Key]
-    public Guid Id { get; set; }
-    [MinLength(1)]
+    public DateTime? BirthDate { get; set; }
+    
     [Required]
-    public string FullName { get; set; }
-    [DataType(DataType.Date)]
+    public Gender Gender { get; set; }
+
     [MaybeNull]
-    public string BirthDate { get; set; }
-    [Phone]
-    [MaybeNull]
-    public string Gender { get; set; }
-    [MaybeNull]
-    public string Phone { get; set; }
-    [EmailAddress]
-    [MaybeNull]
-    public string Email { get; set; }
-    [MinLength(1)]
-    public string Password { get; set; }
+    public string RefreshToken { get; set; }
+    
+    public DateTime? RefreshTokenExpires { get; set; }
+
+    public bool Banned { get; set; } = false;
+    
+    public Customer Customer { get; set; }
+    
+    public Cook Cook { get; set; }
+    
+    public Manager Manager { get; set; }
+    
+    public Courier Courier { get; set; }
 }

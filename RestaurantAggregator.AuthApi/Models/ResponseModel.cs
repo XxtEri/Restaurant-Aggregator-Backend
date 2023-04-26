@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace RestaurantAggregator.APIAuth.Models;
 
-public class Response
+public class ResponseModel
 {
     [MaybeNull]
     public string Status { get; set; }

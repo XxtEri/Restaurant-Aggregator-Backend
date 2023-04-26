@@ -1,10 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantAggregator.APIAuth.Models;
+using RestaurantAggregator.AuthApi.Common.DTO;
+using RestaurantAggregator.AuthApi.Common.IServices;
+using RestaurantAggregator.AuthApi.DAL.DBContext;
 
 namespace RestaurantAggregator.APIAuth.Controllers;
 
@@ -12,158 +17,192 @@ namespace RestaurantAggregator.APIAuth.Controllers;
 [Route("auth")]
 public class AuthenticateController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly IConfiguration _configuration;
-
-
-    public AuthenticateController(
-        UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
-        IConfiguration configuration)
+    private readonly IAuthorizeServise _authorizeService;
+    private readonly IRegisterService _registerService;
+    
+    public AuthenticateController(IAuthorizeServise authorizeService, IRegisterService registerService)
     {
-        _userManager = userManager;
-        _roleManager = roleManager;
-        _configuration = configuration;
+        _authorizeService = authorizeService;
+        _registerService = registerService;
     }
-
+    
     [HttpPost]
-    [Route("login")]
-    public async Task<IActionResult> Login([FromBody] LoginCredential model)
+    [Route("register")]
+    [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<TokenPairModel>> RegisterCustomer([FromBody] RegisterCustomerCredentialModel model)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        
-        var managedUser = await _userManager.FindByEmailAsync(model.Email);
-        
-        if (managedUser == null)
+
+        try
         {
-            return BadRequest("Bad credentials");
-        }
-        
-        var isPasswordValid = await _userManager.CheckPasswordAsync(managedUser, model.Password);
-        
-        if (!isPasswordValid)
-        {
-            return BadRequest("Bad credentials");
-        }
-
-        return Ok();
-        // var user = _context.Users.FirstOrDefault(u => u.Email == request.Email);
-        //
-        // if (user is null)
-        //     return Unauthorized();
-    }
-
-    [HttpPost]
-    [Route("loginAu")]
-    public async Task<IActionResult> LoginAuth([FromBody] LoginCredential model)
-    {
-        var user = await _userManager.FindByNameAsync(model.Email);
-        if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
-        {
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var authClaims = new List<Claim>
+            var newTokenPair = await _registerService.RegisterCustomer(new RegisterCustomerCredentialDto
             {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
-
-            foreach (var userRole in userRoles)
+                Username = model.Username,
+                Email = model.Email,
+                BirthDate = model.BirthDate,
+                Gender = model.Gender,
+                Phone = model.Phone,
+                Password = model.Password
+            });
+            
+            return Ok(new TokenPairModel
             {
-                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-            }
-
-            var token = GetToken(authClaims);
-
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
+                AccessToken = newTokenPair.AccessToken,
+                RefreshToken = newTokenPair.RefreshToken
             });
         }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+    
+    [HttpPost]
+    [Route("register/worker-as-customer")]
+    [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<TokenPairModel>> RegisterWorkerAsCustomer([FromBody] LoginCredentialModel model, String address)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        return Unauthorized();
+        try
+        {
+            var newTokenPair = await _registerService.RegisterWorkerAsCustomer(new LoginCredentialDto
+            {
+                Email = model.Email,
+                Password = model.Password
+
+            }, address);
+            
+            return Ok(new TokenPairModel
+            {
+                AccessToken = newTokenPair.AccessToken,
+                RefreshToken = newTokenPair.RefreshToken
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     [HttpPost]
-    [Route("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterCredential model)
+    [Route("login")]
+    [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<TokenPairModel>> Login([FromBody] LoginCredentialModel model)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Username);
-        if (userExists != null)
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new Response { Status = "Error", Message = "User already exists!" });
-
-        IdentityUser user = new()
+        if (!ModelState.IsValid)
         {
-            Email = model.Email,
-            SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.Username
-        };
-        var result = await _userManager.CreateAsync(user, model.Password);
-        if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new Response
-                    { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+            return BadRequest(ModelState);
+        }
 
-        return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+        try
+        {
+            var tokenPair = await _authorizeService.Login(new LoginCredentialDto
+            {
+                Email = model.Email,
+                Password = model.Password
+            });
+            
+            return Ok(new TokenPairModel
+            {
+                AccessToken = tokenPair.AccessToken,
+                RefreshToken = tokenPair.RefreshToken
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     [HttpPost]
-    [Route("register-admin")]
-    public async Task<IActionResult> RegisterAdmin([FromBody] RegisterCredential model)
+    [Route("refresh")]
+    [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<TokenPairModel>> Refresh([FromBody] TokenPairModel model)
     {
-        var userExists = await _userManager.FindByNameAsync(model.Username);
-        if (userExists != null)
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new Response { Status = "Error", Message = "User already exists!" });
-
-        IdentityUser user = new()
+        if (!ModelState.IsValid)
         {
-            Email = model.Email,
-            SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = model.Username
-        };
-        var result = await _userManager.CreateAsync(user, model.Password);
-        if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new Response
-                    { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-
-        if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-            await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-        if (!await _roleManager.RoleExistsAsync(UserRoles.Customer))
-            await _roleManager.CreateAsync(new IdentityRole(UserRoles.Customer));
-
-        if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
-        {
-            await _userManager.AddToRoleAsync(user, UserRoles.Admin);
+            return BadRequest(ModelState);
         }
 
-        if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
+        try
         {
-            await _userManager.AddToRoleAsync(user, UserRoles.Customer);
+            var newTokenPair = await _authorizeService.Refresh(new TokenPairDto
+            {
+                AccessToken = model.AccessToken,
+                RefreshToken = model.RefreshToken
+            });
+            
+            return Ok(new TokenPairModel
+            {
+                AccessToken = newTokenPair.AccessToken,
+                RefreshToken = newTokenPair.RefreshToken
+            });
         }
-
-        return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
-
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
+    
+    [HttpPost]
+    [Authorize]
+    [Route("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<TokenPairModel>> Logout()
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration["JWT:ValidIssuer"],
-            audience: _configuration["JWT:ValidAudience"],
-            expires: DateTime.Now.AddHours(3),
-            claims: authClaims,
-            signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-        );
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return token;
+        if (userId == null)
+        {
+            //пользователь не зарегистрирован
+        }
+
+        try
+        {
+            await _authorizeService.Logout(userId);
+            
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }
