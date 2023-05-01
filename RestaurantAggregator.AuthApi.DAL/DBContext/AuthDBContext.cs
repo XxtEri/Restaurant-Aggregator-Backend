@@ -20,25 +20,25 @@ public class AuthDBContext: IdentityDbContext<User, IdentityRole<Guid>, Guid>
         base.OnModelCreating(builder);
 
         builder.Entity<User>()
-            .HasOne(u => u.Customer)
+            .HasOne(c => c.Customer)
             .WithOne(u => u.User)
             .HasForeignKey<Customer>(c => c.Id)
             .IsRequired();
         
         builder.Entity<User>()
-            .HasOne(u => u.Manager)
+            .HasOne(m => m.Manager)
             .WithOne(u => u.User)
             .HasForeignKey<Manager>(m => m.Id)
             .IsRequired();
         
         builder.Entity<User>()
-            .HasOne(u => u.Cook)
+            .HasOne(c => c.Cook)
             .WithOne(u => u.User)
             .HasForeignKey<Cook>(c => c.Id)
             .IsRequired();
         
         builder.Entity<User>()
-            .HasOne(u => u.Courier)
+            .HasOne(c => c.Courier)
             .WithOne(u => u.User)
             .HasForeignKey<Courier>(c => c.Id)
             .IsRequired();

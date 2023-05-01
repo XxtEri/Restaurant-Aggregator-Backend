@@ -15,61 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-
-// builder.Services.AddAuthentication(options => {
-      // options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-      // options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//     })
-//      .AddJwtBearer(options =>
-//      {
-          // options.TokenValidationParameters = new TokenValidationParameters
-          // {
-          //     ValidateIssuer = false,
-          //     ValidateAudience = false,
-          //     ValidateLifetime = true,
-          //     ValidateIssuerSigningKey = true,
-          //     ValidIssuer = builder.Configuration["JWT:Issuer"]!,
-          //     ValidAudience = builder.Configuration["JWT:Audience"]!,
-          //     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]!))
-          // };
-//     });
-//
-// builder.Services.AddAuthorization(options => options.DefaultPolicy = 
-//     new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-//         .RequireAuthenticatedUser()
-//         .Build()
-// );
-
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Pathnostics", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "RestaurantAggregatorServiceAuth", Version = "v1" });
 });
 
 //configure Database
