@@ -49,7 +49,8 @@ public class AuthenticateController : ControllerBase
                 BirthDate = model.BirthDate,
                 Gender = model.Gender,
                 Phone = model.Phone,
-                Password = model.Password
+                Password = model.Password,
+                Address = model.Address
             });
             
             return Ok(new TokenPairModel

@@ -18,7 +18,7 @@ public class TokenManager
             notBefore: nowTime,
             claims: claims,
             expires: nowTime.AddMinutes(JwtConfigs.Lifetime),
-            signingCredentials: new SigningCredentials(JwtConfigs.GetSymmetricSecurityKey(), "algorithm"));
+            signingCredentials: new SigningCredentials(JwtConfigs.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
 
         return new JwtSecurityTokenHandler().WriteToken(jwt);
     }

@@ -34,8 +34,6 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                     RefreshToken = table.Column<string>(type: "text", nullable: true),
                     RefreshTokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Banned = table.Column<bool>(type: "boolean", nullable: false),
-                    Discriminator = table.Column<string>(type: "text", nullable: false),
-                    Address = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -199,6 +197,24 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Customers_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Managers",
                 columns: table => new
                 {
@@ -276,6 +292,9 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Couriers");
+
+            migrationBuilder.DropTable(
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "Managers");

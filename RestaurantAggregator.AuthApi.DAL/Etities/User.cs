@@ -19,10 +19,10 @@ public class User: IdentityUser<Guid>
 
     public bool Banned { get; set; } = false;
     
-    public Customer Customer { get; set; }
-    
     public Cook Cook { get; set; }
     
+    public Customer Customer { get; set; }
+
     public Manager Manager { get; set; }
     
     public Courier Courier { get; set; }

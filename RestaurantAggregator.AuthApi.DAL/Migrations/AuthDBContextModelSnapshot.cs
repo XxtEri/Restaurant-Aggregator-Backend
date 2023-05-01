@@ -178,6 +178,20 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                     b.ToTable("Couriers");
                 });
 
+            modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
+                });
+
             modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Manager", b =>
                 {
                     b.Property<Guid>("Id")
@@ -208,10 +222,6 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
@@ -273,19 +283,6 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("User");
-                });
-
-            modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Customer", b =>
-                {
-                    b.HasBaseType("RestaurantAggregator.AuthApi.DAL.Etities.User");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("Customer");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -361,22 +358,22 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Manager", b =>
+            modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Customer", b =>
                 {
                     b.HasOne("RestaurantAggregator.AuthApi.DAL.Etities.User", "User")
-                        .WithOne("Manager")
-                        .HasForeignKey("RestaurantAggregator.AuthApi.DAL.Etities.Manager", "Id")
+                        .WithOne("Customer")
+                        .HasForeignKey("RestaurantAggregator.AuthApi.DAL.Etities.Customer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Customer", b =>
+            modelBuilder.Entity("RestaurantAggregator.AuthApi.DAL.Etities.Manager", b =>
                 {
                     b.HasOne("RestaurantAggregator.AuthApi.DAL.Etities.User", "User")
-                        .WithOne("Customer")
-                        .HasForeignKey("RestaurantAggregator.AuthApi.DAL.Etities.Customer", "Id")
+                        .WithOne("Manager")
+                        .HasForeignKey("RestaurantAggregator.AuthApi.DAL.Etities.Manager", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

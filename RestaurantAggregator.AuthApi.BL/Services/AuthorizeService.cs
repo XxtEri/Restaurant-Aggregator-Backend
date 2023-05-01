@@ -52,7 +52,7 @@ public class AuthorizeService: IAuthorizeServise
 
         if (user == null ||
             user.RefreshToken != oldTokens.RefreshToken ||
-            user.RefreshTokenExpires <= DateTime.Now)
+            user.RefreshTokenExpires <= DateTime.UtcNow)
         {
             //неверный токен
         }
@@ -97,7 +97,7 @@ public class AuthorizeService: IAuthorizeServise
         var refreshToken = TokenManager.CreateRefreshToken(claims);
 
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpires = DateTime.Now.AddDays(JwtConfigs.RefreshTime);
+        user.RefreshTokenExpires = DateTime.UtcNow.AddDays(JwtConfigs.RefreshTime);
 
         await _userManager.UpdateAsync(user);
 

@@ -5,7 +5,7 @@ namespace RestaurantAggregator.CommonFiles;
 
 public class JwtConfigs
 {
-    private const string Key = "JWT:SecretKey";
+    private const string Key = "JWT:SecretKeyasdasdasdasdasdasdasd";
         
     public const string Issuer = "JwtIssuer";
     public const string Audience = "JwtAudience";

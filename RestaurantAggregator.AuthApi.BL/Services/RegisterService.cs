@@ -46,7 +46,7 @@ public class RegisterService: IRegisterService
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            throw new Exception();
+            throw new Exception(result.Errors.First().Description);
         }
 
         await _userManager.AddToRoleAsync(user, UserRoles.Customer);
@@ -104,7 +104,7 @@ public class RegisterService: IRegisterService
         var refreshToken = TokenManager.CreateRefreshToken(claims);
 
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpires = DateTime.Now.AddDays(JwtConfigs.RefreshTime);
+        user.RefreshTokenExpires = DateTime.UtcNow.AddDays(JwtConfigs.RefreshTime);
 
         await _userManager.UpdateAsync(user);
 
