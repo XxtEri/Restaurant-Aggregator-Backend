@@ -7,5 +7,5 @@ public class DishPagedListDTO
     [MaybeNull]
     public List<DishDTO> Dishes { get; set; }
     
-    public PageInfoModel PageInfoModel { get; set; }
+    public PageInfoModelDTO PageInfoModel { get; set; }
 }

@@ -1,6 +1,6 @@
 namespace RestaurantAggregatorService.Models;
 
-public class Cook
+public class CookModel
 {
     
 }

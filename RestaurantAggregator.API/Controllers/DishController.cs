@@ -19,7 +19,7 @@ public class DishController
     [ProducesResponseType(typeof(DishPagedListDTO), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string GetListAllDishes(Guid restaurantId)
     {
         return "";
@@ -32,7 +32,7 @@ public class DishController
     [ProducesResponseType(typeof(DishPagedListDTO), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string GetListDishesInMenu(Guid restaurantId, Guid menuId)
     {
         return "";
@@ -44,7 +44,7 @@ public class DishController
     [ProducesResponseType(typeof(RestaurantDTO), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}")]
     public string GetInformationConcreteRestaurant(Guid dishId)
     {
@@ -59,7 +59,7 @@ public class DishController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}/check")]
     [Authorize]
     public string CheckCurrentUserSetRatingToDish()
@@ -75,7 +75,7 @@ public class DishController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpPost("dishes/{dishId}/rating")]
     [Authorize]
     public string SetRatingToDish(Guid dishId, [Range(0,10)] int ratingScore)

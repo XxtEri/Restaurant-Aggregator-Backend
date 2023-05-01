@@ -3,9 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace RestaurantAggregatorService.Models;
 
-public class Restaurant
+public class RestaurantModel
 {
-    [Key]
     public Guid Id { get; set; }
     
     [MinLength(1)]
@@ -13,17 +12,17 @@ public class Restaurant
     public string Name { get; set; }
     
     [MaybeNull]
-    public List<Menu> Menu { get; set; }
+    public List<MenuModel> Menu { get; set; }
     
     [MaybeNull]
-    public ICollection<Cook> Cooks { get; set; }
+    public ICollection<CookModel> Cooks { get; set; }
     
     [MaybeNull]
-    public ICollection<Manager> Managers { get; set; }
+    public ICollection<ManagerModel> Managers { get; set; }
 
-    public Restaurant()
+    public RestaurantModel()
     {
-        Cooks = new List<Cook>();
-        Managers = new List<Manager>();
+        Cooks = new List<CookModel>();
+        Managers = new List<ManagerModel>();
     }
 }

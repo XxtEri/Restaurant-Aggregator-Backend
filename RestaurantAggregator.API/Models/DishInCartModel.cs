@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantAggregatorService.Models;
 
-public class DishInCart
+public class DishInCartModel
 {
     [Key]
     public Guid Id { get; set; }
@@ -21,6 +21,6 @@ public class DishInCart
     //public Customer Customer { get; set; }
     
     [Required]
-    public Dish Dish { get; set; }
+    public DishModel Dish { get; set; }
     
 }

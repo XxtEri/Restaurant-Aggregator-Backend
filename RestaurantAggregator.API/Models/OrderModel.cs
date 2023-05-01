@@ -4,7 +4,7 @@ using RestaurantAggregator.API.Common.Enums;
 
 namespace RestaurantAggregatorService.Models;
 
-public class Order
+public class OrderModel
 {
     [Key]
     public Guid Id { get; set; }
@@ -28,16 +28,16 @@ public class Order
     public OrderStatus Status { get; set; }
     
     [MaybeNull]
-    public Cook Cook { get; set; }
+    public CookModel Cook { get; set; }
     
     [MaybeNull]
-    public Courier Courier { get; set; }
+    public CourierModel Courier { get; set; }
     
     [MaybeNull]
-    public ICollection<DishInCart> DishInCarts { get; set; }
+    public ICollection<DishInCartModel> DishInCarts { get; set; }
 
-    public Order()
+    public OrderModel()
     {
-        DishInCarts = new List<DishInCart>();
+        DishInCarts = new List<DishInCartModel>();
     }
 }

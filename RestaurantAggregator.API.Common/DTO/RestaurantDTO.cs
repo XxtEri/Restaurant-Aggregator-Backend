@@ -12,11 +12,5 @@ public class RestaurantDTO
     public string Name { get; set; }
     
     [MaybeNull]
-    public List<MenuDTO> Menu { get; set; }
-    
-    [MaybeNull]
-    public ICollection<CookDTO> Cooks { get; set; }
-    
-    [MaybeNull]
-    public ICollection<ManagerDTO> Managers { get; set; }
+    public List<MenuDTO> Menus { get; set; }
 }

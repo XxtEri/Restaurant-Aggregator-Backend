@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RestaurantAggregatorService.Models;
 
-public class Menu
+public class MenuModel
 {
     [Key]
     public Guid Id { get; set; }

@@ -25,7 +25,7 @@ public class BasketController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string GetListAllDishes(Guid restaurantId)
     {
         return "";
@@ -41,7 +41,7 @@ public class BasketController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string AddDishToBasket(Guid dishId)
     {
         return "";
@@ -57,7 +57,7 @@ public class BasketController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string DeleteDishToBasket(Guid dishId)
     {
         return "";
@@ -73,7 +73,7 @@ public class BasketController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string ChangeIncreaseDishInBasket(Guid dishId, bool increase)
     {
         return "";

@@ -25,7 +25,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [Authorize]
     public string GetListLastOrderForClient()
     {
@@ -40,7 +40,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("customers/orders/active")]
     [Authorize]
     public string GetActiveOrderForCourier()
@@ -58,7 +58,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string GetListLastOrderForCook()
     {
         return "";
@@ -72,7 +72,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("restaurant/{restaurantId}/cookies/orders")]
     [Authorize]
     public string GetListActiveOrderForCook(Guid restaurantId)
@@ -88,7 +88,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("restaurant/{restaurantId}/managers/orders")]
     [Authorize]
     public string GetListOrderForManager(Guid restaurantId)
@@ -106,7 +106,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string GetListOrderForCourier()
     {
         return "";
@@ -122,7 +122,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string CreateNewOrder([FromBody] OrderCreateDTO model)
     {
         return "";
@@ -138,7 +138,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string RepeatLastOrder(Guid orderId, [FromBody] OrderCreateDTO model)
     {
         return "";
@@ -157,7 +157,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public string ChangeOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {
         return "";

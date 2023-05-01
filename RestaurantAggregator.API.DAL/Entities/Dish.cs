@@ -1,33 +1,29 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using RestaurantAggregator.API.Common.Enums;
 
-namespace RestaurantAggregatorService.Models;
+namespace RestaurantAggregator.API.DAL.Entities;
 
-public class DishModel
+public class Dish
 {
     [Key]
     public Guid Id { get; set; }
     
-    [MinLength(1)]
     [Required]
+    [MinLength(1)]
     public string Name { get; set; }
     
     [Required]
     public double Price { get; set; }
     
     [MaybeNull]
+    [MinLength(1)]
     public string Description { get; set; }
     
-    [MaybeNull]
+    [Required]
     public bool IsVegetarian { get; set; }
     
-    [Url]
     [MaybeNull]
+    [Url]
     public string Photo { get; set; }
     
-    [MaybeNull]
-    public double Rating { get; set; }
-    
-    public DishCategory Category { get; set; }
 }

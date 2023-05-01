@@ -1,12 +1,12 @@
 namespace RestaurantAggregator.API.Common.DTO;
 
-public class PageInfoModel
+public class PageInfoModelDTO
 {
     public int Size { get; set; }
     public int Count { get; set; }
     public int Current { get; set; }
 
-    public PageInfoModel(int size, int count, int current)
+    public PageInfoModelDTO(int size, int count, int current)
     {
         Size = size;
         Count = count;

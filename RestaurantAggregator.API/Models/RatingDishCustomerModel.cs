@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantAggregatorService.Models;
 
-public class RatingDishCustomer
+public class RatingDishCustomerModel
 {
     [Key]
     [ForeignKey("Customer")]
@@ -20,5 +20,5 @@ public class RatingDishCustomer
     // public Customer Customer { get; set; }
     
     [Required]
-    public Dish Dish { get; set; }
+    public DishModel Dish { get; set; }
 }

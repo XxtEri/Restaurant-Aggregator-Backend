@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantAggregatorService.Models;
 
-public class MenuDish
+public class MenuDishModel
 {
     [Key]
     [ForeignKey("Menu")]
