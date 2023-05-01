@@ -17,32 +17,34 @@ namespace RestaurantAggregator.APIAuth.Controllers;
 [Route("auth")]
 public class AuthenticateController : ControllerBase
 {
-    private readonly IAuthorizeServise _authorizeService;
-    private readonly IRegisterService _registerService;
-    
-    public AuthenticateController(IAuthorizeServise authorizeService, IRegisterService registerService)
+    private readonly IAuthService _authService;
+
+    public AuthenticateController(IAuthService authService)
     {
-        _authorizeService = authorizeService;
-        _registerService = registerService;
+        _authService = authService;
     }
     
     [HttpPost]
     [Route("register")]
     [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<TokenPairModel>> RegisterCustomer([FromBody] RegisterCustomerCredentialModel model)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(new ResponseModel
+            {
+                Status = "404",
+                Message = "Model is not correct"
+            });
         }
 
         try
         {
-            var newTokenPair = await _registerService.RegisterCustomer(new RegisterCustomerCredentialDto
+            var newTokenPair = await _authService.RegisterCustomer(new RegisterCustomerCredentialDto
             {
                 Username = model.Username,
                 Email = model.Email,
@@ -82,7 +84,7 @@ public class AuthenticateController : ControllerBase
 
         try
         {
-            var newTokenPair = await _registerService.RegisterWorkerAsCustomer(new LoginCredentialDto
+            var newTokenPair = await _authService.RegisterWorkerAsCustomer(new LoginCredentialDto
             {
                 Email = model.Email,
                 Password = model.Password
@@ -113,12 +115,16 @@ public class AuthenticateController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(new ResponseModel
+            {
+                Status = "404",
+                Message = ModelState.ToString()
+            });
         }
 
         try
         {
-            var tokenPair = await _authorizeService.Login(new LoginCredentialDto
+            var tokenPair = await _authService.Login(new LoginCredentialDto
             {
                 Email = model.Email,
                 Password = model.Password
@@ -153,7 +159,7 @@ public class AuthenticateController : ControllerBase
 
         try
         {
-            var newTokenPair = await _authorizeService.Refresh(new TokenPairDto
+            var newTokenPair = await _authService.RefreshToken(new TokenPairDto
             {
                 AccessToken = model.AccessToken,
                 RefreshToken = model.RefreshToken
@@ -196,7 +202,7 @@ public class AuthenticateController : ControllerBase
 
         try
         {
-            await _authorizeService.Logout(userId);
+            await _authService.Logout(userId);
             
             return Ok();
         }

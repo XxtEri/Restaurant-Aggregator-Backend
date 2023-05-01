@@ -19,11 +19,14 @@ public class RegisterCustomerCredentialModel
     public Gender Gender { get; set; }
     
     [MaybeNull]
+    [Phone]
     public string Phone { get; set; }
 
     [Required(ErrorMessage = "Password is required")]
+    [MinLength(6)]
     public string? Password { get; set; }
     
     [Required] 
+    [MinLength(2)]
     public string Address { get; set; }
 }

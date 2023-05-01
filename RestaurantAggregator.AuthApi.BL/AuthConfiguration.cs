@@ -4,7 +4,7 @@ using RestaurantAggregator.CommonFiles;
 
 namespace RestaurantAggregator.AuthApi.BL;
 
-public class AuthConfiguration
+public static class AuthConfiguration
 {
     public static async Task SeedRoles(IServiceProvider serviceProvider)
     {

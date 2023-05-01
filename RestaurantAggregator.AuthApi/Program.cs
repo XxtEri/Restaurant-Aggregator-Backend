@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RestaurantAggregator.APIAuth.Middlewares;
 using RestaurantAggregator.AuthApi.BL;
 using RestaurantAggregator.AuthApi.BL.Services;
 using RestaurantAggregator.AuthApi.Common.IServices;
@@ -40,8 +41,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 }).AddEntityFrameworkStores<AuthDBContext>();
 
 //Add services
-builder.Services.AddScoped<IAuthorizeServise, AuthorizeService>();
-builder.Services.AddScoped<IRegisterService, RegisterService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 
 //AuthJWTBearer
@@ -73,6 +73,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionMiddleware();
 
 app.UseHttpsRedirection();
 app.UseRouting();
