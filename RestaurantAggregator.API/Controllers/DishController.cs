@@ -12,11 +12,6 @@ namespace RestaurantAggregatorService.Controllers;
 [Produces("application/json")]
 public class DishController
 {
-    public DishController()
-    {
-        
-    }
-    
     /// <summary>
     /// Получение списка всех блюд в ресторане
     /// </summary>

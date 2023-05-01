@@ -51,7 +51,7 @@ public class OrderController
     /// <summary>
     /// Получение истории заказов, приготовленных пользователем с ролью Cook
     /// </summary>
-    [HttpGet("/cooks/last-orders")]
+    [HttpGet("/cooks/orders/last")]
     [Authorize]
     [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
