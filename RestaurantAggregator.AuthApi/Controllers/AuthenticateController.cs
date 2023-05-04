@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantAggregator.APIAuth.Models;
 using RestaurantAggregator.AuthApi.Common.DTO;
+using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 
@@ -24,6 +25,11 @@ public class AuthenticateController : ControllerBase
         _authService = authService;
     }
     
+    /// <summary>
+    /// Register customer to the system
+    /// </summary>
+    /// /// <param name="request">register in request</param>
+    /// <returns>jwt tokens</returns>
     [HttpPost]
     [Route("register")]
     [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
@@ -68,6 +74,11 @@ public class AuthenticateController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// Register worker as customer to the system
+    /// </summary>
+    /// /// <param name="request">register in request</param>
+    /// <returns>jwt tokens</returns>
     [HttpPost]
     [Route("register/worker-as-customer")]
     [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
@@ -104,6 +115,11 @@ public class AuthenticateController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Log in to the system
+    /// </summary>
+    /// /// <param name="request">log in request</param>
+    /// <returns>jwt tokens</returns>
     [HttpPost]
     [Route("login")]
     [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
@@ -143,6 +159,10 @@ public class AuthenticateController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Get refresh token for user
+    /// </summary>
+    /// <returns>jwt tokens</returns>
     [HttpPost]
     [Route("refresh")]
     [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
@@ -178,6 +198,9 @@ public class AuthenticateController : ControllerBase
         }
     }
     
+    /// <summary>
+    /// Logout in the system
+    /// </summary>
     [HttpPost]
     [Authorize]
     [Route("logout")]
@@ -193,16 +216,9 @@ public class AuthenticateController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userId == null)
-        {
-            //пользователь не зарегистрирован
-        }
-
         try
         {
-            await _authService.Logout(userId);
+            await _authService.Logout(User.FindFirstValue(ClaimTypes.NameIdentifier));
             
             return Ok();
         }

@@ -22,7 +22,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "RestaurantAggregatorServiceAuth", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "RestaurantAggregatorServiceAuth", 
+        Version = "v1"
+    });
+    
+    var filePath = Path.Combine(System.AppContext.BaseDirectory, "RestaurantAggregator.AuthApi.xml");
+    options.IncludeXmlComments(filePath);
 });
 
 //configure Database
