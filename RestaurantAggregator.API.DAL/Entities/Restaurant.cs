@@ -14,17 +14,17 @@ public class Restaurant
     
     public ICollection<Menu> Menus { get; set; }
     
-    [ForeignKey("Cook")]
-    public Guid? CookId { get; set; }
-    
-    [ForeignKey("Manager")]
-    public Guid? ManagerId { get; set; }
-
-    [MaybeNull]
-    public Cook Cook { get; set; }
-    
-    [MaybeNull]
-    public Manager Manager { get; set; }
+    // [ForeignKey("Cook")]
+    // public Guid? CookId { get; set; }
+    //
+    // [ForeignKey("Manager")]
+    // public Guid? ManagerId { get; set; }
+    //
+    // [MaybeNull]
+    // public Cook Cook { get; set; }
+    //
+    // [MaybeNull]
+    // public Manager Manager { get; set; }
 
     public Restaurant()
     {

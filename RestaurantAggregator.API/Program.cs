@@ -1,4 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using RestaurantAggregator.API.BL.Services;
+using RestaurantAggregator.API.Common.Interfaces;
+using RestaurantAggregator.API.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +22,13 @@ builder.Services.AddSwaggerGen(options =>
     var filePath = Path.Combine(System.AppContext.BaseDirectory, "RestaurantAggregator.API.xml");
     options.IncludeXmlComments(filePath);
 });
+
+//configure Database
+builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseNpgsql(
+    builder.Configuration.GetConnectionString("ConnectionBackend"))
+);
+
+builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
 var app = builder.Build();
 

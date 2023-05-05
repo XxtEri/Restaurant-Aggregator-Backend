@@ -115,7 +115,7 @@ public class AuthService: IAuthService
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            throw new NotFountElementException("Failed to register");
+            throw new NotFoundElementException("Failed to register");
         }
 
         await _userManager.AddToRoleAsync(user, UserRoles.Customer);
