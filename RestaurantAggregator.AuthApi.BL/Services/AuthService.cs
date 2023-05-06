@@ -8,7 +8,6 @@ using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles;
-using InvalidDataException = RestaurantAggregator.AuthApi.Common.Exceptions.InvalidDataException;
 
 namespace RestaurantAggregator.AuthApi.BL.Services;
 
@@ -29,12 +28,12 @@ public class AuthService: IAuthService
         
         if (user == null)
         {
-            throw new InvalidDataException("Invalid username or password entered");
+            throw new InvalidDataCustomException("Invalid username or password entered");
         }
 
         if (!await _userManager.CheckPasswordAsync(user, model.Password))
         {
-            throw new InvalidDataException("Invalid username or password entered");
+            throw new InvalidDataCustomException("Invalid username or password entered");
         }
 
         if (user.Banned)
@@ -51,7 +50,7 @@ public class AuthService: IAuthService
         
         if (userId == null)
         {
-            throw new InvalidDataException("Invalid token entered");
+            throw new InvalidDataCustomException("Invalid token entered");
         }
 
         var user = await _userManager.FindByIdAsync(userId);
@@ -60,7 +59,7 @@ public class AuthService: IAuthService
             user.RefreshToken != oldTokens.RefreshToken ||
             user.RefreshTokenExpires <= DateTime.UtcNow)
         {
-            throw new InvalidDataException("Invalid token entered");
+            throw new InvalidDataCustomException("Invalid token entered");
         }
 
         if (user.Banned)
@@ -77,7 +76,7 @@ public class AuthService: IAuthService
 
         if (user == null)
         {
-            throw new InvalidDataException("Invalid token entered");
+            throw new InvalidDataCustomException("Invalid token entered");
         }
 
         user.RefreshToken = null;
@@ -129,12 +128,12 @@ public class AuthService: IAuthService
         
         if (user == null)
         {
-            throw new InvalidDataException("Invalid username or password entered");
+            throw new InvalidDataCustomException("Invalid username or password entered");
         }
 
         if (!await _userManager.CheckPasswordAsync(user, model.Password))
         {
-            throw new InvalidDataException("Invalid username or password entered");
+            throw new InvalidDataCustomException("Invalid username or password entered");
         }
 
         var exist = await _context.Customers.AnyAsync(c => c.Id == user.Id);

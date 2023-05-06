@@ -80,21 +80,4 @@ public class RestaurantService: IRestaurantService
             })
             .ToListAsync();
     }
-
-    // public List<MenuDTO> getMenus(Guid restaurantId)
-    // {
-    //     var menusEntity = _context.Restaurants
-    //         .Where(restaurant => restaurant.Id == restaurantId)
-    //         .Select(restaurant => restaurant.Menus)
-    //         .ToList();
-    //
-    //     var menus = List<MenuDTO>();
-    //
-    //     foreach (var menu in menusEntity)
-    //     {
-    //         
-    //     }
-    //
-    //     return menus;
-    // } 
 }

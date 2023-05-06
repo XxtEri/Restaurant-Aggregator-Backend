@@ -1,5 +1,8 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using RestaurantAggregator.API.Common.Enums;
 
 namespace RestaurantAggregator.API.DAL.Entities;
 
@@ -26,4 +29,15 @@ public class Dish
     [Url]
     public string Photo { get; set; }
     
+    [DefaultValue(0)]
+    public int Rating { get; set; }
+    
+    public DishCategory Category { get; set; }
+
+    public ICollection<MenuDish> MenusDishes { get; set; }
+    
+    public Dish()
+    {
+        MenusDishes = new List<MenuDish>();
+    }
 }

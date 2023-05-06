@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.API.Common.Enums;
@@ -16,6 +17,7 @@ public class DishDTO
     public double Price { get; set; }
     
     [MaybeNull]
+    [MinLength(1)]
     public string Description { get; set; }
     
     [MaybeNull]
@@ -25,7 +27,7 @@ public class DishDTO
     [MaybeNull]
     public string Photo { get; set; }
     
-    [MaybeNull]
+    [DefaultValue(0)]
     public double Rating { get; set; }
     
     public DishCategory Category { get; set; }

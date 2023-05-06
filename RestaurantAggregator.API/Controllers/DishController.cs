@@ -1,7 +1,11 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.API.Common.DTO;
+using RestaurantAggregator.API.Common.Enums;
+using RestaurantAggregator.API.Common.Interfaces;
+using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -10,9 +14,16 @@ namespace RestaurantAggregatorService.Controllers;
 [ApiController]
 [Route("")]
 [Produces("application/json")]
-public class DishController
+public class DishController: ControllerBase
 {
-    /// <summary>
+    private readonly IDishServices _dishServices;
+
+    public DishController(IDishServices dishServices)
+    {
+        _dishServices = dishServices;
+    }
+
+        /// <summary>
     /// Получение списка всех блюд в ресторане
     /// </summary>
     [HttpGet("restaurants/{restaurantId}/dishes")]
@@ -20,9 +31,42 @@ public class DishController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string GetListAllDishes(Guid restaurantId)
+    public async Task<IActionResult> GetListAllDishesInRestaurant(Guid restaurantId, 
+            [FromQuery] List<DishCategory> categories, 
+            [DefaultValue(false)] bool vegetarian,
+            SortingDish sorting,
+            [DefaultValue(1)] int page)
     {
-        return "";
+        try
+        {
+            var dishes =
+                await _dishServices.GetListAllDishesInRestaurant(restaurantId, categories, vegetarian, sorting, page);
+            return Ok(dishes);
+        }
+        catch (NotCorrectDataException e)
+        {
+            return BadRequest(new ResponseModel
+            {
+                Status = "400 error",
+                Message = e.Message
+            });
+        }
+        catch (NotFoundElementException e)
+        {
+            return NotFound(new ResponseModel
+            {
+                Status = "404 error",
+                Message = e.Message
+            });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
+        }
     }
     
     /// <summary>
@@ -33,9 +77,35 @@ public class DishController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string GetListDishesInMenu(Guid restaurantId, Guid menuId)
+    public async Task<IActionResult> GetListDishesInMenu(Guid restaurantId, 
+        Guid menuId,
+        [FromQuery] List<DishCategory> categories, 
+        [DefaultValue(false)] bool vegetarian,
+        SortingDish sorting,
+        [DefaultValue(1)] int page)
     {
-        return "";
+        try
+        {
+            var dishes =
+                await _dishServices.GetListDishesInMenu(restaurantId, menuId, categories, vegetarian, sorting, page);
+            return Ok(dishes);
+        }
+        catch (NotCorrectDataException e)
+        {
+            return BadRequest(new ResponseModel
+            {
+                Status = "400 error",
+                Message = e.Message
+            });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
+        }
     }
     
     /// <summary>
@@ -46,9 +116,29 @@ public class DishController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}")]
-    public string GetInformationConcreteRestaurant(Guid dishId)
+    public async Task<IActionResult> GetInformationConcreteDish(Guid dishId)
     {
-        return "";
+        try
+        {
+            var dish = await _dishServices.GetDishInformation(dishId);
+            return Ok(dish);
+        }
+        catch (NotFoundElementException e)
+        {
+            return NotFound(new ResponseModel
+            {
+                Status = "404 error",
+                Message = e.Message
+            });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
+        }
     }
 
     /// <summary>

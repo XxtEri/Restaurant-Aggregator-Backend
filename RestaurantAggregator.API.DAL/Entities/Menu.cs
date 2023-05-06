@@ -10,10 +10,17 @@ public class Menu
     public Guid Id { get; set; }
     
     [Required]
-    public String Name { get; set; }
+    public string Name { get; set; }
     
     [ForeignKey("Restaurant")]
     public Guid RestaurantId { get; set; }
     
     public Restaurant Restaurant { get; set; }
+    
+    public ICollection<MenuDish> MenusDishes { get; set; }
+    
+    public Menu()
+    {
+        MenusDishes = new List<MenuDish>();
+    }
 }

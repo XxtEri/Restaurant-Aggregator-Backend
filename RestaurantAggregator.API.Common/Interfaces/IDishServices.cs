@@ -1,0 +1,23 @@
+using System.ComponentModel;
+using RestaurantAggregator.API.Common.DTO;
+using RestaurantAggregator.API.Common.Enums;
+
+namespace RestaurantAggregator.API.Common.Interfaces;
+
+public interface IDishServices
+{
+    Task<DishPagedListDTO> GetListAllDishesInRestaurant(Guid restaurantId, 
+        List<DishCategory> categories, 
+        bool vegetarian, 
+        SortingDish sorting, 
+        int page);
+    Task<DishPagedListDTO> GetListDishesInMenu(Guid restaurantId, 
+        Guid menuId,
+        List<DishCategory> categories, 
+        bool vegetarian,
+        SortingDish sorting,
+        int page);
+    Task<DishDTO> GetDishInformation(Guid dishId);
+    Task<bool> CheckCurrentUserSetRatingToDish();
+    Task SetRatingToDish(Guid dishId, int ratingScore);
+}

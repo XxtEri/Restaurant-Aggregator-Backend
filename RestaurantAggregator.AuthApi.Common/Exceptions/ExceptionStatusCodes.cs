@@ -7,7 +7,7 @@ public static class ExceptionStatusCodes
     private static Dictionary<Type, HttpStatusCode> _exceptionStatusCodes = new Dictionary<Type, HttpStatusCode>
     {
         { typeof(NotFoundElementException), HttpStatusCode.NotFound},
-        { typeof(InvalidDataException), HttpStatusCode.Unauthorized},
+        { typeof(InvalidDataCustomException), HttpStatusCode.Unauthorized},
         { typeof(NotPermissionAccountException), HttpStatusCode.Unauthorized},
         { typeof(DataAlreadyUsedException), HttpStatusCode.BadRequest},
         { typeof(NotCorrectDataException), HttpStatusCode.BadRequest}
