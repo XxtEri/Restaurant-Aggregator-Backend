@@ -1,7 +1,10 @@
+using System.ComponentModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
+using RestaurantAggregator.API.Common.Interfaces;
+using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -9,11 +12,13 @@ namespace RestaurantAggregatorService.Controllers;
 [ApiController]
 [Route("")]
 [Produces("application/json")]
-public class OrderController
+public class OrderController: ControllerBase
 {
-    public OrderController()
+    private readonly IOrderService _orderService;
+    
+    public OrderController(IOrderService orderService)
     {
-        
+        _orderService = orderService;
     }
     
     /// <summary>
@@ -26,10 +31,43 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [Authorize]
-    public string GetListLastOrderForClient()
+    [Authorize(Roles = "Customer")]
+    public async Task<IActionResult> GetListLastOrder([DefaultValue(1)] int page)
     {
-        return "";
+        var userId = Guid.Parse(User.Identity!.Name!).ToString();
+
+        try
+        {
+            var orders = await _orderService.GetListLastOrder(userId, page);
+            var ordersModel = orders.Orders!.Select(order => new OrderModel
+                {
+                    Id = order.Id,
+                    DeliveryTime = order.DeliveryTime,
+                    OrderTime = order.OrderTime,
+                    Price = order.Price,
+                    Address = order.Address,
+                    Status = order.Status
+                })
+                .ToList();
+
+            return Ok(ordersModel);
+        }
+        catch (NotFoundElementException e)
+        {
+            return NotFound(new ResponseModel
+            {
+                Status = "404 error",
+                Message = e.Message
+            });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
+        }
     }
     
     /// <summary>
@@ -42,8 +80,8 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("customers/orders/active")]
-    [Authorize]
-    public string GetActiveOrderForCourier()
+    [Authorize(Roles = "Customer")]
+    public string GetActiveOrder()
     {
         return "";
     }
@@ -123,7 +161,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string CreateNewOrder([FromBody] OrderCreateDTO model)
+    public string CreateNewOrder([FromBody] OrderCreateModel model)
     {
         return "";
     }
@@ -139,7 +177,7 @@ public class OrderController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string RepeatLastOrder(Guid orderId, [FromBody] OrderCreateDTO model)
+    public string RepeatLastOrder(Guid orderId, [FromBody] OrderCreateModel model)
     {
         return "";
     }

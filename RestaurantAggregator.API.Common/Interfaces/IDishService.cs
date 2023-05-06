@@ -4,7 +4,7 @@ using RestaurantAggregator.API.Common.Enums;
 
 namespace RestaurantAggregator.API.Common.Interfaces;
 
-public interface IDishServices
+public interface IDishService
 {
     Task<DishPagedListDTO> GetListAllDishesInRestaurant(Guid restaurantId, 
         List<DishCategory> categories, 

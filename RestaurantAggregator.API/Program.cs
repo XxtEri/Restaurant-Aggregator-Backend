@@ -29,6 +29,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseNpgsql
 );
 
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+builder.Services.AddScoped<IDishService, DishService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 

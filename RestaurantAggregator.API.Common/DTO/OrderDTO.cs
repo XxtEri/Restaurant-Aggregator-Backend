@@ -8,13 +8,9 @@ public class OrderDTO
 {
     public Guid Id { get; set; }
     
-    [DataType(DataType.DateTime)]
-    [Required]
-    public string DeliveryTime { get; set; }
+    public DateTime DeliveryTime { get; set; }
     
-    [DataType(DataType.DateTime)]
-    [Required]
-    public string Ordertime { get; set; }
+    public DateTime OrderTime { get; set; }
     
     [Required]
     public double Price { get; set; }
@@ -25,13 +21,4 @@ public class OrderDTO
     
     [Required]
     public OrderStatus Status { get; set; }
-    
-    [MaybeNull]
-    public CookDTO Cook { get; set; }
-    
-    [MaybeNull]
-    public CourierDTO Courier { get; set; }
-    
-    // [MaybeNull]
-    // public ICollection<DishInCart> DishInCarts { get; set; }
 }

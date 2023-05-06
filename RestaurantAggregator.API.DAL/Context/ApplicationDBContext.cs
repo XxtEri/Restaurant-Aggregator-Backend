@@ -9,6 +9,12 @@ public class ApplicationDBContext: DbContext
     public DbSet<Menu> Menus { get; set; }
     public DbSet<Dish> Dishes { get; set; }
     public DbSet<MenuDish> MenusDishes { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<DishInCart> DishInCarts { get; set; }
+    public DbSet<Courier> Couriers { get; set; }
+    public DbSet<Cook> Cooks { get; set; }
+    public DbSet<Customer> Customers { get; set; }
+
     public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,11 +31,35 @@ public class ApplicationDBContext: DbContext
         modelBuilder.Entity<MenuDish>()
             .HasOne(e => e.Dish)
             .WithMany(d => d.MenusDishes)
-            .HasForeignKey(e => e.DishId);
+            .HasForeignKey(e => e.DishId)
+            .IsRequired();
         
         modelBuilder.Entity<MenuDish>()
             .HasOne(e => e.Menu)
             .WithMany(e => e.MenusDishes)
-            .HasForeignKey(e => e.MenuId);
+            .HasForeignKey(e => e.MenuId)
+            .IsRequired();
+
+        modelBuilder.Entity<DishInCart>()
+            .HasOne(d => d.Dish)
+            .WithMany(e => e.DishInCarts)
+            .HasForeignKey(e => e.DishId)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.DishInCart)
+            .WithMany(e => e.Orders)
+            .HasForeignKey(o => o.DishInCartId)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Cook)
+            .WithMany(c => c.Orders)
+            .HasForeignKey(o => o.CookId);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Courier)
+            .WithMany(c => c.Orders)
+            .HasForeignKey(o => o.CourierId);
     }
 }

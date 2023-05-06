@@ -7,11 +7,11 @@ using RestaurantAggregator.AuthApi.Common.Exceptions;
 
 namespace RestaurantAggregator.API.BL.Services;
 
-public class DishServices: IDishServices
+public class DishService: IDishService
 {
     private readonly ApplicationDBContext _context;
 
-    public DishServices(ApplicationDBContext context)
+    public DishService(ApplicationDBContext context)
     {
         _context = context;
     }

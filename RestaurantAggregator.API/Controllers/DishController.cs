@@ -16,11 +16,11 @@ namespace RestaurantAggregatorService.Controllers;
 [Produces("application/json")]
 public class DishController: ControllerBase
 {
-    private readonly IDishServices _dishServices;
+    private readonly IDishService _dishService;
 
-    public DishController(IDishServices dishServices)
+    public DishController(IDishService dishService)
     {
-        _dishServices = dishServices;
+        _dishService = dishService;
     }
 
         /// <summary>
@@ -40,7 +40,7 @@ public class DishController: ControllerBase
         try
         {
             var dishes =
-                await _dishServices.GetListAllDishesInRestaurant(restaurantId, categories, vegetarian, sorting, page);
+                await _dishService.GetListAllDishesInRestaurant(restaurantId, categories, vegetarian, sorting, page);
             return Ok(dishes);
         }
         catch (NotCorrectDataException e)
@@ -87,7 +87,7 @@ public class DishController: ControllerBase
         try
         {
             var dishes =
-                await _dishServices.GetListDishesInMenu(restaurantId, menuId, categories, vegetarian, sorting, page);
+                await _dishService.GetListDishesInMenu(restaurantId, menuId, categories, vegetarian, sorting, page);
             return Ok(dishes);
         }
         catch (NotCorrectDataException e)
@@ -120,7 +120,7 @@ public class DishController: ControllerBase
     {
         try
         {
-            var dish = await _dishServices.GetDishInformation(dishId);
+            var dish = await _dishService.GetDishInformation(dishId);
             return Ok(dish);
         }
         catch (NotFoundElementException e)

@@ -21,5 +21,12 @@ public class DishInCart
     
     public Dish Dish { get; set; }
     
-    //ссылка на customer
+    public Customer Customer { get; set; }
+    
+    public ICollection<Order> Orders { get; set; }
+
+    public DishInCart()
+    {
+        Orders = new List<Order>();
+    }
 }
