@@ -22,7 +22,7 @@ public class RestaurantService: IRestaurantService
             .Select(restaurant => new RestaurantDTO
             {
                 Id = restaurant.Id,
-                Name = restaurant.Name,
+                Name = restaurant.Name
             })
             .ToListAsync();
         
@@ -51,7 +51,7 @@ public class RestaurantService: IRestaurantService
 
     public async Task CreateRestaurant(RestaurantDTO model)
     {
-        await _context.AddAsync(new Restaurant
+        await _context.Restaurants.AddAsync(new Restaurant
         {
             Name = model.Name
         });

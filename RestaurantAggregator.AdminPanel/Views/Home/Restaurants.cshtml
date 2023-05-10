@@ -1,0 +1,13 @@
+@model List<RestaurantAggregator.API.Common.DTO.RestaurantDTO>
+
+@{
+    ViewBag.Title = "Restaurants";
+}
+
+<h2>Рестораны</h2>
+@foreach (var restaurant in Model)
+{
+    <p>@restaurant.Id</p>
+    <p>@restaurant.Name</p>
+    <p>@restaurant.Menus</p>
+}

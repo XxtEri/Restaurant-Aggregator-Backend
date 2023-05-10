@@ -22,8 +22,7 @@ public class RestaurantCrudController: Controller
         {
             await _restaurantCrudService.Create(new RestaurantDTO
             {
-                Name = "Бла бла",
-                Menus = new List<MenuDTO>()
+                Name = "Бла бла"
             });
             
             var restaurants = await _restaurantCrudService.Select();
