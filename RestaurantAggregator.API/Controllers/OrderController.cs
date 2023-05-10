@@ -32,13 +32,13 @@ public class OrderController: ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> GetListLastOrder([DefaultValue(1)] int page)
+    public async Task<IActionResult> GetListLastOrder([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
     {
         var userId = Guid.Parse(User.Identity!.Name!).ToString();
 
         try
         {
-            var orders = await _orderService.GetListLastOrder(userId, page);
+            var orders = await _orderService.GetListLastOrder(userId, page, startDay, endDay);
             var ordersModel = orders.Orders!.Select(order => new OrderModel
                 {
                     Id = order.Id,

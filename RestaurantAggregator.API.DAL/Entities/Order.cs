@@ -11,6 +11,9 @@ public class Order
     [Key] 
     public Guid Id { get; set; }
     
+    [Required]
+    public string NumberOrder { get; set; }
+    
     public DateTime DeliveryTime { get; set; }
 
     public DateTime OrderTime { get; set; }

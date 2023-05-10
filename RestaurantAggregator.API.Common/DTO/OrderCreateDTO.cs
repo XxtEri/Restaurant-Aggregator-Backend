@@ -5,8 +5,7 @@ namespace RestaurantAggregator.API.Common.DTO;
 public class OrderCreateDTO
 {
     [Required]
-    [DataType(DataType.DateTime)]
-    public string DeliveryTime;
+    public DateTime DeliveryTime;
     
     [Required]
     public string Address;

@@ -3,6 +3,7 @@ using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
+using RestaurantAggregator.API.DAL.Entities;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
 
 namespace RestaurantAggregator.API.BL.Services;
@@ -16,7 +17,7 @@ public class OrderService: IOrderService
         _context = context;
     }
     
-    public async Task<OrderPageListDTO> GetListLastOrder(string userId, int page)
+    public async Task<OrderPageListDTO> GetListLastOrder(string userId, int page, DateTime? startDay, DateTime? endDay)
     {
         if (page < 1)
         {
@@ -35,10 +36,24 @@ public class OrderService: IOrderService
                 Status = order.Status
             })
             .ToListAsync();
-
+        
         if (!orders.Any())
         {
             throw new NotFoundElementException("У вас пока еще нет завершенных заказов");
+        }
+
+        if (startDay != null && endDay == null)
+        {
+            orders = orders
+                .Where(order => order.DeliveryTime >= startDay)
+                .ToList();
+        }
+
+        if (startDay == null && endDay != null)
+        {
+            orders = orders
+                .Where(order => order.DeliveryTime <= endDay)
+                .ToList();
         }
 
         var pageSize = 5;
@@ -59,6 +74,57 @@ public class OrderService: IOrderService
         };
     }
 
+    public async Task<OrderDTO> GetConcreteOrder(string userId, string numberOrder)
+    {
+        var order = await _context.Orders
+            .Where(order => order.NumberOrder == numberOrder)
+            .Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .FirstOrDefaultAsync();
+
+        if (order == null)
+        {
+            throw new NotFoundElementException($"Заказа по номеру {numberOrder} не найдено");
+        }
+        
+        return order;
+    }
+
+    public async Task CreateNewOrder(OrderCreateDTO model)
+    {
+        await _context.AddAsync(new Order
+        {
+            NumberOrder = "",
+            DeliveryTime = model.DeliveryTime,
+            Status = OrderStatus.Created,
+            Address = model.Address
+        });
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RepeatLastOrder(Guid orderId, OrderCreateDTO model)
+    {
+        var order = await _context.Orders.LastAsync();
+
+        await _context.AddAsync(new Order
+        {
+            NumberOrder = "",
+            DeliveryTime = model.DeliveryTime,
+            Price = order.Price,
+            Status = OrderStatus.Created,
+            Address = model.Address
+        });
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<List<OrderDTO>> GetActiveOrderForCourier(string userId)
     {
         var orders = await _context.Orders
@@ -73,13 +139,18 @@ public class OrderService: IOrderService
                 Status = order.Status
             })
             .ToListAsync();
-
+    
         if (!orders.Any())
         {
             throw new NotFoundElementException("У вас пока еще нет активных заказов");
         }
         
         return orders;
+    }
+
+    public Task<List<OrderDTO>> GetListOrderForCourier()
+    {
+        throw new NotImplementedException();
     }
 
     public Task<List<OrderDTO>> GetListLastOrderForCook()
@@ -97,27 +168,7 @@ public class OrderService: IOrderService
         throw new NotImplementedException();
     }
 
-    public Task<List<OrderDTO>> GetListOrderForCourier()
-    {
-        throw new NotImplementedException();
-    }
-
-    Task IOrderService.CreateNewOrder(OrderCreateDTO model)
-    {
-        return CreateNewOrder(model);
-    }
-
-    public Task RepeatLastOrder(Guid orderId, OrderCreateDTO model)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task ChangeOrderStatus(Guid orderId, OrderStatus status)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<OrderDTO>> CreateNewOrder(OrderCreateDTO model)
     {
         throw new NotImplementedException();
     }
