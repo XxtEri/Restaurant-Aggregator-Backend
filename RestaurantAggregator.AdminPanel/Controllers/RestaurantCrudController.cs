@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.AdminPanel.Models;
+using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
 
 namespace RestaurantAggregator.AdminPanel.Controllers;
@@ -19,6 +20,12 @@ public class RestaurantCrudController: Controller
     {
         try
         {
+            await _restaurantCrudService.Create(new RestaurantDTO
+            {
+                Name = "Бла бла",
+                Menus = new List<MenuDTO>()
+            });
+            
             var restaurants = await _restaurantCrudService.Select();
             return View(restaurants);
         }

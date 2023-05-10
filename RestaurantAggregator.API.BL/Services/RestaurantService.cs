@@ -49,6 +49,15 @@ public class RestaurantService: IRestaurantService
         return restaurant;
     }
 
+    public async Task CreateRestaurant(RestaurantDTO model)
+    {
+        await _context.AddAsync(new Restaurant
+        {
+            Name = model.Name
+        });
+        await _context.SaveChangesAsync();
+    }
+
     public async Task DeleteRestaurant(Guid restaurantId)
     {
         var restaurant = await _context.Restaurants
@@ -59,13 +68,18 @@ public class RestaurantService: IRestaurantService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateRestaurant(RestaurantDTO restaurant)
+    public async Task UpdateRestaurant(RestaurantDTO model)
     {
-        await _context.AddAsync(new Restaurant
+        var restaurant = await _context.Restaurants.FindAsync(model.Id);
+
+        if (restaurant == null)
         {
-            Name = restaurant.Name,
-            Menus = new List<Menu>()
-        });
+            throw new NotFoundElementException($"Ресторан для внесения изменений с id = {model.Id} не найден");
+        }
+        
+        _context.Restaurants.Attach(restaurant);
+        _context.Entry(restaurant).State = EntityState.Modified;
+
         await _context.SaveChangesAsync();
     }
 

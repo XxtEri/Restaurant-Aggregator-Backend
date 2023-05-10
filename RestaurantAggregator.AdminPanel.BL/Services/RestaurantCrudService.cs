@@ -14,9 +14,9 @@ public class RestaurantCrudService: IRestaurantCrudService
         _restaurantService = restaurantService;
     }
 
-    public bool Create(RestaurantDTO entity)
+    public async Task Create(RestaurantDTO model)
     {
-        throw new NotImplementedException();
+        await _restaurantService.CreateRestaurant(model);
     }
 
     public async Task<RestaurantDTO> Get(Guid id)
@@ -36,12 +36,12 @@ public class RestaurantCrudService: IRestaurantCrudService
         }
     }
 
-    public bool Update(Guid id)
+    public Task Update(Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public bool Delete(Guid id)
+    public Task Delete(Guid id)
     {
         throw new NotImplementedException();
     }

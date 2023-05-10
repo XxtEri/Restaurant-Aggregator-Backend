@@ -13,7 +13,6 @@ public class ApplicationDBContext: DbContext
     public DbSet<DishInCart> DishInCarts { get; set; }
     public DbSet<Courier> Couriers { get; set; }
     public DbSet<Cook> Cooks { get; set; }
-    public DbSet<Customer> Customers { get; set; }
 
     public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
