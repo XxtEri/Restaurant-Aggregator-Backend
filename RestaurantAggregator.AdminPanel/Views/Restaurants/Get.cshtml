@@ -7,19 +7,19 @@
 <h2>Рестораны</h2>
 
 <p>
-    <a asp-action="">Create new restaurant</a>
+    <a asp-action="Add">Create new restaurant</a>
 </p>
 <table class="table">
     <tbody>
         @foreach (var restaurant in Model) {
-                <tr>
+                <tr class="border-bottom">
                     <td>
                         @Html.DisplayFor(modelItem => restaurant.Name)
                     </td>
-                    <td>
+                    <td class="float-end">
                         <a asp-action="Edit" asp-route-id="@restaurant.Id">Редактировать</a> |
                         <a asp-action="Details" asp-route-id="@restaurant.Id">Подробнее</a> |
-                        <a asp-action="" asp-route-id="@restaurant.Id">Удалить</a>
+                        <a asp-action="Delete" asp-route-id="@restaurant.Id">Удалить</a>
                     </td>
                 </tr>
         }

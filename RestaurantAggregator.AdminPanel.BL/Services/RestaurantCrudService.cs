@@ -15,7 +15,7 @@ public class RestaurantCrudService: IRestaurantCrudService
         _restaurantService = restaurantService;
     }
 
-    public async Task Create(RestaurantDTO model)
+    public async Task Create(CreateRestaurantDto model)
     {
         await _restaurantService.CreateRestaurant(model);
     }
@@ -54,8 +54,15 @@ public class RestaurantCrudService: IRestaurantCrudService
         }
     }
 
-    public Task Delete(Guid id)
+    public async Task Delete(Guid id)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await _restaurantService.DeleteRestaurant(id);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 }

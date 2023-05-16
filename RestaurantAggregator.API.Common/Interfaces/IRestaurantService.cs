@@ -7,7 +7,7 @@ public interface IRestaurantService
 {
     Task<RestaurantPagedListDto> GetRestaurants(string searchNameRestaurant, int page);
     Task<RestaurantDTO> GetRestaurant(Guid restaurantId);
-    Task CreateRestaurant(RestaurantDTO model);
+    Task CreateRestaurant(CreateRestaurantDto model);
     Task DeleteRestaurant(Guid restaurantId);
     Task UpdateRestaurant(Guid id, UpdateInfoRestaurantDto model);
 }

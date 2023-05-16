@@ -48,7 +48,7 @@ public class RestaurantService: IRestaurantService
             ? restaurantsCount / 5 + 1
             : restaurantsCount / 5;
 
-        if (page > count)
+        if (page > count && restaurants.Any())
         {
             throw new NotCorrectDataException(message: "Invalid value for attribute page");
         }
@@ -83,7 +83,7 @@ public class RestaurantService: IRestaurantService
         return restaurant;
     }
 
-    public async Task CreateRestaurant(RestaurantDTO model)
+    public async Task CreateRestaurant(CreateRestaurantDto model)
     {
         await _context.Restaurants.AddAsync(new Restaurant
         {

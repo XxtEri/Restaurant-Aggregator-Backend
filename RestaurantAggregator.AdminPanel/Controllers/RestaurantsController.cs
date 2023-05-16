@@ -4,6 +4,7 @@ using RestaurantAggregator.AdminPanel.Models;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.APIAuth.Models;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.AdminPanel.Controllers;
 
@@ -57,8 +58,8 @@ public class RestaurantsController: Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, [Bind("Name")] UpdateInfoRestaurant
-        restaurant)
+    public async Task<IActionResult> Edit(Guid id, [Bind("Name")] UpdateInfoRestaurantModel
+        restaurantModel)
     {
         if (!ModelState.IsValid)
         {
@@ -74,9 +75,9 @@ public class RestaurantsController: Controller
         {
             await _restaurantCrudService.Update(id, new RestaurantDTO
             {
-                Name = restaurant.Name
+                Name = restaurantModel.Name
             });
-            return RedirectToAction("Get");
+            return View("Get");
         }
         catch (Exception e)
         {
@@ -103,6 +104,64 @@ public class RestaurantsController: Controller
             var errorModel = new ErrorViewModel
             {
                 RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        try
+        {
+            await _restaurantCrudService.Delete(id);
+
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Add(Guid id)
+    {
+        return View();
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Add(CreateRestaurantModel restaurantModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = ModelState.ToString()
+            };
+            
+            return View("Error", errorModel);
+        }
+
+        try
+        {
+            await _restaurantCrudService.Create(new CreateRestaurantDto
+            {
+                Name = restaurantModel.Name
+            });
+            
+            return View("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = "Error"
             };
             
             return View("Error", errorModel);
