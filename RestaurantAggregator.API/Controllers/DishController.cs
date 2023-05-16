@@ -31,7 +31,7 @@ public class DishController: ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetListAllDishesInRestaurant(Guid restaurantId, 
+    public async Task<ActionResult<DishPagedListDTO>> GetListAllDishesInRestaurant(Guid restaurantId, 
             [FromQuery] List<DishCategory> categories, 
             [DefaultValue(false)] bool vegetarian,
             SortingDish sorting,

@@ -60,17 +60,44 @@ public class AuthenticateController : ControllerBase
                 Password = model.Password,
                 Address = model.Address
             });
-            
+
             return Ok(new TokenPairModel
             {
                 AccessToken = newTokenPair.AccessToken,
                 RefreshToken = newTokenPair.RefreshToken
             });
         }
+        catch (NotCorrectDataException e)
+        {
+            return StatusCode(400, new ResponseModel
+            {
+                Status = "400 error",
+                Message = e.Message
+            });
+        }
+        catch (DataAlreadyUsedException e)
+        {
+            return StatusCode(400, new ResponseModel
+            {
+                Status = "400 error",
+                Message = e.Message
+            });
+        }
+        catch (NotFoundElementException e)
+        {
+            return StatusCode(404, new ResponseModel
+            {
+                Status = "404 error",
+                Message = e.Message
+            });
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
         }
     }
     
@@ -108,10 +135,29 @@ public class AuthenticateController : ControllerBase
                 RefreshToken = newTokenPair.RefreshToken
             });
         }
+        catch (InvalidDataCustomException e)
+        {
+            return StatusCode(401, new ResponseModel
+            {
+                Status = "401 error",
+                Message = e.Message
+            });
+        }
+        catch (DataAlreadyUsedException e)
+        {
+            return StatusCode(400, new ResponseModel
+            {
+                Status = "400 error",
+                Message = e.Message
+            });
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
         }
     }
 
@@ -145,17 +191,36 @@ public class AuthenticateController : ControllerBase
                 Email = model.Email,
                 Password = model.Password
             });
-            
+
             return Ok(new TokenPairModel
             {
                 AccessToken = tokenPair.AccessToken,
                 RefreshToken = tokenPair.RefreshToken
             });
         }
+        catch (InvalidDataCustomException e)
+        {
+            return StatusCode(401, new ResponseModel
+            {
+                Status = "401 error",
+                Message = e.Message
+            });
+        }
+        catch (NotPermissionAccountException e)
+        {
+            return StatusCode(401, new ResponseModel
+            {
+                Status = "401 error",
+                Message = e.Message
+            });
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
         }
     }
 
@@ -184,11 +249,27 @@ public class AuthenticateController : ControllerBase
                 AccessToken = model.AccessToken,
                 RefreshToken = model.RefreshToken
             });
-            
+
             return Ok(new TokenPairModel
             {
                 AccessToken = newTokenPair.AccessToken,
                 RefreshToken = newTokenPair.RefreshToken
+            });
+        }
+        catch (InvalidDataCustomException e)
+        {
+            return StatusCode(401, new ResponseModel
+            {
+                Status = "401 error",
+                Message = e.Message
+            });
+        }
+        catch (NotPermissionAccountException e)
+        {
+            return StatusCode(401, new ResponseModel
+            {
+                Status = "401 error",
+                Message = e.Message
             });
         }
         catch (Exception e)
@@ -219,13 +300,24 @@ public class AuthenticateController : ControllerBase
         try
         {
             await _authService.Logout(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            
+
             return Ok();
+        }
+        catch (InvalidDataCustomException e)
+        {
+            return StatusCode(401, new ResponseModel
+            {
+                Status = "401 error",
+                Message = e.Message
+            });
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            return StatusCode(500, new ResponseModel
+            {
+                Status = "500 error",
+                Message = e.Message
+            });
         }
     }
 }

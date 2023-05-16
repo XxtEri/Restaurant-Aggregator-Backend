@@ -46,7 +46,7 @@ public class AuthService: IAuthService
 
     public async Task<TokenPairDto> RefreshToken(TokenPairDto oldTokens)
     {
-        var userId = TokenManager.GetIdOldToken(oldTokens.AccessToken);
+        var userId = TokenManager.GetUserId(oldTokens.AccessToken);
         
         if (userId == null)
         {

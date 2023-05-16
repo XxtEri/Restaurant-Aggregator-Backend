@@ -28,7 +28,8 @@ public class RestaurantCrudService: IRestaurantCrudService
     {
         try
         {
-            return await _restaurantService.GetRestaurants();
+            return new List<RestaurantDTO>();
+            //return await _restaurantService.GetRestaurants();
         }
         catch (Exception e)
         {

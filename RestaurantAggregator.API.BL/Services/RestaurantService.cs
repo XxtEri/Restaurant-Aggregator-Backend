@@ -16,8 +16,13 @@ public class RestaurantService: IRestaurantService
         _context = context;
     }
 
-    public async Task<List<RestaurantDTO>> GetRestaurants()
+    public async Task<RestaurantPagedListDto> GetRestaurants(string searchNameRestaurant, int page)
     {
+        if (page < 1)
+        {
+            throw new NotCorrectDataException(message: "Page value must be greater than 0");
+        }
+        
         var restaurants = await _context.Restaurants
             .Select(restaurant => new RestaurantDTO
             {
@@ -25,15 +30,37 @@ public class RestaurantService: IRestaurantService
                 Name = restaurant.Name
             })
             .ToListAsync();
-        
+
+        if (searchNameRestaurant != string.Empty)
+        {
+            restaurants = restaurants.Where(r => r.Name.ToLower().Contains(searchNameRestaurant.Trim().ToLower())).ToList();
+        }
+
         foreach (var restaurant in restaurants)
         {
             restaurant.Menus = await GetMenus(restaurant.Id);
         }
 
-        return restaurants;
+        const int pageSize = 5;
+        var restaurantsCount = restaurants.Count;
+        var count = restaurantsCount % pageSize < pageSize && restaurantsCount % pageSize != 0
+            ? restaurantsCount / 5 + 1
+            : restaurantsCount / 5;
+
+        if (page > count)
+        {
+            throw new NotCorrectDataException(message: "Invalid value for attribute page");
+        }
+
+        var items = restaurants.Skip((page - 1) * pageSize).Take((pageSize)).ToList();
+
+        return new RestaurantPagedListDto
+        {
+            Restaurants = items,
+            PageInfoModel = new PageInfoModelDTO(pageSize, count, page)
+        };
     }
-    
+
     public async Task<RestaurantDTO> GetRestaurant(Guid restaurantId)
     {
         var restaurant = await _context.Restaurants

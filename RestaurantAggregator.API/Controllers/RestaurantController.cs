@@ -1,5 +1,8 @@
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.API.Common.DTO;
+using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -9,17 +12,25 @@ namespace RestaurantAggregatorService.Controllers;
 [Produces("application/json")]
 public class RestaurantController: ControllerBase
 {
+    private readonly IRestaurantService _restaurantService;
+
+    public RestaurantController(IRestaurantService restaurantService)
+    {
+        _restaurantService = restaurantService;
+    }
 
     /// <summary>
     /// Получение списка ресторанов
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(RestaurantModel), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(RestaurantPagedListDto), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string GetListRestaurant()
+    public async Task<ActionResult<RestaurantPagedListDto>> GetListRestaurant([FromQuery] string? nameRestaurant, [DefaultValue(1)] int page)
     {
-        return "";
+        var restaurants = await _restaurantService.GetRestaurants(nameRestaurant ?? string.Empty, page);
+
+        return Ok(restaurants);
     }
     
     /// <summary>

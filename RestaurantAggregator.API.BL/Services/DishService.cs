@@ -66,9 +66,11 @@ public class DishService: IDishService
             }
         }
         
-        var pageSize = 5;
-        var countDishes = dishesInRestaurant.Count();
-        var count = countDishes % pageSize < pageSize && countDishes % pageSize != 0 ? countDishes / 5 + 1 : countDishes / 5;
+        const int pageSize = 5;
+        var countDishes = dishesInRestaurant.Count;
+        var count = countDishes % pageSize < pageSize && countDishes % pageSize != 0 
+            ? countDishes / 5 + 1 
+            : countDishes / 5;
 
         if (page > count)
         {

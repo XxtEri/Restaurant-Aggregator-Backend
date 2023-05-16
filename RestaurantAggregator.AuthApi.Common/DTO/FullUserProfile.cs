@@ -4,31 +4,33 @@ using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.AuthApi.Common.DTO;
 
-public class UserProfileDto
+public class FullUserProfile
 {
     public Guid Id { get; set; }
     
     [Required]
+    [MinLength(1)]
+    public string Username { get; set; }
+
     [EmailAddress]
-    public string FullName { get; set; }
-    
     [Required]
-    public DateTime BirtDate { get; set; }
+    public string Email { get; set; }
+    
+    public DateTime? BirthDate { get; set; }
     
     [Required]
     public Gender Gender { get; set; }
     
-    [Phone]
     [MaybeNull]
     public string Phone { get; set; }
+
+    [Required]
+    public bool isCourier { get; set; }
     
-    [MaybeNull]
+    [MaybeNull] 
     public string Address { get; set; }
     
     public Guid? ManagerRestaurantId { get; set; }
     
     public Guid? CookRestaurantId { get; set; }
-
-    [Required] 
-    public bool IsCourier { get; set; } = false;
 }

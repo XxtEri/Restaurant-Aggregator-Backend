@@ -4,7 +4,7 @@ using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.AuthApi.Common.DTO;
 
-public class RegisterCustomerCredentialDto
+public class RegisterUserDto
 {
     [Required]
     public string Username { get; set; }
@@ -23,7 +23,4 @@ public class RegisterCustomerCredentialDto
 
     [Required(ErrorMessage = "Password is required")]
     public string Password { get; set; }
-    
-    [Required] 
-    public string Address { get; set; }
 }
