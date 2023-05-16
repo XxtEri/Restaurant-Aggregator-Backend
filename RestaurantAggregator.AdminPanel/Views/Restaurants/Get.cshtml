@@ -1,0 +1,27 @@
+@model List<RestaurantAggregator.API.Common.DTO.RestaurantDTO>
+
+@{
+    ViewBag.Title = "Restaurants";
+}
+
+<h2>Рестораны</h2>
+
+<p>
+    <a asp-action="">Create new restaurant</a>
+</p>
+<table class="table">
+    <tbody>
+        @foreach (var restaurant in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => restaurant.Name)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@restaurant.Id">Редактировать</a> |
+                        <a asp-action="Details" asp-route-id="@restaurant.Id">Подробнее</a> |
+                        <a asp-action="" asp-route-id="@restaurant.Id">Удалить</a>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>

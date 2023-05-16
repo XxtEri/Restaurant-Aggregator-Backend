@@ -4,6 +4,7 @@ using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.API.BL.Services;
 
@@ -101,14 +102,16 @@ public class RestaurantService: IRestaurantService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateRestaurant(RestaurantDTO model)
+    public async Task UpdateRestaurant(Guid id, UpdateInfoRestaurantDto model)
     {
-        var restaurant = await _context.Restaurants.FindAsync(model.Id);
+        var restaurant = await _context.Restaurants.FindAsync(id);
 
         if (restaurant == null)
         {
-            throw new NotFoundElementException($"Ресторан для внесения изменений с id = {model.Id} не найден");
+            throw new NotFoundElementException($"Ресторан для внесения изменений с id = {id} не найден");
         }
+
+        restaurant.Name = model.Name;
         
         _context.Restaurants.Attach(restaurant);
         _context.Entry(restaurant).State = EntityState.Modified;

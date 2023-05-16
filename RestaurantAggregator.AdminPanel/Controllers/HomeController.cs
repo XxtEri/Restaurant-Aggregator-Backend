@@ -28,22 +28,9 @@ public class HomeController : Controller
         return View();
     }
 
-    public async Task<IActionResult> Restaurants()
+    public async Task<IActionResult> GetRestaurants()
     {
-        try
-        {
-            var restaurants = await _restaurantCrudService.Select();
-            return View(restaurants);
-        }
-        catch (Exception e)
-        {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = e.Message
-            };
-
-            return View("Error", errorModel);
-        }
+        return RedirectToAction("Get", "Restaurants");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

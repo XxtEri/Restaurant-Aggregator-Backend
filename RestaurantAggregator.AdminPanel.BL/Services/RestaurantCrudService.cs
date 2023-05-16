@@ -2,6 +2,7 @@ using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.AdminPanel.BL.Services;
 
@@ -28,8 +29,9 @@ public class RestaurantCrudService: IRestaurantCrudService
     {
         try
         {
-            return new List<RestaurantDTO>();
-            //return await _restaurantService.GetRestaurants();
+            var r = await _restaurantService.GetRestaurants("", 1);
+
+            return r.Restaurants;
         }
         catch (Exception e)
         {
@@ -37,9 +39,19 @@ public class RestaurantCrudService: IRestaurantCrudService
         }
     }
 
-    public Task Update(Guid id)
+    public async Task Update(Guid id, RestaurantDTO model)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await _restaurantService.UpdateRestaurant(id, new UpdateInfoRestaurantDto
+            {
+                Name = model.Name
+            });
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 
     public Task Delete(Guid id)

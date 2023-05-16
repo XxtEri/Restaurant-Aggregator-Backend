@@ -7,6 +7,7 @@ public class RestaurantDTO
 {
     public Guid Id { get; set; }
     
+    [Display(Name = "Название")]
     [MinLength(1)]
     [Required]
     public string Name { get; set; }

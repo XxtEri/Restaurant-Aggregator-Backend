@@ -1,4 +1,5 @@
 using RestaurantAggregator.API.Common.DTO;
+using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.API.Common.Interfaces;
 
@@ -8,5 +9,5 @@ public interface IRestaurantService
     Task<RestaurantDTO> GetRestaurant(Guid restaurantId);
     Task CreateRestaurant(RestaurantDTO model);
     Task DeleteRestaurant(Guid restaurantId);
-    Task UpdateRestaurant(RestaurantDTO restaurant);
+    Task UpdateRestaurant(Guid id, UpdateInfoRestaurantDto model);
 }

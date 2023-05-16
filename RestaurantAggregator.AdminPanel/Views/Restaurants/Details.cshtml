@@ -1,0 +1,32 @@
+@model RestaurantAggregator.API.Common.DTO.RestaurantDTO
+
+@{
+    ViewBag.Title = "Detail Restaurant";
+}
+
+<div style="padding: 10px"></div>
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <p class="card-text">@Model.Id</p>
+        <table class="table">
+            <tbody>
+            
+            @{
+                System.Diagnostics.Debug.Assert(@Model.Menus != null, "@Model.Menus != null");
+            }
+            @foreach (var menu in @Model.Menus) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => menu.Name)
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Get">Вернуться назад</a>
+</div>
