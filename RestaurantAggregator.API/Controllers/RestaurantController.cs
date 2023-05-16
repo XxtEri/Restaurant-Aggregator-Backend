@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
+using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -40,9 +41,31 @@ public class RestaurantController: ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [HttpGet("{id}")]
-    public string GetInformationConcreteRestaurant(Guid id)
+    [HttpGet("{restaurantId}")]
+    public async Task<ActionResult<RestaurantDTO>> GetInformationConcreteRestaurant(Guid restaurantId)
     {
-        return "";
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        try
+        {
+            var restaurant = await _restaurantService.GetRestaurant(restaurantId);
+            return Ok(restaurant);
+        }
+        catch (NotFoundElementException e)
+        {
+            return NotFound(new ResponseModel
+            {
+                Status = "404 error",
+                Message = e.Message
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

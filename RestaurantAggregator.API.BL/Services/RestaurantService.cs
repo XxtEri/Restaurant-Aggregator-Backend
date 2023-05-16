@@ -70,7 +70,13 @@ public class RestaurantService: IRestaurantService
                 Id = restaurant.Id,
                 Name = restaurant.Name
             })
-            .FirstAsync();
+            .FirstOrDefaultAsync();
+
+        if (restaurant == null)
+        {
+            throw new NotFoundElementException($"Не найдено ресторана с id = {restaurantId}");
+        }
+        
         restaurant.Menus = await GetMenus(restaurant.Id);
 
         return restaurant;
