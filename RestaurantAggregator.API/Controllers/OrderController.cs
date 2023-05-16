@@ -22,7 +22,7 @@ public class OrderController: ControllerBase
     }
     
     /// <summary>
-    /// Получение списка прошлых заказов пользователя с ролью Client
+    /// Получение списка прошлых заказов пользователя с ролью Customer
     /// </summary>
     [HttpGet("customers/orders/last")]
     [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)] 
@@ -71,7 +71,7 @@ public class OrderController: ControllerBase
     }
     
     /// <summary>
-    /// Получение списка текущих заказов пользователя с ролью Client
+    /// Получение списка текущих заказов пользователя с ролью Customer
     /// </summary>
     [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -151,7 +151,7 @@ public class OrderController: ControllerBase
     }
     
     /// <summary>
-    /// Создание нового заказа для пользователя роли Courier
+    /// Создание нового заказа для пользователя роли Customer
     /// </summary>
     [HttpPost("customers/orders")]
     [Authorize]
@@ -167,7 +167,7 @@ public class OrderController: ControllerBase
     }
     
     /// <summary>
-    /// Повторение прошлого заказа для пользователя роли Courier
+    /// Повторение прошлого заказа для пользователя роли Customer
     /// </summary>
     [HttpPost("customers/orders/{orderId}/repeat")]
     [Authorize]
