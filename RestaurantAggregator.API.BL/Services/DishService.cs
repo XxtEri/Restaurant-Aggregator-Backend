@@ -33,7 +33,7 @@ public class DishService: IDishService
         
         if (!menus.Any())
         {
-            throw new NotFoundElementException("У ресторана отсутсвуют меню с блюдами");
+            throw new NotFoundElementException($"Блюда не найдены или отсутствуют в ресторане с id = {restaurantId}");
         }
 
         var dishesInRestaurant = new List<DishDTO>();
@@ -57,13 +57,10 @@ public class DishService: IDishService
             
             if (!dishes.Any())
             {
-                throw new NotFoundElementException("У ресторана отсутсвуют блюда в меню");
+                throw new NotFoundElementException($"Блюда не найдены или отсутствуют в ресторане с id = {restaurantId}");
             }
 
-            foreach (var dish in dishes)
-            {
-                dishesInRestaurant.Add(dish);
-            }
+            dishesInRestaurant.AddRange(dishes);
         }
         
         const int pageSize = 5;
