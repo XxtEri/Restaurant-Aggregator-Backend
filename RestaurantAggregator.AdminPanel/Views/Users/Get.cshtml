@@ -21,6 +21,7 @@
             <th scope="col">Role</th>
             <th scope="col">#</th>
             <th scope="col">#</th>
+            <th scope="col">#</th>
         </tr>
         </thead>
         <tbody class="bg-light">
@@ -43,7 +44,14 @@
                     </form>
                 </td>
                 <td>
-                    <form asp-action="" asp-route-id="@user.Id">
+                    <form asp-action="Edit" asp-controller="Users" asp-route-id="@user.Id">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            Редактировать
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@user.Id">
                         <button type="submit" class="btn btn-sm btn-danger">
                             Удалить
                         </button>

@@ -1,16 +1,18 @@
-@model RegisterUserCredentialModel
+@using RestaurantAggregator.CommonFiles
+@* @model UpdateInfoUserProfileModel *@
+@model RestaurantAggregator.CommonFiles.Dto.UserDto
 
 @{
-    ViewBag.Title = "Add User";
+    ViewBag.Title = "Edit Users";
 }
 
-<h1>Добавление нового пользователя</h1>
+<h1>Редактирование пользователя</h1>
 
-<h4>Информация о пользователе</h4>
+<h4>Информация</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Add" method="post">
+        <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Username" class="control-label"></label>
@@ -37,12 +39,14 @@
                 <input asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div style="padding: 10px"></div>
+            @* @if (@Model.Roles.Contains(UserRoles.Customer)) *@
+            @* { *@
+            @*     <div class="form-group"> *@
+            @*         <label asp-for="Address" class="control-label"></label> *@
+            @*         <input asp-for="Address" class="form-control"/> *@
+            @*         <span asp-validation-for="Address" class="text-danger"></span> *@
+            @*     </div> *@
+            @* } *@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -50,8 +54,11 @@
     </div>
 </div>
 
-<div style="padding: 5px"></div>
+<div style="padding: 10px"></div>
 <div>
     <a asp-action="Get">Вернуться назад</a>
 </div>
 
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

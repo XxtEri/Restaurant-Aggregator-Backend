@@ -116,7 +116,7 @@ public class RestaurantsController: Controller
         {
             await _adminRestaurantsService.Delete(id);
 
-            return RedirectToAction("Get");
+            return View("Get");
         }
         catch (Exception e)
         {

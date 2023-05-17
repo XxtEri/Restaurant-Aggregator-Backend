@@ -2,11 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.CommonFiles.Enums;
 
-namespace RestaurantAggregator.AuthApi.Common.DTO;
+namespace RestaurantAggregator.CommonFiles.Dto;
 
-public class ChangeUserDTO
+public class UpdateInfoUserProfileDto
 {
     [Required]
+    [MinLength(1)]
     public string Username { get; set; }
 
     [EmailAddress]
@@ -23,7 +24,4 @@ public class ChangeUserDTO
 
     [MaybeNull] 
     public string Address { get; set; }
-    
-    [MaybeNull]
-    public string RestaurantId { get; set; }
 }

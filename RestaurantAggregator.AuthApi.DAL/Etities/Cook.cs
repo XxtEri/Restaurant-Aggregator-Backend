@@ -10,7 +10,6 @@ public class Cook
     [Required]
     public User User { get; set; }
     
-    [Required]
-    public Guid RestaurantId { get; set; }
+    public Guid? RestaurantId { get; set; }
 
 }

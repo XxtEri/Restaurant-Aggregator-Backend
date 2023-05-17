@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.AdminPanel.BL.Services;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
@@ -8,6 +9,7 @@ using RestaurantAggregator.APIAuth.Middlewares;
 using RestaurantAggregator.AuthApi.BL.Services;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
+using RestaurantAggregator.AuthApi.DAL.Etities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +24,23 @@ builder.Services.AddDbContext<AuthDBContext>(options => options.UseNpgsql(
     builder.Configuration.GetConnectionString("ConnectionAuth"))
 );
 
+//Configure Identity
+builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" +
+                                             "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    options.Password.RequireNonAlphanumeric = false;
+        
+}).AddEntityFrameworkStores<AuthDBContext>();
+
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<IAdminRestaurantsService, AdminRestaurantsService>();
 builder.Services.AddScoped<IAdminProfileService, AdminProfileService>();
 builder.Services.AddScoped<IAdminUsersServices, AdminUsersServices>();
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -42,6 +57,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

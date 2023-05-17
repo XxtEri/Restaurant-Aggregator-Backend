@@ -3,17 +3,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.CommonFiles.Enums;
 
-namespace RestaurantAggregator.CommonFiles.Dto;
+namespace RestaurantAggregator.AdminPanel.Models;
 
-public class UserDto
+public class UpdateInfoUserProfileModel
 {
-    public Guid Id { get; set; }
-    
     [Required]
     [MinLength(1)]
     public string Username { get; set; }
-    
-    public List<string> Roles { get; set; }
 
     [EmailAddress]
     [Required]
@@ -26,17 +22,7 @@ public class UserDto
     
     [MaybeNull]
     public string Phone { get; set; }
-    
-    [DefaultValue(false)]
-    public bool isBanned { get; set; }
 
-    [Required]
-    public bool isCourier { get; set; }
-    
     [MaybeNull] 
     public string Address { get; set; }
-    
-    public Guid? ManagerRestaurantId { get; set; }
-    
-    public Guid? CookRestaurantId { get; set; }
 }

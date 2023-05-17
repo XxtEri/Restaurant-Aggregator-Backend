@@ -5,6 +5,72 @@
     ViewBag.Title = "Detail User";
 }
 
+<div class="btn-group">
+    <form asp-action="ChangeStatusBannedUser" asp-controller="Users" asp-route-id="@Model.Id">
+        @if (@Model.isBanned)
+        {
+            <button type="submit" class="btn btn-sm btn-dark">
+                Разбанить
+            </button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-sm btn-danger">
+                Забанить
+            </button>
+        }
+    </form>
+    
+    @if (!@Model.Roles.Contains(UserRoles.Customer))
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+             <button type="submit" class="btn btn-sm btn-dark">
+                 Добавить роль покупателя
+             </button>
+        </form>
+    }
+    
+    @if (!@Model.Roles.Contains(UserRoles.Cook))
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-dark">
+                Добавить роль повара
+            </button>
+        </form>
+    }
+    else
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-primary">
+                Назначить повара на работу в ресторан
+            </button>
+        </form>
+    }
+    
+    @if (!@Model.Roles.Contains(UserRoles.Manager))
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-dark">
+                Добавить роль менеджера
+            </button>
+        </form>
+    }
+    else
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-primary">
+                Назначить менеджера на работу в ресторан
+            </button>
+        </form>
+    }
+    
+</div>
+
 <div style="padding: 10px"></div>
 <div class="card mb-3">
     <div class="card-body">

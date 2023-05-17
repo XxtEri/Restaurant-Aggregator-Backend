@@ -157,7 +157,7 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -197,7 +197,7 @@ namespace RestaurantAggregator.AuthApi.DAL.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");

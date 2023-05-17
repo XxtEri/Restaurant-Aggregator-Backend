@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace RestaurantAggregator.AuthApi.DAL.Etities;
 
@@ -10,6 +11,5 @@ public class Manager
     [Required]
     public User User { get; set; }
     
-    [Required]
-    public Guid RestaurantId { get; set; }
+    public Guid? RestaurantId { get; set; }
 }

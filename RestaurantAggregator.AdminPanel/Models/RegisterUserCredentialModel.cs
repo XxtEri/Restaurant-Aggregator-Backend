@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.CommonFiles.Enums;
 
-namespace RestaurantAggregator.CommonFiles.Dto;
+namespace RestaurantAggregator.AdminPanel.Models;
 
-public class RegisterUserCredentialDto
+public class RegisterUserCredentialModel
 {
     [Required(ErrorMessage = "Username is required")]
     public string Username { get; set; }

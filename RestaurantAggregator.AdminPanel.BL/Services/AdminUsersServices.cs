@@ -22,14 +22,24 @@ public class AdminUsersServices: IAdminUsersServices
     {
         return await _profileService.GetUser(id);
     }
-    
-    public Task Create(RegisterUserCredentialDto model)
+
+    public async Task ChangeStatusBannedUser(Guid userId)
     {
-        throw new NotImplementedException();
+        await _profileService.ChangeStatusBannedUser(userId);
     }
 
-    public Task Delete(Guid id)
+    public async Task ChangeInfoUserProfile(Guid userId)
     {
-        throw new NotImplementedException();
+        await _profileService.ChangeStatusBannedUser(userId);
+    }
+
+    public async Task Create(RegisterUserCredentialDto model)
+    {
+        await _profileService.RegisterUser(model);
+    }
+
+    public async Task Delete(Guid id)
+    {
+        await _profileService.DeleteUser(id);
     }
 }
