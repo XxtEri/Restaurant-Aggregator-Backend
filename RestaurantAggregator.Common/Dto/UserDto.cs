@@ -12,7 +12,7 @@ public class UserDto
     [MinLength(1)]
     public string Username { get; set; }
     
-    public string? Role { get; set; }
+    public List<string> Roles { get; set; }
 
     [EmailAddress]
     [Required]

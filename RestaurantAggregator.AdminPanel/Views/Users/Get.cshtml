@@ -1,10 +1,10 @@
 @model List<RestaurantAggregator.CommonFiles.Dto.UserDto>
 
 @{
-    ViewBag.Title = "Список пользователей";
+    ViewBag.Title = "Users";
 }
 
-<form asp-action="" class="float-end">
+<form asp-action="Add" asp-controller="Users" method="get" class="float-end">
     <button type="submit" class="btn btn-sm btn-dark">
         Создать нового пользователя
     </button>
@@ -29,9 +29,14 @@
             <tr class="border-bottom">
                 <td>@user.Id</td>
                 <td>@user.Username</td>
-                <td>@user.Role</td>
                 <td>
-                    <form asp-action="" asp-route-id="@user.Id">
+                    @foreach (var role in @user.Roles)
+                    {
+                        <p>@role</p>
+                    }
+                </td>
+                <td>
+                    <form asp-action="Details" asp-controller="Users" asp-route-id="@user.Id">
                         <button type="submit" class="btn btn-sm btn-primary">
                             Подробнее
                         </button>

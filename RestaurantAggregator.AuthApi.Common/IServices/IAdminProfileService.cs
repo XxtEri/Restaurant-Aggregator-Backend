@@ -5,8 +5,8 @@ namespace RestaurantAggregator.AuthApi.Common.IServices;
 
 public interface IAdminProfileService
 {
-    Task<List<UserDto>> GetUser();
-    Task GetFullUserAccount(string userId);
+    Task<List<UserDto>> GetUsers();
+    Task<UserDto> GetUser(Guid userId);
     Task ChangeUser(string userId, ChangeUserDTO model);
     Task SetStatusBannedUser(string userId, bool isBanned);
     

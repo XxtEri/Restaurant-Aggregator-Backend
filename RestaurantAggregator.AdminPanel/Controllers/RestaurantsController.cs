@@ -130,7 +130,7 @@ public class RestaurantsController: Controller
     }
     
     [HttpGet]
-    public async Task<IActionResult> Add(Guid id)
+    public async Task<IActionResult> Add()
     {
         return View();
     }

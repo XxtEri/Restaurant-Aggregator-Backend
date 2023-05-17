@@ -13,9 +13,14 @@ public class AdminUsersServices: IAdminUsersServices
         _profileService = profileService;
     }
     
-    public async Task<List<UserDto>> Get()
+    public async Task<List<UserDto>> Select()
     {
-        return await _profileService.GetUser();
+        return await _profileService.GetUsers();
+    }
+
+    public async Task<UserDto> Get(Guid id)
+    {
+        return await _profileService.GetUser(id);
     }
     
     public Task Create(RegisterUserCredentialDto model)
