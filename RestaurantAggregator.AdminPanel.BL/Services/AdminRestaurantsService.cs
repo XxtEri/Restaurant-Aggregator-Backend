@@ -6,11 +6,11 @@ using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.AdminPanel.BL.Services;
 
-public class RestaurantCrudService: IRestaurantCrudService
+public class AdminRestaurantsService: IAdminRestaurantsService
 {
     private readonly IRestaurantService _restaurantService;
     
-    public RestaurantCrudService(IRestaurantService restaurantService)
+    public AdminRestaurantsService(IRestaurantService restaurantService)
     {
         _restaurantService = restaurantService;
     }

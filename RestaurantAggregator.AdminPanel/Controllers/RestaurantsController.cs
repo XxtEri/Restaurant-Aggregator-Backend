@@ -10,11 +10,11 @@ namespace RestaurantAggregator.AdminPanel.Controllers;
 
 public class RestaurantsController: Controller
 {
-    private readonly IRestaurantCrudService _restaurantCrudService;
+    private readonly IAdminRestaurantsService _adminRestaurantsService;
 
-    public RestaurantsController(IRestaurantCrudService restaurantCrudService)
+    public RestaurantsController(IAdminRestaurantsService adminRestaurantsService)
     {
-        _restaurantCrudService = restaurantCrudService;
+        _adminRestaurantsService = adminRestaurantsService;
     }
 
     [HttpGet]
@@ -22,7 +22,7 @@ public class RestaurantsController: Controller
     {
         try
         {
-            var restaurants = await _restaurantCrudService.Select();
+            var restaurants = await _adminRestaurantsService.Select();
             return View(restaurants);
         }
         catch (Exception e)
@@ -41,7 +41,7 @@ public class RestaurantsController: Controller
     {
         try
         {
-            var restaurant = await _restaurantCrudService.Get(id);
+            var restaurant = await _adminRestaurantsService.Get(id);
 
             return View(restaurant);
         }
@@ -73,7 +73,7 @@ public class RestaurantsController: Controller
 
         try
         {
-            await _restaurantCrudService.Update(id, new RestaurantDTO
+            await _adminRestaurantsService.Update(id, new RestaurantDTO
             {
                 Name = restaurantModel.Name
             });
@@ -95,7 +95,7 @@ public class RestaurantsController: Controller
     {
         try
         {
-            var restaurant = await _restaurantCrudService.Get(id);
+            var restaurant = await _adminRestaurantsService.Get(id);
 
             return View(restaurant);
         }
@@ -114,7 +114,7 @@ public class RestaurantsController: Controller
     {
         try
         {
-            await _restaurantCrudService.Delete(id);
+            await _adminRestaurantsService.Delete(id);
 
             return RedirectToAction("Get");
         }
@@ -150,7 +150,7 @@ public class RestaurantsController: Controller
 
         try
         {
-            await _restaurantCrudService.Create(new CreateRestaurantDto
+            await _adminRestaurantsService.Create(new CreateRestaurantDto
             {
                 Name = restaurantModel.Name
             });

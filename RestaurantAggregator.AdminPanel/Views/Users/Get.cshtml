@@ -1,0 +1,56 @@
+@model List<RestaurantAggregator.CommonFiles.Dto.UserDto>
+
+@{
+    ViewBag.Title = "Список пользователей";
+}
+
+<p class="float-end">
+    <form asp-action="">
+        <button type="submit" class="btn btn-sm btn-primary">
+            Создать нового пользователя
+        </button>
+    </form>
+</p>
+
+<div style="padding: 10px"></div>
+<div class="card col-md-12">
+    <table class="table table-striped">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Username</th>
+            <th scope="col">Role</th>
+            <th scope="col">#</th>
+            <th scope="col">#</th>
+        </tr>
+        </thead>
+        <tbody class="bg-light">
+        @foreach (var user in @Model)
+        {
+            <tr class="border-bottom">
+                <td>@user.Id</td>
+                <td>@user.Username</td>
+                <td>@user.Role</td>
+                <td>
+                    <form asp-action="" asp-route-id="@user.Id">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            Подробнее
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form asp-action="" asp-route-id="@user.Id">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            Удалить
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <a asp-action="Get">Вернуться назад</a>
+</div>

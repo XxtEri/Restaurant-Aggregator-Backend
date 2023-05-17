@@ -50,6 +50,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 //Add services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IAdminProfileService, AdminProfileService>();
 
 //AuthJWTBearer
 builder.Services.AddAuthentication(options =>

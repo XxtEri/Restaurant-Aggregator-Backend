@@ -10,12 +10,12 @@ namespace RestaurantAggregator.AdminPanel.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IRestaurantCrudService _restaurantCrudService;
+    private readonly IAdminRestaurantsService _adminRestaurantsService;
     
-    public HomeController(ILogger<HomeController> logger, IRestaurantCrudService restaurantCrudService)
+    public HomeController(ILogger<HomeController> logger, IAdminRestaurantsService adminRestaurantsService)
     {
         _logger = logger;
-        _restaurantCrudService = restaurantCrudService;
+        _adminRestaurantsService = adminRestaurantsService;
     }
 
     public IActionResult Index()
@@ -23,14 +23,14 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
     public async Task<IActionResult> GetRestaurants()
     {
         return RedirectToAction("Get", "Restaurants");
+    }
+    
+    public async Task<IActionResult> GetUsers()
+    {
+        return RedirectToAction("Get", "Users");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
