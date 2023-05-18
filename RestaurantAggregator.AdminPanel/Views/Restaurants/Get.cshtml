@@ -6,9 +6,11 @@
 
 <h2>Рестораны</h2>
 
-<p>
-    <a asp-action="Add">Create new restaurant</a>
-</p>
+<form asp-action="Add" method="get" class="float-end">
+    <button type="submit" class="btn btn-sm btn-dark">
+        Создать новый ресторан
+    </button>
+</form>
 
 <form method="get">
     <div>
@@ -21,18 +23,47 @@
 
 <div style="padding: 30px"></div>
 <table class="table">
+    <thead class="table-light">
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">#</th>
+        <th scope="col">#</th>
+        <th scope="col">#</th>
+    </tr>
+    </thead>
     <tbody>
-        @foreach (var restaurant in Model.Restaurants) {
-                <tr class="border-bottom">
-                    <td>
-                        @Html.DisplayFor(modelItem => restaurant.Name)
-                    </td>
-                    <td class="float-end">
-                        <a asp-action="Edit" asp-route-id="@restaurant.Id">Редактировать</a> |
-                        <a asp-action="Details" asp-route-id="@restaurant.Id">Подробнее</a> |
-                        <a asp-action="Delete" asp-route-id="@restaurant.Id">Удалить</a>
-                    </td>
-                </tr>
-        }
+    @foreach (var restaurant in Model.Restaurants)
+    {
+        <tr class="border-bottom">
+            <td>
+                @Html.DisplayFor(modelItem => restaurant.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => restaurant.Name)
+            </td>
+            <td>
+                <form asp-action="Details" asp-route-id="@restaurant.Id">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        Подробнее
+                    </button>
+                </form>
+            </td>
+            <td>
+                <form asp-action="Edit" method="get" asp-route-id="@restaurant.Id">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        Редактировать
+                    </button>
+                </form>
+            </td>
+            <td>
+                <form asp-action="Delete" asp-route-id="@restaurant.Id">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        Удалить
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>

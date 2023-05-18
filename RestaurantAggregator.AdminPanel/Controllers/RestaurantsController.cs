@@ -81,7 +81,7 @@ public class RestaurantsController: Controller
             {
                 Name = restaurantModel.Name
             });
-            return View("Get");
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
@@ -93,8 +93,7 @@ public class RestaurantsController: Controller
             return View("Error", errorModel);
         }
     }
-
-    [HttpGet]
+    
     public async Task<ActionResult> Details(Guid id)
     {
         try
@@ -120,7 +119,7 @@ public class RestaurantsController: Controller
         {
             await _adminRestaurantsService.Delete(id);
 
-            return View("Get");
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
@@ -159,7 +158,7 @@ public class RestaurantsController: Controller
                 Name = restaurantModel.Name
             });
             
-            return View("Get");
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
