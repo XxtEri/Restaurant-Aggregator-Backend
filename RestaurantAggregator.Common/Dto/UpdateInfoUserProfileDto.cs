@@ -14,13 +14,14 @@ public class UpdateInfoUserProfileDto
     [Required]
     public string Email { get; set; }
     
-    public DateTime? BirthDate { get; set; }
+    [Required]
+    public DateTime BirthDate { get; set; }
     
     [Required]
     public Gender Gender { get; set; }
     
     [MaybeNull]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     [MaybeNull] 
     public string Address { get; set; }

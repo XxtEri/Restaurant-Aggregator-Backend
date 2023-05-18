@@ -25,16 +25,16 @@ public class UserDto
     public Gender Gender { get; set; }
     
     [MaybeNull]
+    [Phone]
     public string Phone { get; set; }
     
     [DefaultValue(false)]
     public bool isBanned { get; set; }
-
-    [Required]
+    
+    [DefaultValue(false)]
     public bool isCourier { get; set; }
     
-    [MaybeNull] 
-    public string Address { get; set; }
+    public string? Address { get; set; }
     
     public Guid? ManagerRestaurantId { get; set; }
     

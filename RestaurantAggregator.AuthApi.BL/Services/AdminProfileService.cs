@@ -7,6 +7,7 @@ using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Dto;
+using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.AuthApi.BL.Services;
 
@@ -126,9 +127,47 @@ public class AdminProfileService: IAdminProfileService
         await _context.SaveChangesAsync();
     }
     
-    public Task ChangeUser(Guid userId, UpdateInfoUserProfileDto model)
+    public async Task ChangeUser(Guid userId, UpdateInfoUserProfileDto model)
     {
-        throw new NotImplementedException();
+        if (model.BirthDate >= DateTime.UtcNow)
+        {
+            throw new NotCorrectDataException("Invalid birthdate. Birthdate must be more than current datetime");
+        }
+
+        model.BirthDate = model.BirthDate.ToUniversalTime();
+        
+        var user = await _context.Users.FindAsync(userId);
+
+        if (user == null)
+        {
+            throw new NotFoundElementException($"Ресторан для внесения изменений с id = {userId} не найден");
+        }
+
+        user.UserName = model.Username;
+        user.Email = model.Email;
+        user.PhoneNumber = model.Phone;
+        user.BirthDate = model.BirthDate;
+        user.Gender = model.Gender;
+
+        if (model.Address != null)
+        {
+            var customer = await _context.Customers
+                .Where(c => c.Id == userId)
+                .FirstOrDefaultAsync();
+            
+            if (customer != null)
+            {
+                customer.Address = model.Address;
+                
+                _context.Customers.Attach(customer);
+                _context.Entry(customer).State = EntityState.Modified;
+            }
+        }
+
+        _context.Users.Attach(user);
+        _context.Entry(user).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId)

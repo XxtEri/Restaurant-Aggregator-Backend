@@ -123,7 +123,7 @@ public class UsersController: Controller
         {
             await _adminUsersServices.Delete(id);
 
-            return View("Get");
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
@@ -137,13 +137,13 @@ public class UsersController: Controller
     }
     
     [HttpGet]
-    public async Task<ActionResult> Edit(Guid id)
+    public async Task<ActionResult<UserDto>> Edit(Guid id)
     {
         try
         {
-            var restaurant = await _adminUsersServices.Get(id);
-
-            return View(restaurant);
+            var user = await _adminUsersServices.Get(id);
+            
+            return View(user);
         }
         catch (Exception e)
         {
@@ -158,14 +158,13 @@ public class UsersController: Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, [Bind("Name")] UpdateInfoRestaurantModel
-        restaurantModel)
+    public async Task<IActionResult> Edit(Guid id, UpdateInfoUserProfileModel model)
     {
         if (!ModelState.IsValid)
         {
             var errorModel = new ErrorViewModel
             {
-                RequestId = "Error"
+                RequestId = ModelState.ToString()
             };
             
             return View("Error", errorModel);
@@ -173,14 +172,22 @@ public class UsersController: Controller
 
         try
         {
-            
-            return View("Get");
+            await _adminUsersServices.ChangeInfoUserProfile(id, new UpdateInfoUserProfileDto
+            {
+                Username = model.Username,
+                Email = model.Email,
+                BirthDate = model.BirthDate,
+                Gender = model.Gender,
+                Phone = model.Phone,
+                Address = model.Address
+            });
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
             var errorModel = new ErrorViewModel
             {
-                RequestId = "Error"
+                RequestId = e.Message
             };
             
             return View("Error", errorModel);

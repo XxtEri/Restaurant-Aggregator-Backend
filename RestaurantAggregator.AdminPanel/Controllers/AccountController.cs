@@ -12,7 +12,7 @@ public class LoginController: Controller
     }
 
     [HttpPost]
-    public ActionResult Verify(Account model)
+    public ActionResult Verify(AccountModel model)
     {
         if (model.Name == "admin" && model.Password == "admin") {
             return RedirectToAction("Index", "Home");

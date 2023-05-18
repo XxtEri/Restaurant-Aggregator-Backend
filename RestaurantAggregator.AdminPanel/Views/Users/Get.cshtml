@@ -37,14 +37,14 @@
                     }
                 </td>
                 <td>
-                    <form asp-action="Details" asp-controller="Users" asp-route-id="@user.Id">
+                    <form asp-action="Details" asp-route-id="@user.Id">
                         <button type="submit" class="btn btn-sm btn-primary">
                             Подробнее
                         </button>
                     </form>
                 </td>
                 <td>
-                    <form asp-action="Edit" asp-controller="Users" asp-route-id="@user.Id">
+                    <form asp-action="Edit" method="get" asp-route-id="@user.Id">
                         <button type="submit" class="btn btn-sm btn-primary">
                             Редактировать
                         </button>

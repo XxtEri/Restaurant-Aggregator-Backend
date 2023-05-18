@@ -9,5 +9,5 @@ public interface IAdminUsersServices
     Task Create(RegisterUserCredentialDto model);
     Task Delete(Guid id);
     Task ChangeStatusBannedUser(Guid userId);
-    Task ChangeInfoUserProfile(Guid userId);
+    Task ChangeInfoUserProfile(Guid userId, UpdateInfoUserProfileDto model);
 }

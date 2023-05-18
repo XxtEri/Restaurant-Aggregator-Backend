@@ -28,9 +28,9 @@ public class AdminUsersServices: IAdminUsersServices
         await _profileService.ChangeStatusBannedUser(userId);
     }
 
-    public async Task ChangeInfoUserProfile(Guid userId)
+    public async Task ChangeInfoUserProfile(Guid userId, UpdateInfoUserProfileDto model)
     {
-        await _profileService.ChangeStatusBannedUser(userId);
+        await _profileService.ChangeUser(userId, model);
     }
 
     public async Task Create(RegisterUserCredentialDto model)
