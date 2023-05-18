@@ -18,12 +18,16 @@ public class RestaurantsController: Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> Get()
+    public async Task<ActionResult> Get(string? name)
     {
         try
         {
-            var restaurants = await _adminRestaurantsService.Select();
-            return View(restaurants);
+            var restaurants = await _adminRestaurantsService.Select(name);
+            return View(new RestaurantListViewModel
+            {
+                Restaurants = restaurants,
+                Name = name
+            });
         }
         catch (Exception e)
         {
@@ -166,5 +170,11 @@ public class RestaurantsController: Controller
             
             return View("Error", errorModel);
         }
+    }
+    
+    [HttpPost]
+    public string Searching(string searchString, bool notUsed)
+    {
+        return "From [HttpPost]Index: filter on " + searchString;
     }
 }

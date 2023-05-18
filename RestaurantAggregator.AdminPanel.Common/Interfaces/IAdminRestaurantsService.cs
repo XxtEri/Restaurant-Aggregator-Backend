@@ -3,7 +3,11 @@ using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.AdminPanel.Common.Interfaces;
 
-public interface IAdminRestaurantsService: IBaseCrudService<RestaurantDTO>
+public interface IAdminRestaurantsService
 {
+    Task<RestaurantDTO> Get(Guid id);
+    Task<List<RestaurantDTO>> Select(string? searchingName);
+    Task Update(Guid id, RestaurantDTO model);
+    Task Delete(Guid id);
     public Task Create(CreateRestaurantDto model);
 }

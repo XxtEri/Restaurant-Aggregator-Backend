@@ -25,11 +25,11 @@ public class AdminRestaurantsService: IAdminRestaurantsService
         return await _restaurantService.GetRestaurant(id);
     }
     
-    public async Task<List<RestaurantDTO>> Select()
+    public async Task<List<RestaurantDTO>> Select(string? searchingName)
     {
         try
         {
-            var r = await _restaurantService.GetRestaurants("", 1);
+            var r = await _restaurantService.GetRestaurants(searchingName ?? string.Empty, 1);
 
             return r.Restaurants;
         }

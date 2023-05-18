@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 //configure Databases
 builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseNpgsql(

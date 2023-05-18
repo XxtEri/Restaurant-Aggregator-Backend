@@ -1,4 +1,4 @@
-@model List<RestaurantAggregator.API.Common.DTO.RestaurantDTO>
+@model RestaurantListViewModel
 
 @{
     ViewBag.Title = "Restaurants";
@@ -9,10 +9,20 @@
 <p>
     <a asp-action="Add">Create new restaurant</a>
 </p>
+
+<form method="get">
+    <div>
+        <label>Имя: </label>
+        <input asp-for="Name" />
+
+        <input type="submit" value="Найти" />
+    </div>
+</form>
+
 <div style="padding: 30px"></div>
 <table class="table">
     <tbody>
-        @foreach (var restaurant in Model) {
+        @foreach (var restaurant in Model.Restaurants) {
                 <tr class="border-bottom">
                     <td>
                         @Html.DisplayFor(modelItem => restaurant.Name)
