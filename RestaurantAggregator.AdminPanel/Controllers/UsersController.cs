@@ -66,7 +66,7 @@ public class UsersController: Controller
                 Password = model.Password
             });
                             
-            return View("Get");
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
