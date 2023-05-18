@@ -18,16 +18,22 @@ public class RestaurantsController: Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> Get(string? name)
+    public async Task<ActionResult> Get(string? name, int page = 1)
     {
         try
         {
-            var restaurants = await _adminRestaurantsService.Select(name);
-            return View(new RestaurantListViewModel
-            {
-                Restaurants = restaurants,
-                Name = name
-            });
+            var restaurantsPagedListDto = await _adminRestaurantsService.Select(name, page);
+            var pageViewModel = new PageViewModel(
+                restaurantsPagedListDto.PageInfoModel.Count, 
+                page, 
+                restaurantsPagedListDto.PageInfoModel.Size);
+            
+            var viewModel = new RestaurantListViewModel(
+                restaurantsPagedListDto.Restaurants, 
+                pageViewModel,
+                name);
+            
+            return View(viewModel);
         }
         catch (Exception e)
         {

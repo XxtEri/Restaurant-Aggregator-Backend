@@ -25,13 +25,11 @@ public class AdminRestaurantsService: IAdminRestaurantsService
         return await _restaurantService.GetRestaurant(id);
     }
     
-    public async Task<List<RestaurantDTO>> Select(string? searchingName)
+    public async Task<RestaurantPagedListDto> Select(string? searchingName, int page)
     {
         try
         {
-            var r = await _restaurantService.GetRestaurants(searchingName ?? string.Empty, 1);
-
-            return r.Restaurants;
+            return await _restaurantService.GetRestaurants(searchingName ?? string.Empty, page);
         }
         catch (Exception e)
         {

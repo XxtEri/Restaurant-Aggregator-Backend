@@ -37,10 +37,10 @@
     {
         <tr class="border-bottom">
             <td>
-                @Html.DisplayFor(modelItem => restaurant.Id)
+                @restaurant.Id
             </td>
             <td>
-                @Html.DisplayFor(modelItem => restaurant.Name)
+                @restaurant.Name
             </td>
             <td>
                 <form asp-action="Details" asp-route-id="@restaurant.Id">
@@ -67,3 +67,20 @@
     }
     </tbody>
 </table>
+
+<p>
+@if (Model.PageViewModel.HasPreviousPage)
+{
+    <a asp-action="Get"
+       asp-route-page="@(Model.PageViewModel.PageNumber - 1)" class="glyphicon glyphicon-chevron-left">
+        Назад
+    </a>
+}
+@if (Model.PageViewModel.HasNextPage)
+{
+    <a asp-action="Get"
+       asp-route-page="@(Model.PageViewModel.PageNumber + 1)" class="glyphicon glyphicon-chevron-right">
+        Вперед
+    </a>
+}
+</p>

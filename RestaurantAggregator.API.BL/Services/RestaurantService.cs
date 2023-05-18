@@ -17,7 +17,7 @@ public class RestaurantService: IRestaurantService
         _context = context;
     }
 
-    public async Task<RestaurantPagedListDto> GetRestaurants(string searchNameRestaurant, int page)
+    public async Task<RestaurantPagedListDto> GetRestaurants(string? searchNameRestaurant, int page)
     {
         if (page < 1)
         {
@@ -58,7 +58,7 @@ public class RestaurantService: IRestaurantService
         return new RestaurantPagedListDto
         {
             Restaurants = items,
-            PageInfoModel = new PageInfoModelDTO(pageSize, count, page)
+            PageInfoModel = new PageInfoModelDTO(pageSize, restaurants.Count, page)
         };
     }
 
