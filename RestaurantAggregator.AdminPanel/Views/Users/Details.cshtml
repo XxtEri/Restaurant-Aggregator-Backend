@@ -40,7 +40,7 @@
         </form>
         
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-route-id="@Model.Id">
+        <form asp-action="DeleteCookRole" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-danger">
                Удалить роль повара
             </button>
@@ -65,7 +65,7 @@
             </button>
         </form>
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-route-id="@Model.Id">
+        <form asp-action="DeleteManagerRole" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-danger">
                 Удалить роль менеджера
             </button>
@@ -84,7 +84,7 @@
     else
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-route-id="@Model.Id">
+        <form asp-action="DeleteCourierRole" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-danger">
                 Удалить роль курьера
             </button>

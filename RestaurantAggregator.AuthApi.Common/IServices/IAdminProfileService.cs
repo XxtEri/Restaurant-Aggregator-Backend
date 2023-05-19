@@ -19,6 +19,10 @@ public interface IAdminProfileService
     Task RegisterCourier(Guid userId);
 
     Task DeleteUser(Guid userId);
+    Task DeleteManagerRole(Guid userId);
+    Task DeleteCookRole(Guid userId);
+    Task DeleteCourierRole(Guid userId);
+    
     Task<Guid?> GetRestaurantIdForManager(Guid userId);
     Task<Guid?> GetRestaurantIdForCook(Guid userId);
 }

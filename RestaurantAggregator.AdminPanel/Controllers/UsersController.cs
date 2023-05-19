@@ -252,6 +252,63 @@ public class UsersController: Controller
         }
     }
 
+    public async Task<IActionResult> DeleteManagerRole(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.DeleteManagerRole(id);
+
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    public async Task<IActionResult> DeleteCookRole(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.DeleteCookRole(id);
+
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    public async Task<IActionResult> DeleteCourierRole(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.DeleteCourierRole(id);
+
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> EditRestaurantIdForManager(Guid id)
     {

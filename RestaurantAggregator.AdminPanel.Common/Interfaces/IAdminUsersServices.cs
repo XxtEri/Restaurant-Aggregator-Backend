@@ -13,6 +13,9 @@ public interface IAdminUsersServices
     Task AddManagerRole(Guid id);
     Task AddCookRole(Guid id);
     Task AddCourierRole(Guid id);
+    Task DeleteManagerRole(Guid userId);
+    Task DeleteCookRole(Guid userId);
+    Task DeleteCourierRole(Guid userId);
     Task<Guid?> GetRestaurantIdForManager(Guid userId);
     Task<Guid?> GetRestaurantIdForCook(Guid userId);
     Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId);

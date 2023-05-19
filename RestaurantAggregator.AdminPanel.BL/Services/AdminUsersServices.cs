@@ -89,4 +89,19 @@ public class AdminUsersServices: IAdminUsersServices
             await _profileService.AppointCookInRestaurant(cookId, restaurantId);
         }
     }
+
+    public async Task DeleteManagerRole(Guid userId)
+    {
+        await _profileService.DeleteManagerRole(userId);
+    }
+
+    public async Task DeleteCookRole(Guid userId)
+    {
+        await _profileService.DeleteCookRole(userId);
+    }
+
+    public async Task DeleteCourierRole(Guid userId)
+    {
+        await _profileService.DeleteCourierRole(userId);
+    }
 }

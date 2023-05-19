@@ -421,6 +421,57 @@ public class AdminProfileService: IAdminProfileService
         return cook.RestaurantId;
     }
     
+    public async Task DeleteManagerRole(Guid userId)
+    {
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+        }
+
+        await _userManager.RemoveFromRoleAsync(user, UserRoles.Manager);
+        await _context.SaveChangesAsync();
+
+        await DeleteManager(userId);
+    }
+
+    public async Task DeleteCookRole(Guid userId)
+    {
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+        }
+
+        await _userManager.RemoveFromRoleAsync(user, UserRoles.Cook);
+        await _context.SaveChangesAsync();
+
+        await DeleteCook(userId);
+    }
+
+    public async Task DeleteCourierRole(Guid userId)
+    {
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+        }
+
+        await _userManager.RemoveFromRoleAsync(user, UserRoles.Courier);
+        await _context.SaveChangesAsync();
+
+        await DeleteCourier(userId);
+    }
+    
     private async Task DeleteManager(Guid managerId)
     {
         var manager = await _context.Managers
