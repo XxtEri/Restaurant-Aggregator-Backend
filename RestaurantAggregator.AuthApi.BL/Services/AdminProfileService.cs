@@ -172,8 +172,6 @@ public class AdminProfileService: IAdminProfileService
 
     public async Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId)
     {
-        //TODO: сделать проверку на действительный ли restaurantId
-
         var manager = await _context.Managers
             .Where(m => m.Id == managerId)
             .FirstOrDefaultAsync();
@@ -193,8 +191,6 @@ public class AdminProfileService: IAdminProfileService
 
     public async Task AppointCookInRestaurant(Guid cookId, Guid restaurantId)
     {
-        //TODO: сделать проверку на действительный ли restaurantId
-
         var cook = await _context.Cooks
             .Where(m => m.Id == cookId)
             .FirstOrDefaultAsync();
@@ -388,9 +384,41 @@ public class AdminProfileService: IAdminProfileService
         return manager.RestaurantId;
     }
     
-    public async Task<Guid> GetRestaurantIdForCook(Guid userId)
+    public async Task<Guid?> GetRestaurantIdForCook(Guid userId)
     {
-        return userId;
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync();
+        
+        if (user == null)
+        {
+            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+        }
+
+        var roleIdCook = await _context.Roles
+            .Where(r => r.Name == UserRoles.Manager)
+            .Select(r => r.Id)
+            .FirstOrDefaultAsync();
+
+        var roleCook = await _context.UserRoles
+            .Where(o => o.UserId == userId && o.RoleId == roleIdCook)
+            .FirstOrDefaultAsync();
+
+        if (roleCook == null)
+        {
+            throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль менеджера");
+        }
+
+        var cook = await _context.Cooks
+            .Where(c => c.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (cook == null)
+        {
+            throw new NotFoundElementException($"Менеджер с id = {userId} не найден");
+        }
+
+        return cook.RestaurantId;
     }
     
     private async Task DeleteManager(Guid managerId)

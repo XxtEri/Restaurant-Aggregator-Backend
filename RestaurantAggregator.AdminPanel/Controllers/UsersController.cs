@@ -301,14 +301,15 @@ public class UsersController: Controller
     }
     
     [HttpGet]
-    public async Task<IActionResult> EditRestaurantIdForCook(UserDto user)
+    public async Task<IActionResult> EditRestaurantIdForCook(Guid id)
     {
         try
         {
+            var restaurantId = await _adminUsersServices.GetRestaurantIdForManager(id);
             var model = new ChangeRestaurantIdViewModel
             {
-                UserId = user.Id,
-                RestaurantId = user.CookRestaurantId
+                UserId = id,
+                RestaurantId = restaurantId
             };
             
             return View(model);
@@ -323,4 +324,28 @@ public class UsersController: Controller
             return View("Error", errorModel);
         }
     }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult<UserDto>> EditRestaurantIdForCook(Guid id, ChangeRestaurantIdModel model)
+    {
+        try
+        {
+            var user = await _adminUsersServices.Get(id);
+            
+            await _adminUsersServices.AppointCookInRestaurant(id, model.RestaurantId);
+
+            return RedirectToAction("Details", user);
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
 }

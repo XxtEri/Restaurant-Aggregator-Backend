@@ -63,13 +63,20 @@ public class AdminUsersServices: IAdminUsersServices
         return await _profileService.GetRestaurantIdForManager(userId);
     }
     
-    public async Task<Guid> GetRestaurantIdForCook(Guid userId)
+    public async Task<Guid?> GetRestaurantIdForCook(Guid userId)
     {
         return await _profileService.GetRestaurantIdForCook(userId);
     }
 
     public async Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId)
     {
+        //TODO: сделать проверку на действительный ли restaurantId
         await _profileService.AppointManagerInRestaurant(managerId, restaurantId);
+    }
+    
+    public async Task AppointCookInRestaurant(Guid cookId, Guid restaurantId)
+    {
+        //TODO: сделать проверку на действительный ли restaurantId
+        await _profileService.AppointCookInRestaurant(cookId, restaurantId);
     }
 }

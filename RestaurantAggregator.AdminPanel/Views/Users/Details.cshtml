@@ -33,7 +33,7 @@
     else
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="EditRestaurantIdForCook" asp-route-id="@Model.Id">
+        <form asp-action="EditRestaurantIdForCook" method="get" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-primary">
                 Изменить ресторан, в котором он работает поваром
             </button>
