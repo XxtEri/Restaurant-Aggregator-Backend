@@ -22,7 +22,6 @@ public class UpdateInfoUserProfileDto
     
     [MaybeNull]
     public string? Phone { get; set; }
-
-    [MaybeNull] 
-    public string Address { get; set; }
+    
+    public string? Address { get; set; }
 }

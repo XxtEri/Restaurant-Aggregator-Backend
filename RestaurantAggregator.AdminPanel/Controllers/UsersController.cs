@@ -79,63 +79,6 @@ public class UsersController: Controller
         }
     }
     
-    public async Task<ActionResult<UserDto>> Details(Guid id)
-    {
-        try
-        {
-            var user = await _adminUsersServices.Get(id);
-
-            return View(user);
-        }
-        catch (Exception e)
-        {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = e.Message
-            };
-            
-            return View("Error", errorModel);
-        }
-    }
-
-    public async Task<IActionResult> ChangeStatusBannedUser(Guid id)
-    {
-        try
-        {
-            await _adminUsersServices.ChangeStatusBannedUser(id);
-
-            return View("Get");
-        }
-        catch (Exception e)
-        {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = e.Message
-            };
-            
-            return View("Error", errorModel);
-        }
-    }
-
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        try
-        {
-            await _adminUsersServices.Delete(id);
-
-            return RedirectToAction("Get");
-        }
-        catch (Exception e)
-        {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = e.Message
-            };
-            
-            return View("Error", errorModel);
-        }
-    }
-    
     [HttpGet]
     public async Task<ActionResult<UserDto>> Edit(Guid id)
     {
@@ -193,4 +136,63 @@ public class UsersController: Controller
             return View("Error", errorModel);
         }
     }
+    
+    public async Task<ActionResult<UserDto>> Details(Guid id)
+    {
+        try
+        {
+            var user = await _adminUsersServices.Get(id);
+
+            return View(user);
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
+    public async Task<IActionResult> ChangeStatusBannedUser(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.ChangeStatusBannedUser(id);
+
+            return View("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.Delete(id);
+
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
+
 }

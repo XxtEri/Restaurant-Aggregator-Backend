@@ -19,9 +19,8 @@ public class RegisterUserCredentialDto
     [Required(ErrorMessage = "Gender is required")]
     public Gender Gender { get; set; }
     
-    [MaybeNull]
     [Phone]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     [Required(ErrorMessage = "Password is required")]
     public string Password { get; set; }
