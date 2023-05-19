@@ -87,7 +87,7 @@ public class AuthService: IAuthService
 
     public async Task<TokenPairDto> RegisterCustomer(RegisterCustomerCredentialDto model)
     {
-        if (model.BirthDate != null && model.BirthDate >= DateTime.UtcNow)
+        if (model.BirthDate >= DateTime.UtcNow)
         {
             throw new NotCorrectDataException("Invalid birthdate. Birthdate must be more than current datetime");
         }

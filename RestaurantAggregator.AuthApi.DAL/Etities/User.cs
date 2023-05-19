@@ -7,7 +7,8 @@ namespace RestaurantAggregator.AuthApi.DAL.Etities;
 
 public class User: IdentityUser<Guid>
 {
-    public DateTime? BirthDate { get; set; }
+    [Required]
+    public DateTime BirthDate { get; set; }
     
     [Required]
     public Gender Gender { get; set; }
@@ -16,7 +17,7 @@ public class User: IdentityUser<Guid>
     public string RefreshToken { get; set; }
     
     public DateTime? RefreshTokenExpires { get; set; }
-
+    
     public bool Banned { get; set; } = false;
     
     public Cook Cook { get; set; }

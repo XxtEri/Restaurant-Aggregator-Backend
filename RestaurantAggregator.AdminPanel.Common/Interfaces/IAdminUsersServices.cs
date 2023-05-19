@@ -15,4 +15,5 @@ public interface IAdminUsersServices
     Task AddCourierRole(Guid id);
     Task<Guid?> GetRestaurantIdForManager(Guid userId);
     Task<Guid> GetRestaurantIdForCook(Guid userId);
+    Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId);
 }

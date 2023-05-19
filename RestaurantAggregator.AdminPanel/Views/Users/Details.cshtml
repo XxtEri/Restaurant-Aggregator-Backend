@@ -41,7 +41,7 @@
         
         <div style="padding-left: 10px"></div>
         <form asp-action="" asp-route-id="@Model.Id">
-            <button type="submit" class="btn btn-sm btn-primary">
+            <button type="submit" class="btn btn-sm btn-danger">
                Удалить роль повара
             </button>
         </form>
@@ -55,12 +55,6 @@
                 Добавить роль менеджера
             </button>
         </form>
-        <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-route-id="@Model.Id">
-            <button type="submit" class="btn btn-sm btn-primary">
-                Удалить роль менеджера
-            </button>
-        </form>
     }
     else
     {
@@ -70,8 +64,32 @@
                 Изменить ресторан, в котором он работает менеджером
             </button>
         </form>
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-danger">
+                Удалить роль менеджера
+            </button>
+        </form>
     }
     
+    @if (!@Model.Roles.Contains(UserRoles.Courier))
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-dark">
+                Добавить роль курьера
+            </button>
+        </form>
+    }
+    else
+    {
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-danger">
+                Удалить роль курьера
+            </button>
+        </form>
+    }
 </div>
 
 <div style="padding: 10px"></div>

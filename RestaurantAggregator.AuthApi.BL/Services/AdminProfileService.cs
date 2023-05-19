@@ -262,12 +262,6 @@ public class AdminProfileService: IAdminProfileService
             User = user
         };
 
-        user.Manager = manager;
-
-        //не сохраняет изменения
-        _context.Users.Attach(user);
-        _context.Entry(user).State = EntityState.Modified;
-
         await _context.Managers.AddAsync(manager);
         
         await _context.SaveChangesAsync();
@@ -291,11 +285,6 @@ public class AdminProfileService: IAdminProfileService
             Id = userId,
             User = user
         };
-        
-        user.Cook = cook;
-
-        _context.Users.Attach(user);
-        _context.Entry(user).State = EntityState.Modified;
 
         await _context.Cooks.AddAsync(cook);
         
@@ -320,11 +309,6 @@ public class AdminProfileService: IAdminProfileService
             Id = userId,
             User = user
         };
-        
-        user.Courier = courier;
-
-        _context.Users.Attach(user);
-        _context.Entry(user).State = EntityState.Modified;
 
         await _context.Couriers.AddAsync(courier);
         
@@ -392,10 +376,16 @@ public class AdminProfileService: IAdminProfileService
             throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль менеджера");
         }
 
-        var manager = user.Manager;
-        var id = manager.RestaurantId;
+        var manager = await _context.Managers
+            .Where(m => m.Id == userId)
+            .FirstOrDefaultAsync();
 
-        return id;
+        if (manager == null)
+        {
+            throw new NotFoundElementException($"Менеджер с id = {userId} не найден");
+        }
+
+        return manager.RestaurantId;
     }
     
     public async Task<Guid> GetRestaurantIdForCook(Guid userId)

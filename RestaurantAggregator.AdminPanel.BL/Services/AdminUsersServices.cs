@@ -67,4 +67,9 @@ public class AdminUsersServices: IAdminUsersServices
     {
         return await _profileService.GetRestaurantIdForCook(userId);
     }
+
+    public async Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId)
+    {
+        await _profileService.AppointManagerInRestaurant(managerId, restaurantId);
+    }
 }

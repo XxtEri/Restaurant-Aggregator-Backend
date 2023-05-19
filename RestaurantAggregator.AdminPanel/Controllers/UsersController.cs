@@ -258,7 +258,7 @@ public class UsersController: Controller
         try
         {
             var restaurantId = await _adminUsersServices.GetRestaurantIdForManager(id);
-            var model = new ChangeRestaurantIdModel
+            var model = new ChangeRestaurantIdViewModel
             {
                 UserId = id,
                 RestaurantId = restaurantId
@@ -279,14 +279,15 @@ public class UsersController: Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult<UserDto>> EditRestaurantIdForManager(ChangeRestaurantIdModel model)
+    public async Task<ActionResult<UserDto>> EditRestaurantIdForManager(Guid id, ChangeRestaurantIdModel model)
     {
         try
         {
+            var user = await _adminUsersServices.Get(id);
             
-            var user = await _adminUsersServices.Get(model.UserId);
-            
-            return View("Details", user);
+            await _adminUsersServices.AppointManagerInRestaurant(id, model.RestaurantId);
+
+            return RedirectToAction("Details", user);
         }
         catch (Exception e)
         {
@@ -304,7 +305,7 @@ public class UsersController: Controller
     {
         try
         {
-            var model = new ChangeRestaurantIdModel
+            var model = new ChangeRestaurantIdViewModel
             {
                 UserId = user.Id,
                 RestaurantId = user.CookRestaurantId
