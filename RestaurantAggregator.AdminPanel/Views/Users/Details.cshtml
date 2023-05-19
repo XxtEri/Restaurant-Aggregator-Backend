@@ -75,7 +75,7 @@
     @if (!@Model.Roles.Contains(UserRoles.Courier))
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-route-id="@Model.Id">
+        <form asp-action="AddCourierRole" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-dark">
                 Добавить роль курьера
             </button>
