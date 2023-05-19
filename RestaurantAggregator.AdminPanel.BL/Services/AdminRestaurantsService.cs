@@ -63,4 +63,9 @@ public class AdminRestaurantsService: IAdminRestaurantsService
             throw new Exception(e.Message);
         }
     }
+
+    public async Task<bool> CheckIsIdRestaurant(Guid id)
+    {
+        return await _restaurantService.CheckIsIdRestaurant(id);
+    }
 }

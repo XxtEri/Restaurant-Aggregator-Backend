@@ -130,4 +130,13 @@ public class RestaurantService: IRestaurantService
             })
             .ToListAsync();
     }
+
+    public async Task<bool> CheckIsIdRestaurant(Guid id)
+    {
+        var restaurant = await _context.Restaurants
+            .Where(r => r.Id == id)
+            .FirstOrDefaultAsync();
+
+        return restaurant != null;
+    }
 }

@@ -10,4 +10,5 @@ public interface IRestaurantService
     Task CreateRestaurant(CreateRestaurantDto model);
     Task DeleteRestaurant(Guid restaurantId);
     Task UpdateRestaurant(Guid id, UpdateInfoRestaurantDto model);
+    Task<bool> CheckIsIdRestaurant(Guid id);
 }
