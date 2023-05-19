@@ -6,7 +6,7 @@
 }
 
 <div class="btn-group">
-    <form asp-action="ChangeStatusBannedUser" asp-controller="Users" asp-route-id="@Model.Id">
+    <form asp-action="ChangeStatusBannedUser" asp-route-id="@Model.Id">
         @if (@Model.isBanned)
         {
             <button type="submit" class="btn btn-sm btn-dark">
@@ -20,21 +20,11 @@
             </button>
         }
     </form>
-    
-    @if (!@Model.Roles.Contains(UserRoles.Customer))
-    {
-        <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
-             <button type="submit" class="btn btn-sm btn-dark">
-                 Добавить роль покупателя
-             </button>
-        </form>
-    }
-    
+
     @if (!@Model.Roles.Contains(UserRoles.Cook))
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+        <form asp-action="AddCookRole" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-dark">
                 Добавить роль повара
             </button>
@@ -43,9 +33,16 @@
     else
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+        <form asp-action="EditRestaurantIdForCook" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-primary">
-                Назначить повара на работу в ресторан
+                Изменить ресторан, в котором он работает поваром
+            </button>
+        </form>
+        
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-primary">
+               Удалить роль повара
             </button>
         </form>
     }
@@ -53,18 +50,24 @@
     @if (!@Model.Roles.Contains(UserRoles.Manager))
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+        <form asp-action="AddManagerRole" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-dark">
                 Добавить роль менеджера
+            </button>
+        </form>
+        <div style="padding-left: 10px"></div>
+        <form asp-action="" asp-route-id="@Model.Id">
+            <button type="submit" class="btn btn-sm btn-primary">
+                Удалить роль менеджера
             </button>
         </form>
     }
     else
     {
         <div style="padding-left: 10px"></div>
-        <form asp-action="" asp-controller="Users" asp-route-id="@Model.Id">
+        <form asp-action="EditRestaurantIdForManager" method="get" asp-route-id="@Model.Id">
             <button type="submit" class="btn btn-sm btn-primary">
-                Назначить менеджера на работу в ресторан
+                Изменить ресторан, в котором он работает менеджером
             </button>
         </form>
     }
@@ -75,27 +78,27 @@
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">@Model.Username</h5>
-        <p class="card-text">id: @Model.Id</p>
+        <p class="card-text">Id: @Model.Id</p>
         <p class="card-text">
             roles: @foreach (var role in @Model.Roles)
             {
                 @role
             }
         </p>
-        <p class="card-text">email: @Model.Email</p>
-        <p class="card-text">Birthdate: @Model.BirthDate</p>
-        <p class="card-text">gender: @Model.Gender</p>
-        <p class="card-text">phone: @Model.Phone</p>
+        <p class="card-text">Email: @Model.Email</p>
+        <p class="card-text">Дата рождения: @Model.BirthDate</p>
+        <p class="card-text">Пол: @Model.Gender</p>
+        <p class="card-text">Телефон: @Model.Phone</p>
         @if (@Model.Roles.Contains(UserRoles.Customer))
         {
             <p class="card-text">address: @Model.Address</p>
         }
         @if (@Model.Roles.Contains(UserRoles.Manager))
         {
-            <p class="card-text">restaurant id of manager: @Model.ManagerRestaurantId</p>
+            <p class="card-text">Id ресторана, где он работает менеджером: @Model.ManagerRestaurantId</p>
         }
         @if (@Model.Roles.Contains(UserRoles.Cook)){
-            <p class="card-text">restaurant id of cook: @Model.CookRestaurantId</p>
+            <p class="card-text">Id ресторана, где он работает поваром: @Model.CookRestaurantId </p>
         }
     </div>
 </div>

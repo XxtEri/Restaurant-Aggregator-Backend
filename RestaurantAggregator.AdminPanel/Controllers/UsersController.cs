@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.AdminPanel.Models;
+using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Dto;
 using RestaurantAggregator.CommonFiles.Enums;
 
@@ -35,9 +36,9 @@ public class UsersController: Controller
     }
 
     [HttpGet]
-    public Task<IActionResult> Add()
+    public async Task<IActionResult> Add()
     {
-        return Task.FromResult<IActionResult>(View());
+        return View();
     }
     
     [HttpPost]
@@ -72,7 +73,7 @@ public class UsersController: Controller
         {
             var errorModel = new ErrorViewModel
             {
-                RequestId = e.InnerException.Message
+                RequestId = e.Message
             };
             
             return View("Error", errorModel);
@@ -193,6 +194,132 @@ public class UsersController: Controller
             return View("Error", errorModel);
         }
     }
+    
+    public async Task<IActionResult> AddManagerRole(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.AddManagerRole(id);
 
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    public async Task<IActionResult> AddCookRole(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.AddCookRole(id);
 
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    public async Task<IActionResult> AddCourierRole(Guid id)
+    {
+        try
+        {
+            await _adminUsersServices.AddCourierRole(id);
+
+            return RedirectToAction("Get");
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditRestaurantIdForManager(Guid id)
+    {
+        try
+        {
+            var restaurantId = await _adminUsersServices.GetRestaurantIdForManager(id);
+            var model = new ChangeRestaurantIdModel
+            {
+                UserId = id,
+                RestaurantId = restaurantId
+            };
+            
+            return View(model);
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult<UserDto>> EditRestaurantIdForManager(ChangeRestaurantIdModel model)
+    {
+        try
+        {
+            
+            var user = await _adminUsersServices.Get(model.UserId);
+            
+            return View("Details", user);
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> EditRestaurantIdForCook(UserDto user)
+    {
+        try
+        {
+            var model = new ChangeRestaurantIdModel
+            {
+                UserId = user.Id,
+                RestaurantId = user.CookRestaurantId
+            };
+            
+            return View(model);
+        }
+        catch (Exception e)
+        {
+            var errorModel = new ErrorViewModel
+            {
+                RequestId = e.Message
+            };
+            
+            return View("Error", errorModel);
+        }
+    }
 }

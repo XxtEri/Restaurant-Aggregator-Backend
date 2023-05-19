@@ -42,4 +42,29 @@ public class AdminUsersServices: IAdminUsersServices
     {
         await _profileService.DeleteUser(id);
     }
+
+    public async Task AddManagerRole(Guid id)
+    {
+        await _profileService.RegisterManager(id);
+    }
+
+    public async Task AddCookRole(Guid id)
+    {
+        await _profileService.RegisterCook(id);
+    }
+
+    public async Task AddCourierRole(Guid id)
+    {
+        await _profileService.RegisterCourier(id);
+    }
+
+    public async Task<Guid?> GetRestaurantIdForManager(Guid userId)
+    {
+        return await _profileService.GetRestaurantIdForManager(userId);
+    }
+    
+    public async Task<Guid> GetRestaurantIdForCook(Guid userId)
+    {
+        return await _profileService.GetRestaurantIdForCook(userId);
+    }
 }

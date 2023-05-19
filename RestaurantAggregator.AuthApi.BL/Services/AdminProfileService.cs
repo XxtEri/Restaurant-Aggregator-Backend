@@ -172,7 +172,7 @@ public class AdminProfileService: IAdminProfileService
 
     public async Task AppointManagerInRestaurant(Guid managerId, Guid restaurantId)
     {
-        //типа проверили заранее restaurantId есть или нет такой
+        //TODO: сделать проверку на действительный ли restaurantId
 
         var manager = await _context.Managers
             .Where(m => m.Id == managerId)
@@ -193,7 +193,7 @@ public class AdminProfileService: IAdminProfileService
 
     public async Task AppointCookInRestaurant(Guid cookId, Guid restaurantId)
     {
-        //типа проверили заранее restaurantId есть или нет такой
+        //TODO: сделать проверку на действительный ли restaurantId
 
         var cook = await _context.Cooks
             .Where(m => m.Id == cookId)
@@ -254,13 +254,22 @@ public class AdminProfileService: IAdminProfileService
             throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
         }
         
+        await _userManager.AddToRoleAsync(user, UserRoles.Manager);
+
         var manager = new Manager
         {
             Id = userId,
             User = user
         };
 
+        user.Manager = manager;
+
+        //не сохраняет изменения
+        _context.Users.Attach(user);
+        _context.Entry(user).State = EntityState.Modified;
+
         await _context.Managers.AddAsync(manager);
+        
         await _context.SaveChangesAsync();
     }
 
@@ -275,13 +284,21 @@ public class AdminProfileService: IAdminProfileService
             throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
         }
         
+        await _userManager.AddToRoleAsync(user, UserRoles.Cook);
+        
         var cook = new Cook
         {
             Id = userId,
             User = user
         };
+        
+        user.Cook = cook;
+
+        _context.Users.Attach(user);
+        _context.Entry(user).State = EntityState.Modified;
 
         await _context.Cooks.AddAsync(cook);
+        
         await _context.SaveChangesAsync();
     }
 
@@ -296,13 +313,21 @@ public class AdminProfileService: IAdminProfileService
             throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
         }
         
+        await _userManager.AddToRoleAsync(user, UserRoles.Courier);
+        
         var courier = new Courier
         {
             Id = userId,
             User = user
         };
+        
+        user.Courier = courier;
+
+        _context.Users.Attach(user);
+        _context.Entry(user).State = EntityState.Modified;
 
         await _context.Couriers.AddAsync(courier);
+        
         await _context.SaveChangesAsync();
     }
 
@@ -342,6 +367,42 @@ public class AdminProfileService: IAdminProfileService
         await _context.SaveChangesAsync();
     }
 
+    public async Task<Guid?> GetRestaurantIdForManager(Guid userId)
+    {
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync();
+        
+        if (user == null)
+        {
+            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+        }
+
+        var roleIdManager = await _context.Roles
+            .Where(r => r.Name == UserRoles.Manager)
+            .Select(r => r.Id)
+            .FirstOrDefaultAsync();
+
+        var roleManager = await _context.UserRoles
+            .Where(o => o.UserId == userId && o.RoleId == roleIdManager)
+            .FirstOrDefaultAsync();
+
+        if (roleManager == null)
+        {
+            throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль менеджера");
+        }
+
+        var manager = user.Manager;
+        var id = manager.RestaurantId;
+
+        return id;
+    }
+    
+    public async Task<Guid> GetRestaurantIdForCook(Guid userId)
+    {
+        return userId;
+    }
+    
     private async Task DeleteManager(Guid managerId)
     {
         var manager = await _context.Managers
@@ -415,5 +476,4 @@ public class AdminProfileService: IAdminProfileService
 
         return roleNames;
     }
-    
 }
