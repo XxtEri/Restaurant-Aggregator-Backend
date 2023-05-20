@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using RestaurantAggregator.APIAuth.Middlewares;
 using RestaurantAggregator.AuthApi.BL;
 using RestaurantAggregator.AuthApi.BL.Services;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles;
+using RestaurantAggregator.CommonFiles.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

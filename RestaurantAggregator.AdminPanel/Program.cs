@@ -5,11 +5,12 @@ using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.API.BL.Services;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
-using RestaurantAggregator.APIAuth.Middlewares;
+using RestaurantAggregator.AuthApi.BL;
 using RestaurantAggregator.AuthApi.BL.Services;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
+using RestaurantAggregator.CommonFiles.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseExceptionMiddleware();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -65,5 +68,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Login}/{id?}"
     );
+
+await AuthConfiguration.SeedRoles(app.Services);
 
 app.Run();

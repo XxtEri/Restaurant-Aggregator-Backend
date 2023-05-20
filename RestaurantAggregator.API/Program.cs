@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using RestaurantAggregator.API.BL.Services;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
+using RestaurantAggregator.CommonFiles.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,8 +42,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseExceptionMiddleware();
+
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,6 +1,8 @@
-using RestaurantAggregator.AuthApi.Common.Exceptions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using RestaurantAggregator.CommonFiles.Exceptions;
 
-namespace RestaurantAggregator.APIAuth.Middlewares;
+namespace RestaurantAggregator.CommonFiles.Middlewares;
 
 public class ExceptionMiddleware
 {
@@ -22,13 +24,5 @@ public class ExceptionMiddleware
             httpContext.Response.StatusCode = (int)ExceptionStatusCodes.GetExceptionStatusCode(e);
             await httpContext.Response.WriteAsync(e.Message);
         } 
-    }
-}
-
-public static class MiddlewareException
-{
-    public static IApplicationBuilder UseExceptionMiddleware(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<ExceptionMiddleware>();
     }
 }
