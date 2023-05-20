@@ -11,6 +11,7 @@ using RestaurantAggregator.AuthApi.Common.DTO;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
+using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.APIAuth.Controllers;
 

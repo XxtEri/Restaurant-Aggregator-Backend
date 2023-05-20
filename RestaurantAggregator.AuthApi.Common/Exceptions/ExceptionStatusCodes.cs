@@ -10,7 +10,6 @@ public static class ExceptionStatusCodes
         { typeof(InvalidDataCustomException), HttpStatusCode.Unauthorized},
         { typeof(NotPermissionAccountException), HttpStatusCode.Unauthorized},
         { typeof(DataAlreadyUsedException), HttpStatusCode.BadRequest},
-        { typeof(NotCorrectDataException), HttpStatusCode.BadRequest}
     };
 
     public static HttpStatusCode GetExceptionStatusCode(Exception exception)

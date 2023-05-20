@@ -6,7 +6,8 @@ public class ExceptionStatusCodes
 {
     private static readonly Dictionary<Type, HttpStatusCode> _exceptionStatusCodes = new Dictionary<Type, HttpStatusCode>
     {
-        
+        { typeof(NotCorrectDataException), HttpStatusCode.BadRequest},
+        { typeof(NotFoundException), HttpStatusCode.NotFound}
     };
 
     public static HttpStatusCode GetExceptionStatusCode(Exception exception)

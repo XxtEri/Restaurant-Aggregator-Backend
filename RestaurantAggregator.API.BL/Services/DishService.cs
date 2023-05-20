@@ -4,6 +4,7 @@ using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.API.BL.Services;
 

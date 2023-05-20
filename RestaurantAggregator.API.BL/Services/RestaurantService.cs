@@ -5,6 +5,7 @@ using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.CommonFiles.Dto;
+using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.API.BL.Services;
 
@@ -75,7 +76,7 @@ public class RestaurantService: IRestaurantService
 
         if (restaurant == null)
         {
-            throw new NotFoundElementException($"Не найдено ресторана с id = {restaurantId}");
+            throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
         }
         
         restaurant.Menus = await GetMenus(restaurant.Id);
@@ -119,6 +120,15 @@ public class RestaurantService: IRestaurantService
         await _context.SaveChangesAsync();
     }
 
+    public async Task<bool> CheckIsIdRestaurant(Guid id)
+    {
+        var restaurant = await _context.Restaurants
+            .Where(r => r.Id == id)
+            .FirstOrDefaultAsync();
+
+        return restaurant != null;
+    }
+    
     private async Task<List<MenuDTO>> GetMenus(Guid restaurantId)
     {
         return await _context.Menus
@@ -129,14 +139,5 @@ public class RestaurantService: IRestaurantService
                 Name = menu.Name
             })
             .ToListAsync();
-    }
-
-    public async Task<bool> CheckIsIdRestaurant(Guid id)
-    {
-        var restaurant = await _context.Restaurants
-            .Where(r => r.Id == id)
-            .FirstOrDefaultAsync();
-
-        return restaurant != null;
     }
 }

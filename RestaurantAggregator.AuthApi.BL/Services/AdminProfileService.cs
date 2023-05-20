@@ -8,6 +8,7 @@ using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Dto;
 using RestaurantAggregator.CommonFiles.Enums;
+using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.AuthApi.BL.Services;
 

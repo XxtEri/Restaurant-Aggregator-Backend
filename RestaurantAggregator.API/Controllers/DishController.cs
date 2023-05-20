@@ -6,6 +6,7 @@ using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles.Exceptions;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
