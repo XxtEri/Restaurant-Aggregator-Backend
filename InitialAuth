@@ -1,0 +1,5 @@
+System.IndexOutOfRangeException: Index was outside the bounds of the array.
+   at Microsoft.DotNet.Cli.CommandLine.CommandLineApplication.ParseOption(Boolean isLongOption, CommandLineApplication command, String[] args, Int32& index, CommandOption& option)
+   at Microsoft.DotNet.Cli.CommandLine.CommandLineApplication.Execute(String[] args)
+   at Microsoft.EntityFrameworkCore.Tools.Program.Main(String[] args)
+Index was outside the bounds of the array.
