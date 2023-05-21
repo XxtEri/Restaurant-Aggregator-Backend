@@ -66,12 +66,12 @@ public class CartController: ControllerBase
     /// <param name="dishId"></param>
     /// <returns></returns>
     [HttpGet]
+    [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Roles = UserRoles.Customer)]
     [Route("dishes/{dishId}")]
     public async Task<ActionResult<DishInCartModel>> GetDishInCart(Guid dishId)
     {
@@ -128,7 +128,7 @@ public class CartController: ControllerBase
     /// Удаление блюда из корзины
     /// </summary>
     [HttpDelete("basket/dishes/{dishId}")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status204NoContent)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -154,7 +154,7 @@ public class CartController: ControllerBase
     /// Изменение количества какого-то добавленного в корзину блюда
     /// </summary>
     [HttpPost("dishes/{dishId}/increase")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
