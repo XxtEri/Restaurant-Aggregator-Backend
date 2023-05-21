@@ -163,7 +163,7 @@ public class DishController: ControllerBase
     }
     
     /// <summary>
-    /// Поставить рейтинг блюду
+    /// Добавить блюдо в меню ресторана
     /// </summary>
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -173,7 +173,7 @@ public class DishController: ControllerBase
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpPost("restaurants/{restaurantId}/menu/{menuId}/dishes")]
     [Authorize(Roles = UserRoles.Manager)]
-    public async Task<IActionResult> AddDishToMenu(Guid dishId, [Range(0, 10)] int ratingScore)
+    public async Task<IActionResult> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
     {
         return Ok();
     }

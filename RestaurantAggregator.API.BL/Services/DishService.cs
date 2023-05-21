@@ -12,10 +12,12 @@ namespace RestaurantAggregator.API.BL.Services;
 public class DishService: IDishService
 {
     private readonly ApplicationDBContext _context;
+    private readonly IUserService _userService;
 
-    public DishService(ApplicationDBContext context)
+    public DishService(ApplicationDBContext context, IUserService userService)
     {
         _context = context;
+        _userService = userService;
     }
     
     public async Task<DishPagedListDTO> GetListAllDishesInRestaurant(Guid restaurantId, 
@@ -158,9 +160,7 @@ public class DishService: IDishService
             .FirstOrDefaultAsync();
 
         if (customer == null)
-        {
-            //TODO: добавить его в бд
-        }
+            customer.Id = await _userService.AddNewCustomerToDb(userId);
 
         //TODO: проверить заказывал ли блюдо
 
@@ -174,9 +174,7 @@ public class DishService: IDishService
             .FirstOrDefaultAsync();
 
         if (customer == null)
-        {
-            //TODO: добавить его в бд
-        }
+            customer.Id = await _userService.AddNewCustomerToDb(userId);
 
         var check = await CheckCurrentUserSetRatingToDish(userId, dishId);
 
@@ -205,5 +203,50 @@ public class DishService: IDishService
         _context.Entry(rating).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<DishDTO> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishDto model)
+    {
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
+        }
+
+        var menu = restaurant.Menus.FirstOrDefault(m => m.Id == menuId);
+
+        if (menu == null)
+        {
+            throw new NotFoundException($"Не найдено меню с id = {menuId} в ресторане с id = {restaurantId}");
+        }
+
+        var dish = new Dish
+        {
+            Name = model.Name,
+            Price = model.Price,
+            Description = model.Description,
+            IsVegetarian = model.IsVegetarian,
+            Photo = model.Photo,
+            Category = DishCategory.Wok
+        };
+
+        await _context.Dishes.AddAsync(dish);
+        await _context.MenusDishes.AddAsync(new MenuDish
+        {
+            Dish = dish,
+            Menu = menu
+        });
+
+        return new DishDTO
+        {
+            Id = dish.Id,
+            Name = dish.Name,
+            Price = dish.Price,
+            Description = dish.Description,
+            IsVegetarian = dish.IsVegetarian,
+            Photo = dish.Photo,
+            Category = dish.Category
+        };
     }
 }
