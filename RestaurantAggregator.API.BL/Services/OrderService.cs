@@ -113,9 +113,8 @@ public class OrderService: IOrderService
             throw new NotCorrectDataException( message: "Invalid delivery time. Delivery time must be more than current datetime on 60 minutes");
         }
 
-        //var dishesInCart = await _cartService.GetCartDishes(userId);
-        var dishesInCart = new System.Collections.Generic.List<DishInCartDto>();
-        
+        var dishesInCart = await _cartService.GetCartDishes(userId);
+      
         if (dishesInCart.Count == 0)
         {
             throw new NotFoundException(message: $"Невозможно создать новый заказ, так как корзина пока еще пуста у пользователя с id={userId}");
@@ -140,7 +139,7 @@ public class OrderService: IOrderService
         
         _context.Orders.Add(order);
 
-        //await _cartService.ClearCart(userId);
+        await _cartService.ClearCart(userId);
         foreach (var dishInCart in dishesInCart)
         {
             _context.OrdersDishes.Add(new OrderDish

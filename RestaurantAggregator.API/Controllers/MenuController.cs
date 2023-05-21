@@ -8,7 +8,7 @@ using RestaurantAggregatorService.Models;
 namespace RestaurantAggregatorService.Controllers;
 
 [ApiController]
-[Route("restaurant/{restaurantId}")]
+[Route("restaurants/{restaurantId}")]
 [Produces("application/json")]
 public class MenuController: ControllerBase
 {

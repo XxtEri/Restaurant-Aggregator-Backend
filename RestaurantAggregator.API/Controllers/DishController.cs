@@ -51,7 +51,7 @@ public class DishController: ControllerBase
     /// <summary>
     /// Получение списка блюд в конкретном меню ресторана
     /// </summary>
-    [HttpGet("restaurant/{restaurantId}/menu/{menuId}/dishes")]
+    [HttpGet("restaurants/{restaurantId}/menus/{menuId}/dishes")]
     [ProducesResponseType(typeof(DishPagedListModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -173,8 +173,27 @@ public class DishController: ControllerBase
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpPost("restaurants/{restaurantId}/menu/{menuId}/dishes")]
     [Authorize(Roles = UserRoles.Manager)]
-    public async Task<IActionResult> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
+    public async Task<ActionResult<DishModel>> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
     {
-        return Ok();
+        var dishDto = await _dishService.AddDishToMenuOfRestaurant(restaurantId, menuId, new CreateDishDto
+        {
+            Name = model.Name,
+            Price = model.Price,
+            Description = model.Description,
+            IsVegetarian = model.IsVegetarian,
+            Photo = model.Photo,
+            Category = model.Category
+        });
+        
+        return Ok(new DishModel
+        {
+            Name = dishDto.Name,
+            Price = dishDto.Price,
+            Description = dishDto.Description,
+            IsVegetarian = dishDto.IsVegetarian,
+            Photo = dishDto.Photo,
+            Rating = dishDto.Rating,
+            Category = dishDto.Category
+        });
     }
 }

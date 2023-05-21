@@ -170,7 +170,7 @@ public class RestaurantsController: Controller
         {
             var errorModel = new ErrorViewModel
             {
-                RequestId = "Error"
+                RequestId = e.InnerException.Message
             };
             
             return View("Error", errorModel);

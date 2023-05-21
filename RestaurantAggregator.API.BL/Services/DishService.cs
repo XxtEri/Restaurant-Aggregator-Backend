@@ -213,11 +213,12 @@ public class DishService: IDishService
         {
             throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
         }
-
-        var menu = restaurant.Menus.FirstOrDefault(m => m.Id == menuId);
+        
+        var menu = await _context.Menus
+            .FirstOrDefaultAsync(m => m.Id == menuId && m.RestaurantId == restaurantId);
 
         if (menu == null)
-        {
+        { 
             throw new NotFoundException($"Не найдено меню с id = {menuId} в ресторане с id = {restaurantId}");
         }
 
@@ -238,6 +239,8 @@ public class DishService: IDishService
             Menu = menu
         });
 
+        await _context.SaveChangesAsync();
+        
         return new DishDTO
         {
             Id = dish.Id,

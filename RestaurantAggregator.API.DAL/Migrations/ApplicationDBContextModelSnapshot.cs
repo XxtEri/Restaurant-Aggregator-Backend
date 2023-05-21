@@ -28,6 +28,9 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.ToTable("Cooks");
@@ -118,6 +121,9 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.ToTable("Managers");
@@ -180,9 +186,6 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("DishInCartId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("NumberOrder")
                         .IsRequired()
                         .HasColumnType("text");
@@ -190,8 +193,8 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -202,9 +205,30 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
                     b.HasIndex("CourierId");
 
-                    b.HasIndex("DishInCartId");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.OrderDish", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DishId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DishId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrdersDishes");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Rating", b =>
@@ -233,11 +257,23 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CookId")
+                        .IsUnique();
+
+                    b.HasIndex("ManagerId")
+                        .IsUnique();
 
                     b.ToTable("Restaurants");
                 });
@@ -301,9 +337,9 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("CourierId");
 
-                    b.HasOne("RestaurantAggregator.API.DAL.Entities.DishInCart", "DishInCart")
-                        .WithMany()
-                        .HasForeignKey("DishInCartId")
+                    b.HasOne("RestaurantAggregator.API.DAL.Entities.Customer", "Customer")
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -311,12 +347,49 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
                     b.Navigation("Courier");
 
-                    b.Navigation("DishInCart");
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.OrderDish", b =>
+                {
+                    b.HasOne("RestaurantAggregator.API.DAL.Entities.Dish", "Dish")
+                        .WithMany("OrderDishes")
+                        .HasForeignKey("DishId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RestaurantAggregator.API.DAL.Entities.Order", "Order")
+                        .WithMany("OrderDishes")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dish");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Restaurant", b =>
+                {
+                    b.HasOne("RestaurantAggregator.API.DAL.Entities.Cook", "Cook")
+                        .WithOne("Restaurant")
+                        .HasForeignKey("RestaurantAggregator.API.DAL.Entities.Restaurant", "CookId");
+
+                    b.HasOne("RestaurantAggregator.API.DAL.Entities.Manager", "Manager")
+                        .WithOne("Restaurant")
+                        .HasForeignKey("RestaurantAggregator.API.DAL.Entities.Restaurant", "ManagerId");
+
+                    b.Navigation("Cook");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Cook", b =>
                 {
                     b.Navigation("Orders");
+
+                    b.Navigation("Restaurant")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Courier", b =>
@@ -327,6 +400,8 @@ namespace RestaurantAggregator.API.DAL.Migrations
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Customer", b =>
                 {
                     b.Navigation("DishInCarts");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Dish", b =>
@@ -334,11 +409,24 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.Navigation("DishInCarts");
 
                     b.Navigation("MenusDishes");
+
+                    b.Navigation("OrderDishes");
+                });
+
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Manager", b =>
+                {
+                    b.Navigation("Restaurant")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Menu", b =>
                 {
                     b.Navigation("MenusDishes");
+                });
+
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Order", b =>
+                {
+                    b.Navigation("OrderDishes");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Restaurant", b =>

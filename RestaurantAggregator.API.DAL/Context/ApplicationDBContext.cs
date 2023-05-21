@@ -28,15 +28,15 @@ public class ApplicationDBContext: DbContext
             .HasForeignKey(m => m.RestaurantId)
             .IsRequired();
         
-        modelBuilder.Entity<Restaurant>()
-            .HasOne(o => o.Cook)
-            .WithOne(c => c.Restaurant)
-            .HasForeignKey<Cook>(c => c.RestaurantId);
+        modelBuilder.Entity<Cook>()
+            .HasOne(o => o.Restaurant)
+            .WithOne(c => c.Cook)
+            .HasForeignKey<Restaurant>(c => c.CookId);
         
-        modelBuilder.Entity<Restaurant>()
-            .HasOne(o => o.Manager)
-            .WithOne(c => c.Restaurant)
-            .HasForeignKey<Manager>(c => c.RestaurantId);
+        modelBuilder.Entity<Manager>()
+            .HasOne(o => o.Restaurant)
+            .WithOne(c => c.Manager)
+            .HasForeignKey<Restaurant>(c => c.ManagerId);
         
         modelBuilder.Entity<MenuDish>()
             .HasKey(e => new {e.DishId, e.MenuId});
