@@ -153,7 +153,7 @@ public class CartController: ControllerBase
     /// <summary>
     /// Изменение количества какого-то добавленного в корзину блюда
     /// </summary>
-    [HttpPost("dishes/{dishId}/increase")]
+    [HttpPut("dishes/{dishId}/increase")]
     [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -171,7 +171,33 @@ public class CartController: ControllerBase
             return StatusCode(500, "Возникла ошибка при парсинге токена");
         }
 
-        await _cartService.DeleteDishOfCart(new Guid(userId), dishId);
+        await _cartService.ChangeQuantity(new Guid(userId), dishId, increase);
+
+        return Ok();
+    }
+    
+    /// <summary>
+    /// Очистить корзину
+    /// </summary>
+    [HttpPost("")]
+    [Authorize(Roles = UserRoles.Customer)]
+    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ClearCart()
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        await _cartService.ClearCart(new Guid(userId));
 
         return Ok();
     }

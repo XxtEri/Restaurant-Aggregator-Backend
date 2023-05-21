@@ -9,4 +9,6 @@ public interface ICartService
     Task<DishInCartDto> AddDishInCart(Guid userId, Guid dishId);
     Task DeleteDishOfCart(Guid userId, Guid dishId);
     Task ChangeQuantity(Guid userId, Guid dishId, bool increase);
+
+    Task ClearCart(Guid userId);
 }

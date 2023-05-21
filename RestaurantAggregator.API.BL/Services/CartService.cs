@@ -125,6 +125,11 @@ public class CartService: ICartService
         await _context.SaveChangesAsync();
     }
 
+    public async Task ClearCart(Guid userId)
+    {
+        
+    }
+
     private DishInCartDto GetDishInCartDto(DishInCart dishInCart)
     {
         return new DishInCartDto
