@@ -18,6 +18,6 @@ public interface IDishService
         SortingDish sorting,
         int page);
     Task<DishDTO> GetDishInformation(Guid dishId);
-    Task<bool> CheckCurrentUserSetRatingToDish();
-    Task SetRatingToDish(Guid dishId, int ratingScore);
+    Task<bool> CheckCurrentUserSetRatingToDish(Guid userId, Guid dishId);
+    Task SetRatingToDish(Guid userId, Guid dishId, int ratingScore);
 }

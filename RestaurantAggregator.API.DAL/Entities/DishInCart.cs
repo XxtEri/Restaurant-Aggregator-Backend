@@ -12,7 +12,7 @@ public class DishInCart
     
     [DefaultValue(0)]
     public int Count { get; set; }
-    
+
     [ForeignKey("Dish")]
     public Guid DishId { get; set; }
     
@@ -22,11 +22,4 @@ public class DishInCart
     public Dish Dish { get; set; }
     
     public Customer Customer { get; set; }
-    
-    public ICollection<Order> Orders { get; set; }
-
-    public DishInCart()
-    {
-        Orders = new List<Order>();
-    }
 }

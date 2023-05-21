@@ -3,6 +3,7 @@ using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
+using RestaurantAggregator.API.DAL.Entities;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.CommonFiles.Exceptions;
 
@@ -34,7 +35,7 @@ public class DishService: IDishService
         
         if (!menus.Any())
         {
-            throw new NotFoundElementException($"Блюда не найдены или отсутствуют в ресторане с id = {restaurantId}");
+            throw new NotFoundException($"Блюда не найдены или отсутствуют в ресторане с id = {restaurantId}");
         }
 
         var dishesInRestaurant = new List<DishDTO>();
@@ -55,11 +56,6 @@ public class DishService: IDishService
                     Category = d.Category
                 })
                 .ToListAsync();
-            
-            if (!dishes.Any())
-            {
-                throw new NotFoundElementException($"Блюда не найдены или отсутствуют в ресторане с id = {restaurantId}");
-            }
 
             dishesInRestaurant.AddRange(dishes);
         }
@@ -70,7 +66,7 @@ public class DishService: IDishService
             ? countDishes / 5 + 1 
             : countDishes / 5;
 
-        if (page > count)
+        if (page > count && dishesInRestaurant.Any())
         {
             throw new NotCorrectDataException(message: "Invalid value for attribute page");
         }
@@ -116,7 +112,7 @@ public class DishService: IDishService
         var countDishes = dishes.Count();
         var count = countDishes % pageSize < pageSize && countDishes % pageSize != 0 ? countDishes / 5 + 1 : countDishes / 5;
 
-        if (page > count)
+        if (page > count && dishes.Any())
         {
             throw new NotCorrectDataException(message: "Invalid value for attribute page");
         }
@@ -149,21 +145,65 @@ public class DishService: IDishService
 
         if (dish == null)
         {
-            throw new NotFoundElementException("Данное блюдо не найдено");
+            throw new NotFoundException("Данное блюдо не найдено");
         }
         
         return dish;
     }
 
-    public Task<bool> CheckCurrentUserSetRatingToDish()
+    public async Task<bool> CheckCurrentUserSetRatingToDish(Guid userId, Guid dishId)
     {
-        //не сделано
-        throw new NotImplementedException();
+        var customer = await _context.Customers
+            .Where(c => c.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+        {
+            //TODO: добавить его в бд
+        }
+
+        //TODO: проверить заказывал ли блюдо
+
+        return true;
     }
 
-    public Task SetRatingToDish(Guid dishId, int ratingScore)
+    public async Task SetRatingToDish(Guid userId, Guid dishId, int ratingScore)
     {
-        //не сделано
-        throw new NotImplementedException();
+        var customer = await _context.Customers
+            .Where(c => c.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+        {
+            //TODO: добавить его в бд
+        }
+
+        var check = await CheckCurrentUserSetRatingToDish(userId, dishId);
+
+        if (!check)
+            throw new ForbiddenException($"Покупатель с id = { userId } не может поставить рейтинг данному блюду, так как ниразу заказывал его");
+
+        var rating = await _context.Ratings
+            .Where(r => r.DishId == dishId && r.CustomerId == userId)
+            .FirstOrDefaultAsync();
+
+        if (rating != null)
+        {
+            rating.Value = ratingScore;
+        }
+        else
+        {
+            rating = new Rating
+            {
+                Value = ratingScore,
+                DishId = dishId,
+                CustomerId = userId
+            };
+        }
+        
+        _context.Ratings.Attach(rating);
+        _context.Entry(rating).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
     }
 }

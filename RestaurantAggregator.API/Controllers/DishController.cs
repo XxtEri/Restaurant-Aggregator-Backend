@@ -6,6 +6,7 @@ using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Exceptions;
 using RestaurantAggregatorService.Models;
 
@@ -24,122 +25,74 @@ public class DishController: ControllerBase
         _dishService = dishService;
     }
 
-        /// <summary>
+    /// <summary>
     /// Получение списка всех блюд в ресторане
     /// </summary>
     [HttpGet("restaurants/{restaurantId}/dishes")]
-    [ProducesResponseType(typeof(DishPagedListDTO), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(DishPagedListModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<DishPagedListDTO>> GetListAllDishesInRestaurant(Guid restaurantId, 
-            [FromQuery] List<DishCategory> categories, 
-            [DefaultValue(false)] bool vegetarian,
-            SortingDish sorting,
-            [DefaultValue(1)] int page)
+    public async Task<ActionResult<DishPagedListModel>> GetListAllDishesInRestaurant(
+        Guid restaurantId, 
+        [FromQuery] List<DishCategory> categories, 
+        [DefaultValue(false)] bool vegetarian, 
+        SortingDish sorting, 
+        [DefaultValue(1)] int page)
     {
-        try
-        {
-            var dishes =
-                await _dishService.GetListAllDishesInRestaurant(restaurantId, categories, vegetarian, sorting, page);
-            return Ok(dishes);
-        }
-        catch (NotCorrectDataException e)
-        {
-            return BadRequest(new ResponseModel
-            {
-                Status = "400 error",
-                Message = e.Message
-            });
-        }
-        catch (NotFoundElementException e)
-        {
-            return NotFound(new ResponseModel
-            {
-                Status = "404 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+        var dishesDto =
+            await _dishService.GetListAllDishesInRestaurant(restaurantId, categories, vegetarian, sorting, page);
+        var dishesModel = GetDishPagedListModel(dishesDto);
+
+        return Ok(dishesModel);
     }
     
     /// <summary>
     /// Получение списка блюд в конкретном меню ресторана
     /// </summary>
     [HttpGet("restaurant/{restaurantId}/menu/{menuId}/dishes")]
-    [ProducesResponseType(typeof(DishPagedListDTO), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(DishPagedListModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetListDishesInMenu(Guid restaurantId, 
+    public async Task<ActionResult<DishPagedListModel>> GetListDishesInMenu(Guid restaurantId, 
         Guid menuId,
         [FromQuery] List<DishCategory> categories, 
         [DefaultValue(false)] bool vegetarian,
         SortingDish sorting,
         [DefaultValue(1)] int page)
     {
-        try
-        {
-            var dishes =
-                await _dishService.GetListDishesInMenu(restaurantId, menuId, categories, vegetarian, sorting, page);
-            return Ok(dishes);
-        }
-        catch (NotCorrectDataException e)
-        {
-            return BadRequest(new ResponseModel
-            {
-                Status = "400 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+        var dishesDto =
+            await _dishService.GetListDishesInMenu(restaurantId, menuId, categories, vegetarian, sorting, page);
+        var dishesModel = GetDishPagedListModel(dishesDto);
+
+        return Ok(dishesModel);
     }
     
     /// <summary>
     /// Получение информации о конкретном блюде
     /// </summary>
-    [ProducesResponseType(typeof(RestaurantDTO), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(DishModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}")]
-    public async Task<IActionResult> GetInformationConcreteDish(Guid dishId)
+    public async Task<ActionResult<DishModel>> GetInformationConcreteDish(Guid dishId)
     {
-        try
+        var dishDto = await _dishService.GetDishInformation(dishId);
+        var dishModel = new DishModel
         {
-            var dish = await _dishService.GetDishInformation(dishId);
-            return Ok(dish);
-        }
-        catch (NotFoundElementException e)
-        {
-            return NotFound(new ResponseModel
-            {
-                Status = "404 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+            Id = dishDto.Id,
+            Name = dishDto.Name,
+            Price = dishDto.Price,
+            Description = dishDto.Description,
+            IsVegetarian = dishDto.IsVegetarian,
+            Photo = dishDto.Photo,
+            Rating = dishDto.Rating,
+            Category = dishDto.Category
+        };
+        
+        return Ok(dishModel);
     }
 
     /// <summary>
@@ -152,10 +105,13 @@ public class DishController: ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}/check")]
-    [Authorize]
-    public string CheckCurrentUserSetRatingToDish()
+    [Authorize(Roles = $"{UserRoles.Customer}, {UserRoles.Manager}")]
+    public async Task<ActionResult<bool>> CheckCurrentUserSetRatingToDish(Guid dishId)
     {
-        return "";
+        var userId = Guid.Parse(User.Identity!.Name!);
+        var check = await _dishService.CheckCurrentUserSetRatingToDish(userId, dishId);
+        
+        return Ok(check);
     }
     
     /// <summary>
@@ -169,8 +125,39 @@ public class DishController: ControllerBase
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpPost("dishes/{dishId}/rating")]
     [Authorize]
-    public string SetRatingToDish(Guid dishId, [Range(0,10)] int ratingScore)
+    public async Task<IActionResult> SetRatingToDish(Guid dishId, [Range(0,10)] int ratingScore)
     {
-        return "";
+        var userId = Guid.Parse(User.Identity!.Name!);
+        await _dishService.SetRatingToDish(userId, dishId, ratingScore);
+
+        return Ok();
+    }
+
+    private static DishPagedListModel GetDishPagedListModel(DishPagedListDTO dishPagedListDto)
+    {
+        var dishes = new DishPagedListModel
+        {
+            Dishes = new List<DishModel>(),
+            PageInfoModel = new PageInfoModel(
+                dishPagedListDto.PageInfoModel.Size, 
+                dishPagedListDto.PageInfoModel.Count,
+                dishPagedListDto.PageInfoModel.Current)
+        };
+
+        if (dishPagedListDto.Dishes == null) return dishes;
+        
+        dishes.Dishes = dishPagedListDto.Dishes.Select(dish => new DishModel
+        {
+            Id = dish.Id,
+            Name = dish.Name,
+            Price = dish.Price,
+            Description = dish.Description,
+            IsVegetarian = dish.IsVegetarian,
+            Photo = dish.Photo,
+            Rating = dish.Rating,
+            Category = dish.Category
+        }).ToList();
+
+        return dishes;
     }
 }

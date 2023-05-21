@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantAggregator.API.BL.Services;
 using RestaurantAggregator.API.Common.DTO;
+using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -8,11 +10,12 @@ namespace RestaurantAggregatorService.Controllers;
 [ApiController]
 [Route("basket")]
 [Produces("application/json")]
-public class BasketController
+public class CartController
 {
-    public BasketController()
+    private readonly ICartService _cartService;
+    public CartController(ICartService cartService)
     {
-        
+        _cartService = cartService;
     }
     
     /// <summary>

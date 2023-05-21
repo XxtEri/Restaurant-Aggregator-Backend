@@ -10,9 +10,11 @@ public class ApplicationDBContext: DbContext
     public DbSet<Dish> Dishes { get; set; }
     public DbSet<MenuDish> MenusDishes { get; set; }
     public DbSet<Order> Orders { get; set; }
-    public DbSet<DishInCart> DishInCarts { get; set; }
+    public DbSet<DishInCart> DishesInCart { get; set; }
+    public DbSet<Rating> Ratings { get; set; }
     public DbSet<Courier> Couriers { get; set; }
     public DbSet<Cook> Cooks { get; set; }
+    public DbSet<Customer> Customers { get; set; }
 
     public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
@@ -43,12 +45,6 @@ public class ApplicationDBContext: DbContext
             .HasOne(d => d.Dish)
             .WithMany(e => e.DishInCarts)
             .HasForeignKey(e => e.DishId)
-            .IsRequired();
-
-        modelBuilder.Entity<Order>()
-            .HasOne(o => o.DishInCart)
-            .WithMany(e => e.Orders)
-            .HasForeignKey(o => o.DishInCartId)
             .IsRequired();
 
         modelBuilder.Entity<Order>()

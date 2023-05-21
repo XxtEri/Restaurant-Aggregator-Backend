@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.API.Common.Enums;
@@ -6,7 +7,6 @@ namespace RestaurantAggregatorService.Models;
 
 public class DishModel
 {
-    [Key]
     public Guid Id { get; set; }
     
     [MinLength(1)]
@@ -16,17 +16,15 @@ public class DishModel
     [Required]
     public double Price { get; set; }
     
-    [MaybeNull]
-    public string Description { get; set; }
+    [MinLength(1)]
+    public string? Description { get; set; }
     
-    [MaybeNull]
     public bool IsVegetarian { get; set; }
     
     [Url]
-    [MaybeNull]
-    public string Photo { get; set; }
+    public string? Photo { get; set; }
     
-    [MaybeNull]
+    [DefaultValue(0)]
     public double Rating { get; set; }
     
     public DishCategory Category { get; set; }

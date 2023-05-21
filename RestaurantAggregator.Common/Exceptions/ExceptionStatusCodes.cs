@@ -6,13 +6,14 @@ public class ExceptionStatusCodes
 {
     private static readonly Dictionary<Type, HttpStatusCode> _exceptionStatusCodes = new Dictionary<Type, HttpStatusCode>
     {
-        { typeof(NotCorrectDataException), HttpStatusCode.BadRequest},
-        { typeof(NotFoundException), HttpStatusCode.NotFound}
+        { typeof(NotCorrectDataException), HttpStatusCode.BadRequest },
+        { typeof(NotFoundException), HttpStatusCode.NotFound },
+        { typeof(ForbiddenException), HttpStatusCode.Forbidden }
     };
 
     public static HttpStatusCode GetExceptionStatusCode(Exception exception)
     {
-        bool exceptionFound = _exceptionStatusCodes.TryGetValue(exception.GetType(), out var statusCode);
+        var exceptionFound = _exceptionStatusCodes.TryGetValue(exception.GetType(), out var statusCode);
 
         return exceptionFound ? statusCode : HttpStatusCode.InternalServerError;
     }

@@ -16,16 +16,14 @@ public class DishDTO
     [Required]
     public double Price { get; set; }
     
-    [MaybeNull]
     [MinLength(1)]
-    public string Description { get; set; }
+    public string? Description { get; set; }
     
     [MaybeNull]
     public bool IsVegetarian { get; set; }
     
     [Url]
-    [MaybeNull]
-    public string Photo { get; set; }
+    public string? Photo { get; set; }
     
     [DefaultValue(0)]
     public double Rating { get; set; }

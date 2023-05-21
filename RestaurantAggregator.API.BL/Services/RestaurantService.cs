@@ -35,7 +35,7 @@ public class RestaurantService: IRestaurantService
 
         if (searchNameRestaurant != string.Empty)
         {
-            restaurants = restaurants.Where(r => r.Name.ToLower().Contains(searchNameRestaurant.Trim().ToLower())).ToList();
+            restaurants = restaurants.Where(r => r.Name.ToLower().Contains(searchNameRestaurant?.Trim().ToLower() ?? string.Empty)).ToList();
         }
 
         foreach (var restaurant in restaurants)
