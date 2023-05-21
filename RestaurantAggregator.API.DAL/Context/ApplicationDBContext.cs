@@ -11,6 +11,7 @@ public class ApplicationDBContext: DbContext
     public DbSet<MenuDish> MenusDishes { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<DishInCart> DishesInCart { get; set; }
+    public DbSet<OrderDish> OrdersDishes { get; set; }
     public DbSet<Rating> Ratings { get; set; }
     public DbSet<Courier> Couriers { get; set; }
     public DbSet<Cook> Cooks { get; set; }

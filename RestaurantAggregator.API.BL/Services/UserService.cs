@@ -15,7 +15,7 @@ public class UserService: IUserService
     {
         _context = context;
     }
-    public async Task AddNewCustomerToDb(Guid customerId)
+    public async Task<Guid> AddNewCustomerToDb(Guid customerId)
     {
         var customer = await _context.Customers
             .Where(c => c.Id == customerId)
@@ -29,6 +29,8 @@ public class UserService: IUserService
             });
             await _context.SaveChangesAsync();
         }
+
+        return customer!.Id;
     }
 
     public async Task<string?> GetUserIdFromToke(string token)

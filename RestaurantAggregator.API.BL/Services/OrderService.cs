@@ -13,13 +13,20 @@ namespace RestaurantAggregator.API.BL.Services;
 public class OrderService: IOrderService
 {
     private readonly ApplicationDBContext _context;
+    private readonly IUserService _userService;
+    private readonly ICartService _cartService;
 
-    public OrderService(ApplicationDBContext context)
+    public OrderService(ApplicationDBContext context, IUserService userService)
     {
         _context = context;
+        _userService = userService;
     }
     
-    public async Task<OrderPageListDTO> GetListLastOrder(string userId, int page, DateTime? startDay, DateTime? endDay)
+    public async Task<OrderPageListDTO> GetListLastOrder(
+        Guid userId, 
+        int page, 
+        DateTime? startDay, 
+        DateTime? endDay)
     {
         if (page < 1)
         {
@@ -27,10 +34,9 @@ public class OrderService: IOrderService
         }
         
         var orders = await _context.Orders
-            .Where(order => order.CustomerId.ToString() == userId && order.Status == OrderStatus.Delivered)
+            .Where(order => order.CustomerId == userId && order.Status == OrderStatus.Delivered)
             .Select(order => new OrderDTO
             {
-                Id = order.Id,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -41,7 +47,7 @@ public class OrderService: IOrderService
         
         if (!orders.Any())
         {
-            throw new NotFoundElementException("У вас пока еще нет завершенных заказов");
+            throw new NotFoundException("У вас пока еще нет завершенных заказов");
         }
 
         if (startDay != null && endDay == null)
@@ -58,8 +64,8 @@ public class OrderService: IOrderService
                 .ToList();
         }
 
-        var pageSize = 5;
-        var countDishes = orders.Count();
+        const int pageSize = 5;
+        var countDishes = orders.Count;
         var count = countDishes % pageSize < pageSize && countDishes % pageSize != 0 ? countDishes / 5 + 1 : countDishes / 5;
 
         if (page > count)
@@ -76,13 +82,12 @@ public class OrderService: IOrderService
         };
     }
 
-    public async Task<OrderDTO> GetConcreteOrder(string userId, string numberOrder)
+    public async Task<OrderDTO> GetConcreteOrder(Guid userId, string numberOrder)
     {
         var order = await _context.Orders
             .Where(order => order.NumberOrder == numberOrder)
             .Select(order => new OrderDTO
             {
-                Id = order.Id,
                 NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
@@ -94,21 +99,55 @@ public class OrderService: IOrderService
 
         if (order == null)
         {
-            throw new NotFoundElementException($"Заказа по номеру {numberOrder} не найдено");
+            throw new NotFoundException($"Заказа по номеру {numberOrder} не найдено");
         }
         
         return order;
     }
 
-    public async Task CreateNewOrder(OrderCreateDTO model)
+    public async Task CreateNewOrder(Guid userId, OrderCreateDTO model)
     {
-        await _context.AddAsync(new Order
+        if (model.DeliveryTime <= DateTime.UtcNow.AddHours(1))
         {
-            NumberOrder = "",
+            throw new NotCorrectDataException( message: "Invalid delivery time. Delivery time must be more than current datetime on 60 minutes");
+        }
+
+        var dishesInCart = await _cartService.GetCartDishes(userId);
+
+        if (dishesInCart.Count == 0)
+        {
+            throw new NotFoundException(message: $"Невозможно создать новый заказ, так как корзина пока еще пуста у пользователя с id={userId}");
+        }
+
+        var customer = await _context.Customers
+            .Where(c => c.Id == userId)
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+            customer.Id = await _userService.AddNewCustomerToDb(userId);
+        
+        var order = new Order
+        {
             DeliveryTime = model.DeliveryTime,
+            OrderTime = DateTime.Now,
+            Address = model.Address,
             Status = OrderStatus.Created,
-            Address = model.Address
-        });
+            Price = SumPriceDishes(dishesInCart),
+            Customer = customer
+        };
+        
+        _context.Orders.Add(order);
+
+        await _cartService.ClearCart(userId);
+        foreach (var dishInCart in dishesInCart)
+        {
+            _context.OrdersDishes.Add(new OrderDish
+            {
+                Order = order,
+                Dish = await _context.Dishes.FindAsync(dishInCart.Dish.Id)
+            });
+        }
+        
         await _context.SaveChangesAsync();
     }
 
@@ -127,13 +166,12 @@ public class OrderService: IOrderService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<OrderDTO>> GetActiveOrderForCourier(string userId)
+    public async Task<List<OrderDTO>> GetActiveOrderForCourier(Guid userId)
     {
         var orders = await _context.Orders
-            .Where(order => order.CustomerId.ToString() == userId && order.Status != OrderStatus.Delivered)
+            .Where(order => order.CustomerId == userId && order.Status != OrderStatus.Delivered)
             .Select(order => new OrderDTO
             {
-                Id = order.Id,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -173,5 +211,10 @@ public class OrderService: IOrderService
     public Task ChangeOrderStatus(Guid orderId, OrderStatus status)
     {
         throw new NotImplementedException();
+    }
+    
+    private static double SumPriceDishes(IEnumerable<DishInCartDto> dishes)
+    {
+        return dishes.Sum(dish => dish.Count * dish.Dish.Price);
     }
 }

@@ -7,15 +7,22 @@ namespace RestaurantAggregatorService.Models;
 
 public class OrderModel
 {
-    [Key] public Guid Id { get; set; }
+    public Guid Id { get; set; }
+    
+    [Required]
+    public string NumberOrder { get; set; }
     
     public DateTime DeliveryTime { get; set; }
     
     public DateTime OrderTime { get; set; }
-
-    [Required] public double Price { get; set; }
-
-    [Required] [MinLength(1)] public string Address { get; set; }
-
-    [Required] public OrderStatus Status { get; set; }
+    
+    [Required]
+    public double Price { get; set; }
+    
+    [Required]
+    [MinLength(1)]
+    public string Address { get; set; }
+    
+    [Required]
+    public OrderStatus Status { get; set; }
 }

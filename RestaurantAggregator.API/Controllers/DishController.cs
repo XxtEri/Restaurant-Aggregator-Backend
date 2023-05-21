@@ -125,7 +125,7 @@ public class DishController: ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpPost("dishes/{dishId}/rating")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.Customer)]
     public async Task<IActionResult> SetRatingToDish(Guid dishId, [Range(0,10)] int ratingScore)
     {
         var userId = Guid.Parse(User.Identity!.Name!);
@@ -160,5 +160,21 @@ public class DishController: ControllerBase
         }).ToList();
 
         return dishes;
+    }
+    
+    /// <summary>
+    /// Поставить рейтинг блюду
+    /// </summary>
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [HttpPost("restaurants/{restaurantId}/menu/{menuId}/dishes")]
+    [Authorize(Roles = UserRoles.Manager)]
+    public async Task<IActionResult> AddDishToMenu(Guid dishId, [Range(0, 10)] int ratingScore)
+    {
+        return Ok();
     }
 }

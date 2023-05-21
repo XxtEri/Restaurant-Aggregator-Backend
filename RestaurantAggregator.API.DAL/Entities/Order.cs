@@ -7,10 +7,7 @@ namespace RestaurantAggregator.API.DAL.Entities;
 
 public class Order
 {
-    [Key] 
-    public Guid Id { get; set; }
-    
-    [Required]
+    [Key]
     public string NumberOrder { get; set; }
     
     public DateTime DeliveryTime { get; set; }
@@ -18,7 +15,7 @@ public class Order
     public DateTime OrderTime { get; set; }
 
     [Required] 
-    public int Price { get; set; }
+    public double Price { get; set; }
 
     [Required] 
     public OrderStatus Status { get; set; } = OrderStatus.Created;
@@ -31,7 +28,7 @@ public class Order
     [Required]
     public Guid DishInCartId { get; set; }
     
-    [Required]
+    [ForeignKey("Customer")]
     public Guid CustomerId { get; set; }
     
     [ForeignKey("Cook")]
@@ -48,4 +45,7 @@ public class Order
     
     [MaybeNull]
     public Courier Courier { get; set; }
+    
+    [Required]
+    public Customer Customer { get; set; }
 }

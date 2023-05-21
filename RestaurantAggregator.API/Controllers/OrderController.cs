@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
@@ -16,59 +17,49 @@ namespace RestaurantAggregatorService.Controllers;
 public class OrderController: ControllerBase
 {
     private readonly IOrderService _orderService;
+    private readonly IUserService _userService;
     
-    public OrderController(IOrderService orderService)
+    public OrderController(IOrderService orderService, IUserService userService)
     {
         _orderService = orderService;
+        _userService = userService;
     }
     
     /// <summary>
     /// Получение списка прошлых заказов пользователя с ролью Customer
     /// </summary>
     [HttpGet("customers/orders/last")]
-    [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)] 
+    [Authorize(Roles = "Customer")]
+    [ProducesResponseType(typeof(OrderPageListModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> GetListLastOrder([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
+    public async Task<ActionResult<OrderPageListModel>> GetListLastOrder([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
     {
-        var userId = Guid.Parse(User.Identity!.Name!).ToString();
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
 
-        try
+        if (userId == null)
         {
-            var orders = await _orderService.GetListLastOrder(userId, page, startDay, endDay);
-            var ordersModel = orders.Orders!.Select(order => new OrderModel
-                {
-                    Id = order.Id,
-                    DeliveryTime = order.DeliveryTime,
-                    OrderTime = order.OrderTime,
-                    Price = order.Price,
-                    Address = order.Address,
-                    Status = order.Status
-                })
-                .ToList();
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var orders = await _orderService.GetListLastOrder(new Guid(userId), page, startDay, endDay);
+        var ordersModel = orders.Orders!
+            .Select(order => new OrderModel
+            {
+                Id = order.Id,
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .ToList();
 
-            return Ok(ordersModel);
-        }
-        catch (NotFoundElementException e)
-        {
-            return NotFound(new ResponseModel
-            {
-                Status = "404 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+        return Ok(ordersModel);
     }
     
     /// <summary>
