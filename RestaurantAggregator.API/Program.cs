@@ -33,10 +33,10 @@ builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseNpgsql
 );
 
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IDishService, DishService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<ICartService, CartService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 
 builder.Services.AddAuthentication(options =>
@@ -57,7 +57,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = JwtConfigs.GetSymmetricSecurityKey()
     };
 });
-builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

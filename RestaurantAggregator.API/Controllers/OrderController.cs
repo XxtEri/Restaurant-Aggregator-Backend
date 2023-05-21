@@ -39,7 +39,7 @@ public class OrderController: ControllerBase
     public async Task<ActionResult<OrderPageListModel>> GetListLastOrder([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
 
         if (userId == null)
         {

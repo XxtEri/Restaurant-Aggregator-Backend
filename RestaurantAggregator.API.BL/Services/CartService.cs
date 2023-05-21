@@ -14,7 +14,7 @@ public class CartService: ICartService
     private readonly ApplicationDBContext _context;
     private readonly IUserService _userService;
 
-    public CartService(ApplicationDBContext context, IUserService userService, ICartService cartService)
+    public CartService(ApplicationDBContext context, IUserService userService)
     {
         _context = context;
         _userService = userService;

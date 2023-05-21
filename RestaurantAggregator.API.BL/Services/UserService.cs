@@ -33,7 +33,7 @@ public class UserService: IUserService
         return customer!.Id;
     }
 
-    public async Task<string?> GetUserIdFromToke(string token)
+    public string? GetUserIdFromToke(string token)
     {
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadToken(token) as JwtSecurityToken;

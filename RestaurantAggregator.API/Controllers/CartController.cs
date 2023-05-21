@@ -1,12 +1,9 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.CommonFiles;
-using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -39,7 +36,7 @@ public class CartController: ControllerBase
     public async Task<ActionResult<List<DishInCartModel>>> GetListAllDishes()
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
 
         if (userId == null)
         {
@@ -76,7 +73,7 @@ public class CartController: ControllerBase
     public async Task<ActionResult<DishInCartModel>> GetDishInCart(Guid dishId)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
         
         if (userId == null)
         {
@@ -107,7 +104,7 @@ public class CartController: ControllerBase
     public async Task<IActionResult> AddDishToBasket(Guid dishId)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
 
         if (userId == null)
         {
@@ -138,7 +135,7 @@ public class CartController: ControllerBase
     public async Task<IActionResult> DeleteDishToBasket(Guid dishId)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
 
         if (userId == null)
         {
@@ -164,7 +161,7 @@ public class CartController: ControllerBase
     public async Task<IActionResult> ChangeIncreaseDishInCart(Guid dishId, bool increase)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
 
         if (userId == null)
         {
@@ -190,7 +187,7 @@ public class CartController: ControllerBase
     public async Task<IActionResult> ClearCart()
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = await _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToke(token);
 
         if (userId == null)
         {

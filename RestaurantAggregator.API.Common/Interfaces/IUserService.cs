@@ -6,5 +6,5 @@ namespace RestaurantAggregator.API.Common.Interfaces;
 public interface IUserService
 {
     Task<Guid> AddNewCustomerToDb(Guid customerId);
-    Task<string?> GetUserIdFromToke(string token);
+    string? GetUserIdFromToke(string token);
 }

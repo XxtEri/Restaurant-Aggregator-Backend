@@ -37,8 +37,11 @@ public class Dish
     
     public ICollection<DishInCart> DishInCarts { get; set; }
     
+    public ICollection<OrderDish> OrderDishes { get; set; }
+    
     public Dish()
     {
+        OrderDishes = new List<OrderDish>();
         MenusDishes = new List<MenuDish>();
         DishInCarts = new List<DishInCart>();
     }

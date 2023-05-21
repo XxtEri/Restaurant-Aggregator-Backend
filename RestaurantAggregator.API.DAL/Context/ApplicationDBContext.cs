@@ -28,6 +28,16 @@ public class ApplicationDBContext: DbContext
             .HasForeignKey(m => m.RestaurantId)
             .IsRequired();
         
+        modelBuilder.Entity<Restaurant>()
+            .HasOne(o => o.Cook)
+            .WithOne(c => c.Restaurant)
+            .HasForeignKey<Cook>(c => c.RestaurantId);
+        
+        modelBuilder.Entity<Restaurant>()
+            .HasOne(o => o.Manager)
+            .WithOne(c => c.Restaurant)
+            .HasForeignKey<Manager>(c => c.RestaurantId);
+        
         modelBuilder.Entity<MenuDish>()
             .HasKey(e => new {e.DishId, e.MenuId});
         
@@ -64,5 +74,20 @@ public class ApplicationDBContext: DbContext
             .HasOne(o => o.Courier)
             .WithMany(c => c.Orders)
             .HasForeignKey(o => o.CourierId);
+        
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Customer)
+            .WithMany(c => c.Orders)
+            .HasForeignKey(o => o.CustomerId);
+        
+        modelBuilder.Entity<OrderDish>()
+            .HasOne(o => o.Order)
+            .WithMany(c => c.OrderDishes)
+            .HasForeignKey(o => o.OrderId);
+        
+        modelBuilder.Entity<OrderDish>()
+            .HasOne(o => o.Dish)
+            .WithMany(c => c.OrderDishes)
+            .HasForeignKey(o => o.DishId);
     }
 }

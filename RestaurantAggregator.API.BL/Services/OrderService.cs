@@ -16,10 +16,11 @@ public class OrderService: IOrderService
     private readonly IUserService _userService;
     private readonly ICartService _cartService;
 
-    public OrderService(ApplicationDBContext context, IUserService userService)
+    public OrderService(ApplicationDBContext context, IUserService userService, ICartService cartService)
     {
         _context = context;
         _userService = userService;
+        _cartService = cartService;
     }
     
     public async Task<OrderPageListDTO> GetListLastOrder(
@@ -112,8 +113,9 @@ public class OrderService: IOrderService
             throw new NotCorrectDataException( message: "Invalid delivery time. Delivery time must be more than current datetime on 60 minutes");
         }
 
-        var dishesInCart = await _cartService.GetCartDishes(userId);
-
+        //var dishesInCart = await _cartService.GetCartDishes(userId);
+        var dishesInCart = new System.Collections.Generic.List<DishInCartDto>();
+        
         if (dishesInCart.Count == 0)
         {
             throw new NotFoundException(message: $"Невозможно создать новый заказ, так как корзина пока еще пуста у пользователя с id={userId}");
@@ -138,7 +140,7 @@ public class OrderService: IOrderService
         
         _context.Orders.Add(order);
 
-        await _cartService.ClearCart(userId);
+        //await _cartService.ClearCart(userId);
         foreach (var dishInCart in dishesInCart)
         {
             _context.OrdersDishes.Add(new OrderDish
