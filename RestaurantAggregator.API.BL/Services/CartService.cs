@@ -4,6 +4,7 @@ using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
+using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.API.BL.Services;
@@ -11,13 +12,15 @@ namespace RestaurantAggregator.API.BL.Services;
 public class CartService: ICartService
 {
     private readonly ApplicationDBContext _context;
+    private readonly IUserService _userService;
 
-    public CartService(ApplicationDBContext context)
+    public CartService(ApplicationDBContext context, IUserService userService)
     {
         _context = context;
+        _userService = userService;
     }
     
-    public async Task<List<DishInCartDto>> GetBasketDishes(Guid userId)
+    public async Task<List<DishInCartDto>> GetCartDishes(Guid userId)
     {
         return await _context.DishesInCart
             .Where(d => d.CustomerId == userId)
@@ -39,7 +42,19 @@ public class CartService: ICartService
             }).ToListAsync();
     }
 
-    public async Task AddDishInBasket(Guid userId, Guid dishId)
+    public async Task<DishInCartDto> GetDishInCart(Guid userId, Guid dishId)
+    {
+        var dishInCart = await _context.DishesInCart
+            .Where(d => d.DishId == dishId && d.CustomerId == userId)
+            .FirstOrDefaultAsync();
+
+        if (dishInCart == null)
+            throw new NotFoundException($"Блюда с id = {dishId} не найдено в коризне у пользователя с id = {userId}");
+
+        return GetDishInCartDto(dishInCart);
+    }
+
+    public async Task<DishInCartDto> AddDishInCart(Guid userId, Guid dishId)
     {
         var dishInCart = await _context.DishesInCart.FindAsync(dishId);
 
@@ -48,7 +63,7 @@ public class CartService: ICartService
             dishInCart.Count += 1;
             
             await _context.SaveChangesAsync();
-            return;
+            return GetDishInCartDto(dishInCart);
         }
         
         var dish = await _context.Dishes.FindAsync(dishId);
@@ -58,31 +73,75 @@ public class CartService: ICartService
             throw new NotFoundException(message: $"Блюдо с id = {dishId} не найдено");
         }
         
-        var customer = await _context.Customers.FindAsync(userId);
-
-        if (customer == null)
-        {
-            //TODO: добавить пользователя в бд
-            throw new Exception();
-        }
+        await _context.Customers.FindAsync(userId);
 
         await _context.DishesInCart.AddAsync(new DishInCart
         {
             Count = 1,
             Dish = dish,
-            Customer = customer
+            Customer = new Customer
+            {
+                Id = userId
+            }
         });
             
         await _context.SaveChangesAsync();
+        return GetDishInCartDto(dishInCart!);
     }
 
-    public async Task DeleteDishOfBasket(Guid userId, Guid dishId)
+    public async Task DeleteDishOfCart(Guid userId, Guid dishId)
     {
+        var dishInCart = await _context.DishesInCart.FindAsync(dishId);
         
+        if (dishInCart == null)
+        {
+            throw new NotFoundException(message: $"Блюдо с id = {dishId} не найдено в у пользователя с id = {userId} корзине");
+        }
+
+        _context.Remove(dishInCart);
+        await _context.SaveChangesAsync();
     }
 
     public async Task ChangeQuantity(Guid userId, Guid dishId, bool increase)
     {
+        var dishInCart = await _context.DishesInCart.FindAsync(dishId);
         
+        if (dishInCart == null)
+        {
+            throw new NotFoundException(message: $"Блюдо с id = {dishId} не найдено в у пользователя с id = {userId} корзине");
+        }
+
+        if (increase)
+            dishInCart.Count += 1;
+        else 
+            dishInCart.Count -= 1;
+
+        _context.DishesInCart.Attach(dishInCart);
+        _context.Entry(dishInCart).State = EntityState.Modified;
+
+        if (dishInCart.Count <= 0)
+            _context.Remove(dishInCart);
+
+        await _context.SaveChangesAsync();
+    }
+
+    private DishInCartDto GetDishInCartDto(DishInCart dishInCart)
+    {
+        return new DishInCartDto
+        {
+            Id = dishInCart.Id,
+            Count = dishInCart.Count,
+            Dish = new DishDTO
+            {
+                Id = dishInCart.Dish.Id,
+                Name = dishInCart.Dish.Name,
+                Price = dishInCart.Dish.Price,
+                Description = dishInCart.Dish.Description,
+                IsVegetarian = dishInCart.Dish.IsVegetarian,
+                Photo = dishInCart.Dish.Photo,
+                Rating = dishInCart.Dish.Rating,
+                Category = dishInCart.Dish.Category
+            }
+        };
     }
 }

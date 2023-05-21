@@ -1,5 +1,6 @@
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
+using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.API.Common.Interfaces;
 

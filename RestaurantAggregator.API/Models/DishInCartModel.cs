@@ -5,20 +5,10 @@ namespace RestaurantAggregatorService.Models;
 
 public class DishInCartModel
 {
-    [Key]
     public Guid Id { get; set; }
-    
-    [ForeignKey("Dish")]
-    public Guid DishId { get; set; }
-    
-    //[ForeignKey("Customer")]
-    //public Customer Customer { get; set }
-    
+
     [Required]
     public int Count { get; set; }
-    
-    //[Required]
-    //public Customer Customer { get; set; }
     
     [Required]
     public DishModel Dish { get; set; }

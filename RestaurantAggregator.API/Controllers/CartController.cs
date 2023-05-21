@@ -1,8 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantAggregator.API.BL.Services;
+using Microsoft.Net.Http.Headers;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
+using RestaurantAggregator.CommonFiles;
+using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -10,50 +14,120 @@ namespace RestaurantAggregatorService.Controllers;
 [ApiController]
 [Route("basket")]
 [Produces("application/json")]
-public class CartController
+public class CartController: ControllerBase
 {
     private readonly ICartService _cartService;
-    public CartController(ICartService cartService)
+    private readonly IUserService _userService;
+
+    public CartController(ICartService cartService, IUserService userService)
     {
         _cartService = cartService;
+        _userService = userService;
     }
     
     /// <summary>
     /// Получение списка блюд в корзине пользователя
     /// </summary>
     [HttpGet("dishes")]
-    [Authorize]
-    [ProducesResponseType(typeof(DishPagedListDTO), StatusCodes.Status200OK)] 
+    [Authorize(Roles = UserRoles.Customer)]
+    [ProducesResponseType(typeof(List<DishInCartModel>), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string GetListAllDishes(Guid restaurantId)
+    public async Task<ActionResult<List<DishInCartModel>>> GetListAllDishes()
     {
-        return "";
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var dishesInCartDto = await _cartService.GetCartDishes(new Guid(userId));
+
+        var dishesInCartModel = dishesInCartDto
+            .Select(o => new DishInCartModel
+            {
+                Id = o.Id,
+                Count = o.Count,
+                Dish = getDishModel(o.Dish)
+            })
+            .ToList();
+
+        return Ok(dishesInCartModel);
     }
-    
+
+    /// <summary>
+    /// Получение блюда в корзине пользователя
+    /// </summary>
+    /// <param name="dishId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = UserRoles.Customer)]
+    [Route("dishes/{dishId}")]
+    public async Task<ActionResult<DishInCartModel>> GetDishInCart(Guid dishId)
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
+        
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var dishInCart = await _cartService.GetDishInCart(new Guid(userId), dishId);
+
+        return new DishInCartModel
+        {
+            Id = dishInCart.Id,
+            Count = dishInCart.Count,
+            Dish = getDishModel(dishInCart.Dish)
+        };
+    }
+
     /// <summary>
     /// Добавление блюда в корзину
     /// </summary>
     [HttpPost("dishes/{dishId}")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status201Created)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string AddDishToBasket(Guid dishId)
+    public async Task<IActionResult> AddDishToBasket(Guid dishId)
     {
-        return "";
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        var dishInCartDto = await _cartService.AddDishInCart(new Guid(userId), dishId);
+        var dishInCardModel = new DishInCartModel
+        {
+            Id = dishInCartDto.Id,
+            Count = dishInCartDto.Count,
+            Dish = getDishModel(dishInCartDto.Dish)
+        };
+        
+        return new CreatedResult(nameof(GetDishInCart), dishInCardModel);
     }
-    
     /// <summary>
-    /// Удаление блюда в корзину
+    /// Удаление блюда из корзины
     /// </summary>
-    [HttpDelete("dishes/{dishId}")]
+    [HttpDelete("basket/dishes/{dishId}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,13 +135,23 @@ public class CartController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string DeleteDishToBasket(Guid dishId)
+    public async Task<IActionResult> DeleteDishToBasket(Guid dishId)
     {
-        return "";
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        await _cartService.DeleteDishOfCart(new Guid(userId), dishId);
+
+        return new NoContentResult();
     }
     
     /// <summary>
-    /// Удаление блюда в корзину
+    /// Изменение количества какого-то добавленного в корзину блюда
     /// </summary>
     [HttpPost("dishes/{dishId}/increase")]
     [Authorize]
@@ -77,8 +161,33 @@ public class CartController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string ChangeIncreaseDishInBasket(Guid dishId, bool increase)
+    public async Task<IActionResult> ChangeIncreaseDishInCart(Guid dishId, bool increase)
     {
-        return "";
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = await _userService.GetUserIdFromToke(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        await _cartService.DeleteDishOfCart(new Guid(userId), dishId);
+
+        return Ok();
+    }
+
+    private static DishModel getDishModel(DishDTO dishDto)
+    {
+        return new DishModel
+        {
+            Id = dishDto.Id,
+            Name = dishDto.Name,
+            Price = dishDto.Price,
+            Description = dishDto.Description,
+            IsVegetarian = dishDto.IsVegetarian,
+            Photo = dishDto.Photo,
+            Rating = dishDto.Rating,
+            Category = dishDto.Category
+        };
     }
 }

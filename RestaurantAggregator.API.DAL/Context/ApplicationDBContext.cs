@@ -14,8 +14,9 @@ public class ApplicationDBContext: DbContext
     public DbSet<Rating> Ratings { get; set; }
     public DbSet<Courier> Couriers { get; set; }
     public DbSet<Cook> Cooks { get; set; }
+    public DbSet<Manager> Managers { get; set; }
     public DbSet<Customer> Customers { get; set; }
-
+    
     public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +46,12 @@ public class ApplicationDBContext: DbContext
             .HasOne(d => d.Dish)
             .WithMany(e => e.DishInCarts)
             .HasForeignKey(e => e.DishId)
+            .IsRequired();
+        
+        modelBuilder.Entity<DishInCart>()
+            .HasOne(d => d.Customer)
+            .WithMany(e => e.DishInCarts)
+            .HasForeignKey(e => e.CustomerId)
             .IsRequired();
 
         modelBuilder.Entity<Order>()

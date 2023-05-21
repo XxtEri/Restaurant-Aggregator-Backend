@@ -10,7 +10,6 @@ public class DishInCart
     [Key]
     public Guid Id { get; set; }
     
-    [DefaultValue(0)]
     public int Count { get; set; }
 
     [ForeignKey("Dish")]

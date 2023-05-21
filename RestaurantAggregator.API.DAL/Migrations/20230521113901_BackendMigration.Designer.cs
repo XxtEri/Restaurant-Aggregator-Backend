@@ -12,8 +12,8 @@ using RestaurantAggregator.API.DAL;
 namespace RestaurantAggregator.API.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20230510125838_InitialBackend")]
-    partial class InitialBackend
+    [Migration("20230521113901_BackendMigration")]
+    partial class BackendMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -54,7 +54,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Dish", b =>
@@ -111,7 +111,18 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.ToTable("DishInCarts");
+                    b.ToTable("DishesInCart");
+                });
+
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Manager", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Managers");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Menu", b =>
@@ -198,6 +209,26 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Rating", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DishId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Ratings");
+                });
+
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Restaurant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -216,7 +247,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.DishInCart", b =>
                 {
                     b.HasOne("RestaurantAggregator.API.DAL.Entities.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("DishInCarts")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -273,7 +304,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .HasForeignKey("CourierId");
 
                     b.HasOne("RestaurantAggregator.API.DAL.Entities.DishInCart", "DishInCart")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("DishInCartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -295,16 +326,16 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.Navigation("Orders");
                 });
 
+            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Customer", b =>
+                {
+                    b.Navigation("DishInCarts");
+                });
+
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Dish", b =>
                 {
                     b.Navigation("DishInCarts");
 
                     b.Navigation("MenusDishes");
-                });
-
-            modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.DishInCart", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Menu", b =>

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.API.Common.Enums;
+using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.API.Common.DTO;
 

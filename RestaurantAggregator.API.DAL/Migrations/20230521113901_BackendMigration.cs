@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RestaurantAggregator.API.DAL.Migrations
 {
-    public partial class InitialBackend : Migration
+    public partial class BackendMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,14 +32,14 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Customer",
+                name: "Customers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Customer", x => x.Id);
+                    table.PrimaryKey("PK_Customers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -61,6 +61,31 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Managers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Managers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Ratings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Value = table.Column<int>(type: "integer", nullable: false),
+                    DishId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ratings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Restaurants",
                 columns: table => new
                 {
@@ -73,7 +98,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DishInCarts",
+                name: "DishesInCart",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -83,15 +108,15 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DishInCarts", x => x.Id);
+                    table.PrimaryKey("PK_DishesInCart", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DishInCarts_Customer_CustomerId",
+                        name: "FK_DishesInCart_Customers_CustomerId",
                         column: x => x.CustomerId,
-                        principalTable: "Customer",
+                        principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DishInCarts_Dishes_DishId",
+                        name: "FK_DishesInCart_Dishes_DishId",
                         column: x => x.DishId,
                         principalTable: "Dishes",
                         principalColumn: "Id",
@@ -147,9 +172,9 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         principalTable: "Couriers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Orders_DishInCarts_DishInCartId",
+                        name: "FK_Orders_DishesInCart_DishInCartId",
                         column: x => x.DishInCartId,
-                        principalTable: "DishInCarts",
+                        principalTable: "DishesInCart",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -179,13 +204,13 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DishInCarts_CustomerId",
-                table: "DishInCarts",
+                name: "IX_DishesInCart_CustomerId",
+                table: "DishesInCart",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DishInCarts_DishId",
-                table: "DishInCarts",
+                name: "IX_DishesInCart_DishId",
+                table: "DishesInCart",
                 column: "DishId");
 
             migrationBuilder.CreateIndex(
@@ -217,10 +242,16 @@ namespace RestaurantAggregator.API.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Managers");
+
+            migrationBuilder.DropTable(
                 name: "MenusDishes");
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Ratings");
 
             migrationBuilder.DropTable(
                 name: "Menus");
@@ -232,13 +263,13 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 name: "Couriers");
 
             migrationBuilder.DropTable(
-                name: "DishInCarts");
+                name: "DishesInCart");
 
             migrationBuilder.DropTable(
                 name: "Restaurants");
 
             migrationBuilder.DropTable(
-                name: "Customer");
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "Dishes");

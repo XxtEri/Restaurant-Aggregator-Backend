@@ -163,10 +163,7 @@ public class AuthService: IAuthService
         };
         var roles = await _userManager.GetRolesAsync(user);
 
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var accessToken = TokenManager.CreateAccessToken(claims);
         var refreshToken = TokenManager.CreateRefreshToken(claims);

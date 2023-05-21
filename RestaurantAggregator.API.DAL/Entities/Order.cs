@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using RestaurantAggregator.API.Common.Enums;
+using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.API.DAL.Entities;
 

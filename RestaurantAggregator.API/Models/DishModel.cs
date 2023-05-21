@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using RestaurantAggregator.API.Common.Enums;
+using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregatorService.Models;
 
@@ -19,6 +20,7 @@ public class DishModel
     [MinLength(1)]
     public string? Description { get; set; }
     
+    [MaybeNull]
     public bool IsVegetarian { get; set; }
     
     [Url]
