@@ -177,7 +177,7 @@ public class CartController: ControllerBase
     }
     
     /// <summary>
-    /// Очистить корзину
+    /// Полностью очистить корзину
     /// </summary>
     [HttpPost("")]
     [Authorize(Roles = UserRoles.Customer)]
