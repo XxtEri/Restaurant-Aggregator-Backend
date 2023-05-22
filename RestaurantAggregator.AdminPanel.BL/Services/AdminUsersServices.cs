@@ -1,4 +1,5 @@
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
+using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.CommonFiles.Dto;
 
@@ -8,11 +9,15 @@ public class AdminUsersServices: IAdminUsersServices
 {
     private readonly IAdminProfileService _profileService;
     private readonly IAdminRestaurantsService _adminRestaurantsService;
+    private readonly IUserService _userService;
 
-    public AdminUsersServices(IAdminProfileService profileService, IAdminRestaurantsService adminRestaurantsService)
+    public AdminUsersServices(IAdminProfileService profileService, 
+        IAdminRestaurantsService adminRestaurantsService,
+        IUserService userService)
     {
         _profileService = profileService;
         _adminRestaurantsService = adminRestaurantsService;
+        _userService = userService;
     }
     
     public async Task<List<UserDto>> Select()
@@ -48,16 +53,19 @@ public class AdminUsersServices: IAdminUsersServices
     public async Task AddManagerRole(Guid id)
     {
         await _profileService.RegisterManager(id);
+        await _userService.AddNewManagerToDb(id);
     }
 
     public async Task AddCookRole(Guid id)
     {
         await _profileService.RegisterCook(id);
+        await _userService.AddNewCookToDb(id);
     }
 
     public async Task AddCourierRole(Guid id)
     {
         await _profileService.RegisterCourier(id);
+        await _userService.AddNewCourierToDb(id);
     }
 
     public async Task<Guid?> GetRestaurantIdForManager(Guid userId)
@@ -77,6 +85,7 @@ public class AdminUsersServices: IAdminUsersServices
         if (isValidRestaurantId)
         {
             await _profileService.AppointManagerInRestaurant(managerId, restaurantId);
+            await _userService.AddRestaurantIdForManager(managerId, restaurantId);
         }
     }
     
@@ -87,21 +96,25 @@ public class AdminUsersServices: IAdminUsersServices
         if (isValidRestaurantId)
         {
             await _profileService.AppointCookInRestaurant(cookId, restaurantId);
+            await _userService.AddRestaurantIdForCook(cookId, restaurantId);
         }
     }
 
     public async Task DeleteManagerRole(Guid userId)
     {
         await _profileService.DeleteManagerRole(userId);
+        await _userService.DeleteManagerFromDb(userId);
     }
 
     public async Task DeleteCookRole(Guid userId)
     {
         await _profileService.DeleteCookRole(userId);
+        await _userService.DeleteCookFromDb(userId);
     }
 
     public async Task DeleteCourierRole(Guid userId)
     {
         await _profileService.DeleteCourierRole(userId);
+        await _userService.DeleteCourierFromDb(userId);
     }
 }

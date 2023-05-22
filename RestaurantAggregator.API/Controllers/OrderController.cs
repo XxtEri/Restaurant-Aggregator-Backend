@@ -39,7 +39,7 @@ public class OrderController: ControllerBase
     public async Task<ActionResult<OrderPageListModel>> GetListLastOrder([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToken(token);
 
         if (userId == null)
         {
@@ -76,7 +76,7 @@ public class OrderController: ControllerBase
     public async Task<ActionResult<List<OrderModel>>> GetActiveOrder()
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToken(token);
 
         if (userId == null)
         {
@@ -178,7 +178,7 @@ public class OrderController: ControllerBase
     public async Task<IActionResult> CreateNewOrder([FromBody] OrderCreateModel model)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-        var userId = _userService.GetUserIdFromToke(token);
+        var userId = _userService.GetUserIdFromToken(token);
 
         if (userId == null)
         {

@@ -40,6 +40,7 @@ builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<IAdminRestaurantsService, AdminRestaurantsService>();
 builder.Services.AddScoped<IAdminProfileService, AdminProfileService>();
 builder.Services.AddScoped<IAdminUsersServices, AdminUsersServices>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
