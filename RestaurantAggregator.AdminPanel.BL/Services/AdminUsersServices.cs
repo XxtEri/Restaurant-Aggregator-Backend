@@ -86,6 +86,14 @@ public class AdminUsersServices: IAdminUsersServices
         {
             await _profileService.AppointManagerInRestaurant(managerId, restaurantId);
             await _userService.AddRestaurantIdForManager(managerId, restaurantId);
+
+            var restaurantIdOfManager = await GetRestaurantIdForManager(managerId);
+            if (restaurantIdOfManager != null)
+            {
+                await _adminRestaurantsService.DeleteManagerInRestaurant(new Guid(restaurantIdOfManager.ToString()!));
+            }
+            
+            await _adminRestaurantsService.AddManagerToRestaurant(managerId, restaurantId);
         }
     }
     
@@ -97,6 +105,14 @@ public class AdminUsersServices: IAdminUsersServices
         {
             await _profileService.AppointCookInRestaurant(cookId, restaurantId);
             await _userService.AddRestaurantIdForCook(cookId, restaurantId);
+
+            var restaurantIdOfCook = await GetRestaurantIdForCook(cookId);
+            if (restaurantIdOfCook != null)
+            {
+                await _adminRestaurantsService.DeleteCookInRestaurant(new Guid(restaurantIdOfCook.ToString()!));
+            }
+            
+            await _adminRestaurantsService.AddCookToRestaurant(cookId, restaurantId);
         }
     }
 

@@ -68,4 +68,24 @@ public class AdminRestaurantsService: IAdminRestaurantsService
     {
         return await _restaurantService.CheckIsIdRestaurant(id);
     }
+
+    public async Task AddCookToRestaurant(Guid cookId, Guid restaurantId)
+    {
+        await _restaurantService.AddCookToRestaurant(cookId, restaurantId);
+    }
+
+    public async Task AddManagerToRestaurant(Guid managerId, Guid restaurantId)
+    {
+        await _restaurantService.AddManagerToRestaurant(managerId, restaurantId);
+    }
+
+    public async Task DeleteManagerInRestaurant(Guid restaurantId)
+    {
+        await _restaurantService.DeleteManagerInRestaurant(restaurantId);
+    }
+
+    public async Task DeleteCookInRestaurant(Guid restaurantId)
+    {
+        await _restaurantService.DeleteCookInRestaurant(restaurantId);
+    }
 }

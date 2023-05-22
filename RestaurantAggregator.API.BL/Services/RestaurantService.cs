@@ -128,7 +128,89 @@ public class RestaurantService: IRestaurantService
 
         return restaurant != null;
     }
-    
+
+    public async Task AddCookToRestaurant(Guid cookId, Guid restaurantId)
+    {
+        var cook = await _context.Cooks.FindAsync(cookId);
+
+        if (cook == null)
+        {
+            throw new NotFoundException($"Не найден повар с id = {cookId}");
+        }
+        
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
+        }
+
+        restaurant.Cook = cook;
+        
+        _context.Restaurants.Attach(restaurant);
+        _context.Entry(restaurant).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task AddManagerToRestaurant(Guid managerId, Guid restaurantId)
+    {
+        var manager = await _context.Managers.FindAsync(managerId);
+
+        if (manager == null)
+        {
+            throw new NotFoundException($"Не найден повар с id = {managerId}");
+        }
+        
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
+        }
+
+        restaurant.Manager = manager;
+        
+        _context.Restaurants.Attach(restaurant);
+        _context.Entry(restaurant).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteManagerInRestaurant(Guid restaurantId)
+    {
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
+        }
+
+        restaurant.ManagerId = null;
+        
+        _context.Restaurants.Attach(restaurant);
+        _context.Entry(restaurant).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteCookInRestaurant(Guid restaurantId)
+    {
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
+        }
+        
+        restaurant.CookId = null;
+        
+        _context.Restaurants.Attach(restaurant);
+        _context.Entry(restaurant).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+    }
+
     private async Task<List<MenuDTO>> GetMenus(Guid restaurantId)
     {
         return await _context.Menus

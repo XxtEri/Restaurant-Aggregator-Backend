@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
+using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.API.BL.Services;
 
@@ -136,15 +137,22 @@ public class UserService: IUserService
             .FirstOrDefaultAsync();
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
         
-        if (cook != null && restaurant != null)
+        if (cook == null)
         {
-            cook.Restaurant = restaurant;
-            
-            _context.Cooks.Attach(cook);
-            _context.Entry(cook).State = EntityState.Modified;
-            
-            await _context.SaveChangesAsync();
+            throw new NotFoundException($"Не найден повар с id = {cookId}");
         }
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
+        }
+        
+        cook.Restaurant = restaurant;
+            
+        _context.Cooks.Attach(cook);
+        _context.Entry(cook).State = EntityState.Modified;
+            
+        await _context.SaveChangesAsync();
     }
 
     public async Task AddRestaurantIdForManager(Guid managerId, Guid restaurantId)
@@ -153,15 +161,22 @@ public class UserService: IUserService
             .Where(c => c.Id == managerId)
             .FirstOrDefaultAsync();
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
-        
-        if (manager != null && restaurant != null)
+
+        if (manager == null)
         {
-            manager.Restaurant = restaurant;
-            
-            _context.Managers.Attach(manager);
-            _context.Entry(manager).State = EntityState.Modified;
-            
-            await _context.SaveChangesAsync();
+            throw new NotFoundException($"Не найден менеджер с id = {managerId}");
         }
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
+        }
+        
+        manager.RestaurantId = restaurant.Id;
+            
+        _context.Managers.Attach(manager);
+        _context.Entry(manager).State = EntityState.Modified;
+            
+        await _context.SaveChangesAsync();
     }
 }

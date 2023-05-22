@@ -11,4 +11,8 @@ public interface IAdminRestaurantsService
     Task Delete(Guid id);
     public Task Create(CreateRestaurantDto model);
     Task<bool> CheckIsIdRestaurant(Guid id);
+    Task AddCookToRestaurant(Guid cookId, Guid restaurantId);
+    Task AddManagerToRestaurant(Guid managerId, Guid restaurantId);
+    Task DeleteManagerInRestaurant(Guid restaurantId);
+    Task DeleteCookInRestaurant(Guid restaurantId);
 }
