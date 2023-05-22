@@ -78,7 +78,8 @@ public class ApplicationDBContext: DbContext
         modelBuilder.Entity<Order>()
             .HasOne(o => o.Customer)
             .WithMany(c => c.Orders)
-            .HasForeignKey(o => o.CustomerId);
+            .HasForeignKey(o => o.CustomerId)
+            .IsRequired();
         
         modelBuilder.Entity<OrderDish>()
             .HasOne(o => o.Order)

@@ -186,9 +186,11 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("NumberOrder")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<long>("NumberOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("NumberOrder"));
 
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("timestamp with time zone");

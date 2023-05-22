@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.API.Common.DTO;
-using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
@@ -23,7 +22,7 @@ public class OrderService: IOrderService
         _cartService = cartService;
     }
     
-    public async Task<OrderPageListDTO> GetListLastOrder(
+    public async Task<OrderPageListDTO> GetListLastOrderForCustomer (
         Guid userId, 
         int page, 
         DateTime? startDay, 
@@ -46,11 +45,6 @@ public class OrderService: IOrderService
             })
             .ToListAsync();
         
-        if (!orders.Any())
-        {
-            throw new NotFoundException("У вас пока еще нет завершенных заказов");
-        }
-
         if (startDay != null && endDay == null)
         {
             orders = orders
@@ -69,7 +63,7 @@ public class OrderService: IOrderService
         var countDishes = orders.Count;
         var count = countDishes % pageSize < pageSize && countDishes % pageSize != 0 ? countDishes / 5 + 1 : countDishes / 5;
 
-        if (page > count)
+        if (page > count && orders.Any())
         {
             throw new NotCorrectDataException(message: "Invalid value for attribute page");
         }
@@ -82,28 +76,45 @@ public class OrderService: IOrderService
             PageInfoModel = new PageInfoModelDTO(pageSize, count, page)
         };
     }
-
-    public async Task<OrderDTO> GetConcreteOrder(Guid userId, string numberOrder)
+    
+    public async Task<List<OrderDTO>> GetListActiveOrderForCustomer (Guid userId)
     {
-        var order = await _context.Orders
-            .Where(order => order.NumberOrder == numberOrder)
+        var orders = await _context.Orders
+            .Where(order => order.CustomerId == userId && order.Status != OrderStatus.Delivered)
             .Select(order => new OrderDTO
             {
-                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
                 Address = order.Address,
                 Status = order.Status
             })
-            .FirstOrDefaultAsync();
+            .ToListAsync();
+
+        return orders;
+    }
+
+    public async Task<OrderDTO> GetConcreteOrder(Guid userId, string numberOrder)
+    {
+        var order = _context.Orders;
+            // .Where(order => order.NumberOrder == numberOrder)
+            // .Select(order => new OrderDTO
+            // {
+            //     NumberOrder = order.NumberOrder,
+            //     DeliveryTime = order.DeliveryTime,
+            //     OrderTime = order.OrderTime,
+            //     Price = order.Price,
+            //     Address = order.Address,
+            //     Status = order.Status
+            // })
+            // .FirstOrDefaultAsync();
 
         if (order == null)
         {
             throw new NotFoundException($"Заказа по номеру {numberOrder} не найдено");
         }
         
-        return order;
+        return new OrderDTO();
     }
 
     public async Task CreateNewOrder(Guid userId, OrderCreateDTO model)
@@ -112,40 +123,57 @@ public class OrderService: IOrderService
         {
             throw new NotCorrectDataException( message: "Invalid delivery time. Delivery time must be more than current datetime on 60 minutes");
         }
+        
+        model.DeliveryTime = model.DeliveryTime.ToUniversalTime();
 
-        var dishesInCart = await _cartService.GetCartDishes(userId);
-      
+        var dishesInCart = await _context.DishesInCart
+            .Where(d => d.CustomerId == userId)
+            .ToListAsync();
+
         if (dishesInCart.Count == 0)
         {
             throw new NotFoundException(message: $"Невозможно создать новый заказ, так как корзина пока еще пуста у пользователя с id={userId}");
         }
 
+        if (!await _cartService.CheckDishesFromSameRestaurant(userId))
+        {
+            throw new InvalidResponseException("Невозможно создать заказ, так как в корзине добавлены блюда из разных ресторанов");
+        }
+
         var customer = await _context.Customers
             .Where(c => c.Id == userId)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync() ?? new Customer
+            {
+                Id = await _userService.AddNewCustomerToDb(userId)
+            };
 
-        if (customer == null)
-            customer.Id = await _userService.AddNewCustomerToDb(userId);
-        
         var order = new Order
         {
             DeliveryTime = model.DeliveryTime,
-            OrderTime = DateTime.Now,
+            OrderTime = DateTime.UtcNow,
+            Price = await SumPriceDishes(dishesInCart),
             Address = model.Address,
-            Status = OrderStatus.Created,
-            Price = SumPriceDishes(dishesInCart),
-            Customer = customer
+            Customer = customer,
+            Status = OrderStatus.Created
         };
-        
-        _context.Orders.Add(order);
+
+        await _context.Orders.AddAsync(order);
 
         await _cartService.ClearCart(userId);
         foreach (var dishInCart in dishesInCart)
         {
-            _context.OrdersDishes.Add(new OrderDish
+            var dish = await _context.Dishes.FindAsync(dishInCart.DishId);
+
+            if (dish == null)
+            {
+                Console.WriteLine("Произошла ошибка с БД блюд, почему-то блюдо отсутствует, хотя было в корзине");
+                continue;
+            }
+            
+            await _context.OrdersDishes.AddAsync(new OrderDish
             {
                 Order = order,
-                Dish = await _context.Dishes.FindAsync(dishInCart.Dish.Id)
+                Dish = dish
             });
         }
         
@@ -158,7 +186,6 @@ public class OrderService: IOrderService
 
         await _context.AddAsync(new Order
         {
-            NumberOrder = "",
             DeliveryTime = model.DeliveryTime,
             Price = order.Price,
             Status = OrderStatus.Created,
@@ -214,8 +241,19 @@ public class OrderService: IOrderService
         throw new NotImplementedException();
     }
     
-    private static double SumPriceDishes(IEnumerable<DishInCartDto> dishes)
+    private async Task<double> SumPriceDishes(List<DishInCart> dishesInCart)
     {
-        return dishes.Sum(dish => dish.Count * dish.Dish.Price);
+        var price = 0.0;
+
+        foreach (var dishInCart in dishesInCart)
+        {
+            var dish = await _context.Dishes
+                .Where(d => d.Id == dishInCart.DishId)
+                .FirstOrDefaultAsync();
+
+            price += dishInCart.Count * dish.Price;
+        }
+        
+        return price;
     }
 }

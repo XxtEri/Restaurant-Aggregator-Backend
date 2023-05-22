@@ -75,10 +75,11 @@ public class CartService: ICartService
             throw new NotFoundException(message: $"Блюдо с id = {dishId} не найдено");
         }
         
-        var customer = await _context.Customers.FindAsync(userId);
-
-        if (customer == null)
-            customer.Id = await _userService.AddNewCustomerToDb(userId);
+        var customer = await _context.Customers
+            .FindAsync(userId) ?? new Customer
+            {
+                Id = await _userService.AddNewCustomerToDb(userId)
+            };
 
         await _context.DishesInCart.AddAsync(new DishInCart
         {
@@ -138,6 +139,36 @@ public class CartService: ICartService
         }
         
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> CheckDishesFromSameRestaurant(Guid userId)
+    {
+        var dishes = await _context.DishesInCart
+            .Where(d => d.CustomerId == userId)
+            .ToListAsync();
+
+        string? sameRestaurantId = null;
+        foreach (var dish in dishes)
+        {
+            var menuId = await _context.MenusDishes
+                .Where(o => o.DishId == dish.Id)
+                .Select(o => o.MenuId)
+                .FirstOrDefaultAsync();
+
+            var restaurantId = await _context.Menus
+                .Where(m => m.Id == menuId)
+                .Select(m => m.RestaurantId)
+                .FirstOrDefaultAsync();
+
+            sameRestaurantId ??= restaurantId.ToString();
+
+            if (sameRestaurantId != restaurantId.ToString())
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     private DishInCartDto GetDishInCartDto(DishInCart dishInCart, Dish dishForInfo)

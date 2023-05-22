@@ -11,4 +11,5 @@ public interface ICartService
     Task ChangeQuantity(Guid userId, Guid dishId, bool increase);
 
     Task ClearCart(Guid userId);
+    Task<bool> CheckDishesFromSameRestaurant(Guid userId);
 }

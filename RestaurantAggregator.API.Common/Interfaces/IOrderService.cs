@@ -6,7 +6,8 @@ namespace RestaurantAggregator.API.Common.Interfaces;
 
 public interface IOrderService
 {
-    Task<OrderPageListDTO> GetListLastOrder(Guid userId, int page, DateTime? startDay, DateTime? endDay);
+    Task<OrderPageListDTO> GetListLastOrderForCustomer(Guid userId, int page, DateTime? startDay, DateTime? endDay);
+    Task<List<OrderDTO>> GetListActiveOrderForCustomer(Guid userId);
     Task<OrderDTO> GetConcreteOrder(Guid userId, string numberOrder);
     Task CreateNewOrder(Guid userId, OrderCreateDTO model);
     Task RepeatLastOrder(Guid orderId, OrderCreateDTO model);

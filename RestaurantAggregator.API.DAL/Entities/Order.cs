@@ -10,11 +10,13 @@ public class Order
     [Key]
     public Guid Id { get; set; }
     
-    [Required]
-    public string NumberOrder { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long NumberOrder { get; set; }
     
+    [Required]
     public DateTime DeliveryTime { get; set; }
 
+    [Required]
     public DateTime OrderTime { get; set; }
 
     [Required] 
@@ -35,14 +37,11 @@ public class Order
     
     [ForeignKey("Courier")]
     public Guid? CourierId { get; set; }
-
-    [MaybeNull]
-    public Cook Cook { get; set; }
     
-    [MaybeNull]
-    public Courier Courier { get; set; }
+    public Cook? Cook { get; set; }
     
-    [Required]
+    public Courier? Courier { get; set; }
+    
     public Customer Customer { get; set; }
     
     public ICollection<OrderDish> OrderDishes { get; set; }
