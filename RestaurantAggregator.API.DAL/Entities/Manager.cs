@@ -9,7 +9,7 @@ public class Manager
     public Guid Id { get; set; }
     
     [ForeignKey("Restaurant")]
-    public Guid RestaurantId { get; set; }
+    public Guid? RestaurantId { get; set; }
     
     public Restaurant Restaurant { get; set; }
 }

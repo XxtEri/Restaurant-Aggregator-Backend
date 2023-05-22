@@ -28,7 +28,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -121,7 +121,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -390,8 +390,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 {
                     b.Navigation("Orders");
 
-                    b.Navigation("Restaurant")
-                        .IsRequired();
+                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Courier", b =>
@@ -417,8 +416,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Manager", b =>
                 {
-                    b.Navigation("Restaurant")
-                        .IsRequired();
+                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Menu", b =>

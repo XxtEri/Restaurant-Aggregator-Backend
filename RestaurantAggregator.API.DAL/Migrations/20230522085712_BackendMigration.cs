@@ -15,7 +15,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    RestaurantId = table.Column<Guid>(type: "uuid", nullable: false)
+                    RestaurantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,7 +67,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    RestaurantId = table.Column<Guid>(type: "uuid", nullable: false)
+                    RestaurantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {

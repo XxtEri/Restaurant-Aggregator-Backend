@@ -12,7 +12,7 @@ using RestaurantAggregator.API.DAL;
 namespace RestaurantAggregator.API.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20230522082114_BackendMigration")]
+    [Migration("20230522085712_BackendMigration")]
     partial class BackendMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,7 +30,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -123,7 +123,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -392,8 +392,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
                 {
                     b.Navigation("Orders");
 
-                    b.Navigation("Restaurant")
-                        .IsRequired();
+                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Courier", b =>
@@ -419,8 +418,7 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Manager", b =>
                 {
-                    b.Navigation("Restaurant")
-                        .IsRequired();
+                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Menu", b =>
