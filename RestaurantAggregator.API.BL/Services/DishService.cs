@@ -205,7 +205,7 @@ public class DishService: IDishService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<DishDTO> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishDto model)
+    public async Task AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishDto model)
     {
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
 
@@ -240,16 +240,5 @@ public class DishService: IDishService
         });
 
         await _context.SaveChangesAsync();
-        
-        return new DishDTO
-        {
-            Id = dish.Id,
-            Name = dish.Name,
-            Price = dish.Price,
-            Description = dish.Description,
-            IsVegetarian = dish.IsVegetarian,
-            Photo = dish.Photo,
-            Category = dish.Category
-        };
     }
 }

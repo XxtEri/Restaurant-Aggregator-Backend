@@ -173,9 +173,9 @@ public class DishController: ControllerBase
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
     [HttpPost("restaurants/{restaurantId}/menu/{menuId}/dishes")]
     [Authorize(Roles = UserRoles.Manager)]
-    public async Task<ActionResult<DishModel>> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
+    public async Task<IActionResult> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
     {
-        var dishDto = await _dishService.AddDishToMenuOfRestaurant(restaurantId, menuId, new CreateDishDto
+        await _dishService.AddDishToMenuOfRestaurant(restaurantId, menuId, new CreateDishDto
         {
             Name = model.Name,
             Price = model.Price,
@@ -185,15 +185,6 @@ public class DishController: ControllerBase
             Category = model.Category
         });
         
-        return Ok(new DishModel
-        {
-            Name = dishDto.Name,
-            Price = dishDto.Price,
-            Description = dishDto.Description,
-            IsVegetarian = dishDto.IsVegetarian,
-            Photo = dishDto.Photo,
-            Rating = dishDto.Rating,
-            Category = dishDto.Category
-        });
+        return Ok();
     }
 }

@@ -21,5 +21,5 @@ public interface IDishService
     Task<DishDTO> GetDishInformation(Guid dishId);
     Task<bool> CheckCurrentUserSetRatingToDish(Guid userId, Guid dishId);
     Task SetRatingToDish(Guid userId, Guid dishId, int ratingScore);
-    Task<DishDTO> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishDto model);
+    Task AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishDto model);
 }
