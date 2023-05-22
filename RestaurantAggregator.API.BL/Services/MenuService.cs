@@ -24,8 +24,10 @@ public class MenuService: IMenuService
         {
             throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
         }
-        
-        if (restaurant.Menus.ToList().Any(menu => menu.Name == model.Name))
+
+        var menus = await _context.Menus.ToListAsync();
+
+        if (menus.Any(menu => menu.Name == model.Name))
         {
             throw new NotCorrectDataException($"У ресторана с id = {restaurantId} уже существует меню с таким названием");
         }

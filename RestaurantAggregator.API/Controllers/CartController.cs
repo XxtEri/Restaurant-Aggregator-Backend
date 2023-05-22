@@ -95,7 +95,7 @@ public class CartController: ControllerBase
     /// </summary>
     [HttpPost("dishes/{dishId}")]
     [Authorize(Roles = UserRoles.Customer)]
-    [ProducesResponseType(StatusCodes.Status201Created)] 
+    [ProducesResponseType(StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -111,15 +111,9 @@ public class CartController: ControllerBase
             return StatusCode(500, "Возникла ошибка при парсинге токена");
         }
 
-        var dishInCartDto = await _cartService.AddDishInCart(new Guid(userId), dishId);
-        var dishInCardModel = new DishInCartModel
-        {
-            Id = dishInCartDto.Id,
-            Count = dishInCartDto.Count,
-            Dish = getDishModel(dishInCartDto.Dish)
-        };
-        
-        return new CreatedResult(nameof(GetDishInCart), dishInCardModel);
+        await _cartService.AddDishInCart(new Guid(userId), dishId);
+
+        return Ok();
     }
     /// <summary>
     /// Удаление блюда из корзины
