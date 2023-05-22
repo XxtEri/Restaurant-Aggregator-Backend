@@ -61,7 +61,7 @@ public class CartService: ICartService
 
     public async Task AddDishInCart(Guid userId, Guid dishId)
     {
-        var dishInCart = await _context.DishesInCart.FirstOrDefaultAsync(d => d.DishId == dishId);
+        var dishInCart = await _context.DishesInCart.FirstOrDefaultAsync(d => d.DishId == dishId && d.CustomerId == userId);
 
         if (dishInCart != null && dishInCart.CustomerId == userId)
         {
@@ -92,7 +92,7 @@ public class CartService: ICartService
 
     public async Task DeleteDishOfCart(Guid userId, Guid dishId)
     {
-        var dishInCart = await _context.DishesInCart.FindAsync(dishId);
+        var dishInCart = await _context.DishesInCart.FirstOrDefaultAsync(d => d.DishId == dishId && d.CustomerId == userId);
         
         if (dishInCart == null)
         {
@@ -105,7 +105,7 @@ public class CartService: ICartService
 
     public async Task ChangeQuantity(Guid userId, Guid dishId, bool increase)
     {
-        var dishInCart = await _context.DishesInCart.FindAsync(dishId);
+        var dishInCart = await _context.DishesInCart.FirstOrDefaultAsync(d => d.DishId == dishId && d.CustomerId == userId);
         
         if (dishInCart == null)
         {
@@ -130,22 +130,7 @@ public class CartService: ICartService
     {
         var dishesInCart = await _context.DishesInCart
             .Where(d => d.CustomerId == userId)
-            .Select(d => new DishInCartDto
-            {
-                Id = d.Id,
-                Count = d.Count,
-                Dish = new DishDTO
-                {
-                    Id = d.DishId,
-                    Name = d.Dish.Name,
-                    Price = d.Dish.Price,
-                    Description = d.Dish.Description,
-                    IsVegetarian = d.Dish.IsVegetarian,
-                    Photo = d.Dish.Photo,
-                    Rating = d.Dish.Rating,
-                    Category = d.Dish.Category
-                }
-            }).ToListAsync();
+            .ToListAsync();
 
         foreach (var dishInCart in dishesInCart)
         {

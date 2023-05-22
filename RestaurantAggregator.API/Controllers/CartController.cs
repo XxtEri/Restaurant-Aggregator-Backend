@@ -118,7 +118,7 @@ public class CartController: ControllerBase
     /// <summary>
     /// Удаление блюда из корзины
     /// </summary>
-    [HttpDelete("basket/dishes/{dishId}")]
+    [HttpDelete("dishes/{dishId}")]
     [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status204NoContent)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
