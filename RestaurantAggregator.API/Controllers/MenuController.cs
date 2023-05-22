@@ -20,28 +20,59 @@ public class MenuController: ControllerBase
     }
     
     /// <summary>
-    /// Добавить новое меню для ресторана
+    /// Получить меню ресторана с блюдами
     /// </summary>
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpPost("menu")]
+    [HttpGet("menus/{menuId}")]
+    [Authorize]
+    public async Task<ActionResult<MenuModel>> GetMenu(Guid restaurantId, Guid menuId)
+    {
+        var menuDto = await _menuService.GetMenuDto(restaurantId, menuId);
+        
+        var dishes = menuDto.Dishes.Select(dish => new DishModel
+            {
+                Id = dish.Id,
+                Name = dish.Name,
+                Price = dish.Price,
+                Description = dish.Description,
+                IsVegetarian = dish.IsVegetarian,
+                Photo = dish.Photo,
+                Rating = dish.Rating,
+                Category = dish.Category
+            })
+            .ToList();
+
+        return Ok(new MenuModel
+        {
+            Id = menuDto.Id,
+            Name = menuDto.Name,
+            Dishes = dishes
+        });
+    }
+    
+    /// <summary>
+    /// Добавить новое меню для ресторана
+    /// </summary>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPost("menus")]
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<ActionResult<MenuModel>> AddMenu(Guid restaurantId, CreateMenuModel model)
     {
-        var menuDto = await _menuService.AddMenuToRestaurant(restaurantId, new CreateMenuDto
+        await _menuService.AddMenuToRestaurant(restaurantId, new CreateMenuDto
         {
             Name = model.Name
         });
         
-        return Ok(new MenuModel
-        {
-            Id = menuDto.Id,
-            Name = menuDto.Name
-        });
+        return Ok();
     }
-
 }

@@ -9,4 +9,6 @@ public class MenuDTO
     [MinLength(1)]
     [Required]
     public string Name { get; set; }
+    
+    public List<DishDTO> Dishes { get; set; }
 }

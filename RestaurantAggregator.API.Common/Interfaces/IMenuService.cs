@@ -4,5 +4,6 @@ namespace RestaurantAggregator.API.Common.Interfaces;
 
 public interface IMenuService
 {
-    Task<MenuDTO> AddMenuToRestaurant(Guid restaurantId, CreateMenuDto model);
+    Task<MenuDTO> GetMenuDto(Guid restaurantId, Guid menuId);
+    Task AddMenuToRestaurant(Guid restaurantId, CreateMenuDto model);
 }

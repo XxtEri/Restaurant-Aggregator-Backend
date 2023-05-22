@@ -9,4 +9,6 @@ public class MenuModel
     [MinLength(1)]
     [Required]
     public string Name { get; set; }
+    
+    public List<DishModel> Dishes { get; set; }
 }

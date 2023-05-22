@@ -171,7 +171,7 @@ public class DishController: ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [HttpPost("restaurants/{restaurantId}/menu/{menuId}/dishes")]
+    [HttpPost("restaurants/{restaurantId}/menus/{menuId}/dishes")]
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<IActionResult> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
     {
