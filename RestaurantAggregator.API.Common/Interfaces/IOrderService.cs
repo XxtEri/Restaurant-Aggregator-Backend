@@ -13,7 +13,7 @@ public interface IOrderService
     Task RepeatLastOrder(Guid userId, long numberOrder, OrderCreateDTO model);
     
     Task<List<OrderDTO>> GetOrdersForDelivery();
-    Task<List<OrderDTO>> GetActiveOrdersForCourier(Guid courierId);
+    Task<OrderDTO?> GetActiveOrderForCourier(Guid courierId);
     Task<List<OrderDTO>> GetLastOrderForCourier(Guid courierId);
 
     Task<List<OrderDTO>> GetListLastOrderForCook(Guid cookId);

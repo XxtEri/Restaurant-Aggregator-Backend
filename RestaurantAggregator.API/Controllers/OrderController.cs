@@ -249,19 +249,19 @@ public class OrderController: ControllerBase
             return StatusCode(500, "Возникла ошибка при парсинге токена");
         }
         
-        var ordersDto = await _orderService.GetActiveOrdersForCourier(new Guid(userId));
+        var orderDto = await _orderService.GetActiveOrderForCourier(new Guid(userId));
 
-        var ordersModel = ordersDto
-            .Select(o => new OrderModel
-            {
-                Id = o.Id,
-                NumberOrder = o.NumberOrder,
-                DeliveryTime = o.DeliveryTime,
-                OrderTime = o.OrderTime,
-                Price = o.Price,
-                Address = o.Address,
-                Status = o.Status
-            });
+        if (orderDto == null) return Ok();
+        var ordersModel = new OrderModel
+        {
+            Id = orderDto.Id,
+            NumberOrder = orderDto.NumberOrder,
+            DeliveryTime = orderDto.DeliveryTime,
+            OrderTime = orderDto.OrderTime,
+            Price = orderDto.Price,
+            Address = orderDto.Address,
+            Status = orderDto.Status
+        };
         
         return Ok(ordersModel);
     }
@@ -431,7 +431,7 @@ public class OrderController: ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    [HttpGet("restaurant/{restaurantId}/managers/orders")]
+    [HttpGet("managers/orders")]
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<ActionResult<List<OrderModel>>> GetListOrderForManager(
         int page,
@@ -480,7 +480,7 @@ public class OrderController: ControllerBase
     /// (для роли Cook меняется статус на “Kitchen”, “Packaging” и “Waiting Courier”)
     /// (для роли Courier меняется статус на “Delivered” и на “Canceled” только со статуса “Delivery”)
     /// </summary>
-    [HttpPost("orders/{order-id}/status")]
+    [HttpPost("orders/{orderId:guid}/status")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]

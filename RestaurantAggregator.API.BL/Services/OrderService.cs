@@ -3,7 +3,6 @@ using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregator.CommonFiles.Exceptions;
 
@@ -263,13 +262,14 @@ public class OrderService: IOrderService
     }
 
     
-    //проверить
     public async Task<List<OrderDTO>> GetOrdersForDelivery()
     {
         return await _context.Orders
             .Where(order => order.Status == OrderStatus.WaitingCourier)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -279,29 +279,31 @@ public class OrderService: IOrderService
             .ToListAsync();
     }
     
-    //проверить
-    public async Task<List<OrderDTO>> GetActiveOrdersForCourier(Guid courierId)
+    public async Task<OrderDTO?> GetActiveOrderForCourier(Guid courierId)
     {
         return await _context.Orders
             .Where(order => order.Status == OrderStatus.Delivery && order.CourierId == courierId)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
                 Address = order.Address,
                 Status = order.Status
             })
-            .ToListAsync();
+            .FirstOrDefaultAsync();
     }
-
-    //проверить
+    
     public async Task<List<OrderDTO>> GetLastOrderForCourier(Guid courierId)
     {
         return await _context.Orders
             .Where(order => order.Status == OrderStatus.Delivered && order.CourierId == courierId)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -312,7 +314,6 @@ public class OrderService: IOrderService
     }
 
     
-    //проверить
     public async Task<List<OrderDTO>> GetListLastOrderForCook(Guid cookId)
     {
         return await _context.Orders
@@ -322,6 +323,8 @@ public class OrderService: IOrderService
                             && order.CookId == cookId)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -380,8 +383,7 @@ public class OrderService: IOrderService
 
         return ordersForCooking;
     }
-
-    //проверить
+    
     public async Task<List<OrderDTO>> GetListActiveOrderForCook(Guid cookId)
     {
         var cook = await _context.Cooks
@@ -413,7 +415,6 @@ public class OrderService: IOrderService
     }
     
     
-    //проверить
     public async Task<List<OrderDTO>> GetListOrderForManager(
         Guid managerId,
         int page,
@@ -433,9 +434,10 @@ public class OrderService: IOrderService
             throw new NotFoundException($"Не найден менеджер с id = {managerId}");
 
         var orders = await _context.Orders
-            .Where(o => o.Status == status)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -443,7 +445,15 @@ public class OrderService: IOrderService
                 Status = order.Status
             })
             .ToListAsync();
-        
+
+        if (status != null)
+        {
+            orders = orders
+                .Where(o => o.Status == status)
+                .ToList();
+        }
+
+        var ordersForManager = new List<OrderDTO>();
         foreach (var order in orders)
         {
             var dishId = await _context.OrdersDishes
@@ -459,61 +469,60 @@ public class OrderService: IOrderService
                 .Select(m => m.RestaurantId)
                 .FirstOrDefaultAsync();
 
-            if (restaurantId != manager.RestaurantId)
+            if (restaurantId == manager.RestaurantId)
             {
-                orders.Remove(order);
+                ordersForManager.Add(order);
             }
         }
         
         if (startOrderTime != null && endOrderTime == null)
         {
-            orders = orders
+            ordersForManager = ordersForManager
                 .Where(order => order.OrderTime >= startOrderTime)
                 .ToList();
         }
 
         if (startOrderTime == null && endOrderTime != null)
         {
-            orders = orders
+            ordersForManager = ordersForManager
                 .Where(order => order.OrderTime <= endOrderTime)
                 .ToList();
         }
         
         if (startOrderTime != null && endOrderTime != null)
         {
-            orders = orders
+            ordersForManager = ordersForManager
                 .Where(order => order.OrderTime <= endOrderTime && order.OrderTime >= startOrderTime)
                 .ToList();
         }
         
         if (startDeliveryTime != null && endDeliveryTime == null)
         {
-            orders = orders
+            ordersForManager = ordersForManager
                 .Where(order => order.DeliveryTime >= startDeliveryTime)
                 .ToList();
         }
 
         if (startDeliveryTime == null && endDeliveryTime != null)
         {
-            orders = orders
+            ordersForManager = ordersForManager
                 .Where(order => order.DeliveryTime <= endDeliveryTime)
                 .ToList();
         }
         
         if (startDeliveryTime != null && endDeliveryTime != null)
         {
-            orders = orders
+            ordersForManager = ordersForManager
                 .Where(order => order.DeliveryTime <= endDeliveryTime && order.DeliveryTime >= startDeliveryTime)
                 .ToList();
         }
 
-        orders = orders.Where(o => o.NumberOrder.ToString().ToLower().Contains(numberOrder?.ToString().Trim().ToLower() ?? string.Empty)).ToList();
+        ordersForManager = ordersForManager.Where(o => o.NumberOrder.ToString().ToLower().Contains(numberOrder?.ToString().Trim().ToLower() ?? string.Empty)).ToList();
 
-        return orders;
+        return ordersForManager;
     }
 
     
-    //проверить
     public async Task ChangeOrderStatus(Guid userId, Guid orderId, OrderStatus status)
     {
         var order = await _context.Orders.FindAsync(orderId);
@@ -616,13 +625,27 @@ public class OrderService: IOrderService
                 }
                 break;
             case OrderStatus.Cancelled:
-                if (courier != null && order.Status == OrderStatus.Delivery)
+                if (courier != null)
                 {
-                    order.Status = OrderStatus.Cancelled;
+                    if (order.Status == OrderStatus.Delivery)
+                    {
+                        order.Status = OrderStatus.Cancelled;
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'Cancelled' может быть установлен курьером только если текущий статус заказа - 'Delivery'");
+                    }
                 }
-                else if (customer != null && order.Status == OrderStatus.Created)
+                else if (customer != null)
                 {
-                    order.Status = OrderStatus.Cancelled;
+                    if (order.Status == OrderStatus.Created)
+                    {
+                        order.Status = OrderStatus.Cancelled;
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'Cancelled' может быть установлен покупателем только если текущий статус заказа - 'Created'");
+                    }
                 }
                 else
                 {
@@ -632,6 +655,11 @@ public class OrderService: IOrderService
             default:
                 throw new InvalidResponseException("Что-то пошло не так с проверкой статуса заказа");
         }
+        
+        _context.Orders.Attach(order);
+        _context.Entry(order).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
     }
     
     
@@ -664,6 +692,12 @@ public class OrderService: IOrderService
 
     private async Task AssignCourierToOrder(Courier courier, Order order)
     {
+        var activeOrder = await GetActiveOrderForCourier(courier.Id);
+        if (activeOrder != null && activeOrder.DeliveryTime >= DateTime.UtcNow)
+        {
+            throw new InvalidResponseException("Курьер может брать только один заказ в единицу времени для доставки покупателю");
+        }
+        
         order.Courier = courier;
         
         _context.Orders.Attach(order);
