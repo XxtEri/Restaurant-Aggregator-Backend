@@ -132,9 +132,7 @@ public class UserService: IUserService
 
     public async Task AddRestaurantIdForCook(Guid cookId, Guid restaurantId)
     {
-        var cook = await _context.Cooks
-            .Where(c => c.Id == cookId)
-            .FirstOrDefaultAsync();
+        var cook = await _context.Cooks.FindAsync(cookId);
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
         
         if (cook == null)
@@ -147,7 +145,7 @@ public class UserService: IUserService
             throw new NotFoundException($"Не найден ресторан с id = {restaurantId}");
         }
         
-        cook.Restaurant = restaurant;
+        cook.RestaurantId = restaurantId;
             
         _context.Cooks.Attach(cook);
         _context.Entry(cook).State = EntityState.Modified;

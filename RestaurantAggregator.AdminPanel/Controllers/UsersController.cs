@@ -362,7 +362,7 @@ public class UsersController: Controller
     {
         try
         {
-            var restaurantId = await _adminUsersServices.GetRestaurantIdForManager(id);
+            var restaurantId = await _adminUsersServices.GetRestaurantIdForCook(id);
             var model = new ChangeRestaurantIdViewModel
             {
                 UserId = id,

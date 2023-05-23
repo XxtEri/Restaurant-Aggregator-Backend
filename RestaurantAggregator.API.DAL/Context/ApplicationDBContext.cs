@@ -27,7 +27,7 @@ public class ApplicationDBContext: DbContext
             .WithOne(r => r.Restaurant)
             .HasForeignKey(m => m.RestaurantId)
             .IsRequired();
-        
+
         modelBuilder.Entity<Cook>()
             .HasOne(o => o.Restaurant)
             .WithOne(c => c.Cook)

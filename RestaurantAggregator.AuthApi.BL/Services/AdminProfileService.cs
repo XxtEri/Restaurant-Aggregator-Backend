@@ -397,7 +397,7 @@ public class AdminProfileService: IAdminProfileService
         }
 
         var roleIdCook = await _context.Roles
-            .Where(r => r.Name == UserRoles.Manager)
+            .Where(r => r.Name == UserRoles.Cook)
             .Select(r => r.Id)
             .FirstOrDefaultAsync();
 
@@ -407,7 +407,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (roleCook == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль менеджера");
+            throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль повара");
         }
 
         var cook = await _context.Cooks
