@@ -74,12 +74,16 @@ public class CartService: ICartService
         {
             throw new NotFoundException(message: $"Блюдо с id = {dishId} не найдено");
         }
-        
+
         var customer = await _context.Customers
-            .FindAsync(userId) ?? new Customer
-            {
-                Id = await _userService.AddNewCustomerToDb(userId)
-            };
+            .FindAsync(userId);
+
+        if (customer == null)
+        {
+            var customerId = await _userService.AddNewCustomerToDb(userId);
+            customer = await _context.Customers
+                .FindAsync(customerId);
+        }
 
         await _context.DishesInCart.AddAsync(new DishInCart
         {
