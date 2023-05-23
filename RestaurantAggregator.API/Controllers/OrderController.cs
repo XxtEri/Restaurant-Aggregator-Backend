@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using RestaurantAggregator.API.Common.DTO;
-using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
+using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregatorService.Models;
 
@@ -35,8 +34,8 @@ public class OrderController: ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<OrderPageListModel>> GetListLastOrder([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<OrderPageListModel>> GetListLastOrderForCustomer([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
         var userId = _userService.GetUserIdFromToken(token);
@@ -65,15 +64,15 @@ public class OrderController: ControllerBase
     /// <summary>
     /// Получение списка текущих заказов пользователя с ролью Customer
     /// </summary>
+    [HttpGet("customers/orders/active")]
+    [Authorize(Roles = "Customer")]
     [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [HttpGet("customers/orders/active")]
-    [Authorize(Roles = "Customer")]
-    public async Task<ActionResult<List<OrderModel>>> GetActiveOrder()
+    [ProducesResponseType( StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<OrderModel>>> GetActiveOrderForCustomer()
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
         var userId = _userService.GetUserIdFromToken(token);
@@ -101,80 +100,53 @@ public class OrderController: ControllerBase
     }
     
     /// <summary>
-    /// Получение истории заказов, приготовленных пользователем с ролью Cook
+    /// Получение информации о конкретном заказе пользователя с ролью Customer
     /// </summary>
-    [HttpGet("/cooks/orders/last")]
-    [Authorize]
-    [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string GetListLastOrderForCook()
+    [HttpGet("customers/orders/{numberOrder:long}")]
+    [Authorize(Roles = "Customer")]
+    [ProducesResponseType(typeof(OrderModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<OrderModel>> GetOrder(long numberOrder)
     {
-        return "";
-    }
-    
-    /// <summary>
-    /// Получение списка всех заказов со статусом Created для пользователя роли Cook
-    /// </summary>
-    [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [HttpGet("restaurant/{restaurantId}/cookies/orders")]
-    [Authorize]
-    public string GetListActiveOrderForCook(Guid restaurantId)
-    {
-        return "";
-    }
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
 
-    /// <summary>
-    /// Получение списка всех заказов в ресторане для пользователя роли Manager
-    /// </summary>
-    [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    [HttpGet("restaurant/{restaurantId}/managers/orders")]
-    [Authorize]
-    public string GetListOrderForManager(Guid restaurantId)
-    {
-        return "";
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        var orderDto = await _orderService.GetConcreteOrder(new Guid(userId), numberOrder);
+
+        var orderModel = new OrderModel
+        {
+            Id = orderDto.Id,
+            NumberOrder = orderDto.NumberOrder,
+            DeliveryTime = orderDto.DeliveryTime,
+            OrderTime = orderDto.OrderTime,
+            Price = orderDto.Price,
+            Address = orderDto.Address,
+            Status = orderDto.Status
+        };
+
+        return Ok(orderModel);
     }
     
     /// <summary>
-    /// Получение списка всех заказов для пользователя роли Courier
-    /// </summary>
-    [HttpGet("couriers/orders")]
-    [Authorize]
-    [ProducesResponseType(typeof(OrderPageListDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string GetListOrderForCourier()
-    {
-        return "";
-    }
-    
-    /// <summary>
-    /// Создание нового заказа для пользователя роли Customer
+    /// Создание нового заказа для пользователя с ролью Customer
     /// </summary>
     [HttpPost("customers/orders")]
-    [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = UserRoles.Customer)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CreateNewOrder([FromBody] OrderCreateModel model)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
@@ -193,23 +165,315 @@ public class OrderController: ControllerBase
         
         return Ok();
     }
-    
+
     /// <summary>
     /// Повторение прошлого заказа для пользователя роли Customer
     /// </summary>
-    [HttpPost("customers/orders/{orderId}/repeat")]
-    [Authorize]
-    [ProducesResponseType(typeof(OrderDTO), StatusCodes.Status201Created)]
+    [HttpPost("customers/orders/{numberOrder:long}/repeat")]
+    [Authorize(Roles = UserRoles.Customer)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> RepeatLastOrder(long numberOrder, [FromBody] OrderCreateModel model)
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        await _orderService.RepeatLastOrder(new Guid(userId), numberOrder, new OrderCreateDTO
+        {
+            DeliveryTime = model.DeliveryTime,
+            Address = model.Address
+        });
+
+        return Ok();
+    }
+
+    
+    
+    /// <summary>
+    /// Получение списка всех заказов, доступных для доставки, для пользователя с ролью Courier
+    /// </summary>
+    [HttpGet("couriers/orders")]
+    [Authorize(Roles = UserRoles.Courier)]
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string RepeatLastOrder(Guid orderId, [FromBody] OrderCreateModel model)
+    public async Task<ActionResult<List<OrderModel>>> GetListOrderForCourier()
     {
-        return "";
+        var ordersDto = await _orderService.GetOrdersForDelivery();
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
     }
     
+    /// <summary>
+    /// Получение списка активного заказа для пользователя с ролью Courier
+    /// </summary>
+    [HttpGet("couriers/order/active")]
+    [Authorize(Roles = UserRoles.Courier)]
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<OrderModel>>> GetActiveOrderForCourier()
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var ordersDto = await _orderService.GetActiveOrdersForCourier(new Guid(userId));
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
+    }
+    
+    /// <summary>
+    /// Получение списка всех доставленных заказов пользователем с ролью Courier
+    /// </summary>
+    [HttpGet("couriers/orders/last")]
+    [Authorize(Roles = UserRoles.Courier)]
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<OrderModel>>> GetLastOrdersForCourier()
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var ordersDto = await _orderService.GetLastOrderForCourier(new Guid(userId));
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
+    }
+
+    
+    
+    /// <summary>
+    /// Получение истории заказов, приготовленных пользователем с ролью Cook
+    /// </summary>
+    [HttpGet("/cooks/orders/last")]
+    [Authorize(Roles = UserRoles.Cook)]
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<OrderModel>>> GetListLastOrderForCook()
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var ordersDto = await _orderService.GetListLastOrderForCook(new Guid(userId));
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
+    }
+    
+    /// <summary>
+    /// Получение заказов, готовые для приготовления, для пользователя с ролью Cook
+    /// </summary>
+    [HttpGet("/cooks/orders")]
+    [Authorize]
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<OrderModel>>> GetListOrderForCooking()
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var ordersDto = await _orderService.GetListOrderForCook(new Guid(userId));
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
+    }
+
+    /// <summary>
+    /// Получение заказов, взятых для готовки пользователем с ролью Cook
+    /// </summary>
+    [HttpGet("/cooks/orders/active")]
+    [Authorize(Roles = UserRoles.Cook)]
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<OrderModel>>> GetListActiveOrderForCooking()
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var ordersDto = await _orderService.GetListActiveOrderForCook(new Guid(userId));
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
+    }
+
+    
+
+    /// <summary>
+    /// Получение списка всех заказов в ресторане для пользователя с ролью Manager
+    /// </summary>
+    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [HttpGet("restaurant/{restaurantId}/managers/orders")]
+    [Authorize(Roles = UserRoles.Manager)]
+    public async Task<ActionResult<List<OrderModel>>> GetListOrderForManager(
+        int page,
+        OrderStatus? status,
+        DateTime? startOrderTime, 
+        DateTime? endOrderTime,
+        DateTime? startDeliveryTime, 
+        DateTime? endDeliveryTime,
+        long? numberOrder)
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        var ordersDto = await _orderService.GetListOrderForManager(
+            new Guid(userId),
+            page,
+            status,
+            startOrderTime, endOrderTime,
+            startDeliveryTime, endDeliveryTime,
+            numberOrder
+        );
+
+        var ordersModel = ordersDto
+            .Select(o => new OrderModel
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            });
+        
+        return Ok(ordersModel);
+    }
+
     /// <summary>
     /// Изменение статуса заказа
     /// (для роли Client меняется статус только с “Created” на “Canceled”)
@@ -218,14 +482,24 @@ public class OrderController: ControllerBase
     /// </summary>
     [HttpPost("orders/{order-id}/status")]
     [Authorize]
-    [ProducesResponseType(typeof(OrderDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
-    public string ChangeOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ChangeOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {
-        return "";
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        await _orderService.ChangeOrderStatus(new Guid(userId), orderId, status);
+        
+        return Ok();
     }
 }

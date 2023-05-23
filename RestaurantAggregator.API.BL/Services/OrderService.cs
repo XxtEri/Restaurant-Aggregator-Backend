@@ -58,6 +58,13 @@ public class OrderService: IOrderService
                 .Where(order => order.DeliveryTime <= endDay)
                 .ToList();
         }
+        
+        if (startDay != null && endDay != null)
+        {
+            orders = orders
+                .Where(order => order.DeliveryTime <= endDay && order.DeliveryTime >= startDay)
+                .ToList();
+        }
 
         const int pageSize = 5;
         var countDishes = orders.Count;
@@ -83,6 +90,8 @@ public class OrderService: IOrderService
             .Where(order => order.CustomerId == userId && order.Status != OrderStatus.Delivered)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -93,30 +102,31 @@ public class OrderService: IOrderService
 
         return orders;
     }
-
-    public async Task<OrderDTO> GetConcreteOrder(Guid userId, string numberOrder)
+    
+    public async Task<OrderDTO> GetConcreteOrder(Guid userId, long numberOrder)
     {
-        var order = _context.Orders;
-            // .Where(order => order.NumberOrder == numberOrder)
-            // .Select(order => new OrderDTO
-            // {
-            //     NumberOrder = order.NumberOrder,
-            //     DeliveryTime = order.DeliveryTime,
-            //     OrderTime = order.OrderTime,
-            //     Price = order.Price,
-            //     Address = order.Address,
-            //     Status = order.Status
-            // })
-            // .FirstOrDefaultAsync();
+        var order = await _context.Orders
+            .Where(order => order.NumberOrder == numberOrder)
+            .Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .FirstOrDefaultAsync();
 
         if (order == null)
         {
             throw new NotFoundException($"Заказа по номеру {numberOrder} не найдено");
         }
-        
-        return new OrderDTO();
-    }
 
+        return order;
+    }
+    
     public async Task CreateNewOrder(Guid userId, OrderCreateDTO model)
     {
         if (model.DeliveryTime <= DateTime.UtcNow.AddHours(1))
@@ -141,11 +151,19 @@ public class OrderService: IOrderService
         }
 
         var customer = await _context.Customers
-            .Where(c => c.Id == userId)
-            .FirstOrDefaultAsync() ?? new Customer
-            {
-                Id = await _userService.AddNewCustomerToDb(userId)
-            };
+            .FindAsync(userId);
+
+        if (customer == null)
+        {
+            var customerId = await _userService.AddNewCustomerToDb(userId);
+            customer = await _context.Customers
+                .FindAsync(customerId);
+        }
+
+        if (customer == null)
+        {
+            throw new NotFoundException($"Не найден покупатель с id = {userId}");
+        }
 
         var order = new Order
         {
@@ -179,25 +197,77 @@ public class OrderService: IOrderService
         
         await _context.SaveChangesAsync();
     }
-
-    public async Task RepeatLastOrder(Guid orderId, OrderCreateDTO model)
+    
+    public async Task RepeatLastOrder(Guid userId, long numberOrder, OrderCreateDTO model)
     {
-        var order = await _context.Orders.LastAsync();
+        var lastOrder = await _context.Orders.Where(o => o.NumberOrder == numberOrder).FirstOrDefaultAsync();
 
-        await _context.AddAsync(new Order
+        if (lastOrder == null)
+        {
+            throw new NotFoundException($"Не найден заказ с номером заказа = {numberOrder}");
+        }
+
+        if (lastOrder.CustomerId != userId)
+        {
+            throw new ForbiddenException($"У пользователя с id = {userId} нет доступа с заказу с номером заказа = {numberOrder}");
+        }
+
+        var orderingDishes = await _context.OrdersDishes
+            .Where(o => o.OrderId == lastOrder.Id)
+            .ToListAsync();
+        
+        var customer = await _context.Customers
+            .FindAsync(userId);
+
+        if (customer == null)
+        {
+            var customerId = await _userService.AddNewCustomerToDb(userId);
+            customer = await _context.Customers
+                .FindAsync(customerId);
+        }
+
+        if (customer == null)
+        {
+            throw new NotFoundException($"Не найден покупатель с id = {userId}");
+        }
+        
+        var newOrder = new Order
         {
             DeliveryTime = model.DeliveryTime,
-            Price = order.Price,
-            Status = OrderStatus.Created,
-            Address = model.Address
-        });
+            OrderTime = DateTime.UtcNow,
+            Price = lastOrder.Price,
+            Address = model.Address,
+            Customer = customer,
+            Status = OrderStatus.Created
+        };
+        await _context.AddAsync(newOrder);
+        
+        foreach (var orderingDish in orderingDishes)
+        {
+            var dish = await _context.Dishes.FindAsync(orderingDish.DishId);
+
+            if (dish == null)
+            {
+                Console.WriteLine("Произошла ошибка с БД блюд, почему-то блюдо отсутствует");
+                continue;
+            }
+            
+            await _context.OrdersDishes.AddAsync(new OrderDish
+            {
+                Order = newOrder,
+                Dish = dish
+            });
+        }
+        
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<OrderDTO>> GetActiveOrderForCourier(Guid userId)
+    
+    //проверить
+    public async Task<List<OrderDTO>> GetOrdersForDelivery()
     {
-        var orders = await _context.Orders
-            .Where(order => order.CustomerId == userId && order.Status != OrderStatus.Delivered)
+        return await _context.Orders
+            .Where(order => order.Status == OrderStatus.WaitingCourier)
             .Select(order => new OrderDTO
             {
                 DeliveryTime = order.DeliveryTime,
@@ -207,39 +277,363 @@ public class OrderService: IOrderService
                 Status = order.Status
             })
             .ToListAsync();
+    }
     
-        if (!orders.Any())
+    //проверить
+    public async Task<List<OrderDTO>> GetActiveOrdersForCourier(Guid courierId)
+    {
+        return await _context.Orders
+            .Where(order => order.Status == OrderStatus.Delivery && order.CourierId == courierId)
+            .Select(order => new OrderDTO
+            {
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .ToListAsync();
+    }
+
+    //проверить
+    public async Task<List<OrderDTO>> GetLastOrderForCourier(Guid courierId)
+    {
+        return await _context.Orders
+            .Where(order => order.Status == OrderStatus.Delivered && order.CourierId == courierId)
+            .Select(order => new OrderDTO
+            {
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .ToListAsync();
+    }
+
+    
+    //проверить
+    public async Task<List<OrderDTO>> GetListLastOrderForCook(Guid cookId)
+    {
+        return await _context.Orders
+            .Where(order => (order.Status == OrderStatus.WaitingCourier || 
+                             order.Status == OrderStatus.Delivery || 
+                             order.Status == OrderStatus.Delivered) 
+                            && order.CookId == cookId)
+            .Select(order => new OrderDTO
+            {
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .ToListAsync();
+    }
+    
+    public async Task<List<OrderDTO>> GetListOrderForCook(Guid cookId)
+    {
+        var cook = await _context.Cooks
+            .Where(c => c.Id == cookId)
+            .FirstOrDefaultAsync();
+
+        if (cook == null)
         {
-            throw new NotFoundElementException("У вас пока еще нет активных заказов");
+            throw new NotFoundException($"Не найден повар с id = {cookId}");
         }
         
+        var orders = await _context.Orders
+            .Where(o => o.Status == OrderStatus.Created)
+            .Select(o => new OrderDTO
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            })
+            .ToListAsync();
+
+        var ordersForCooking = new List<OrderDTO>();
+        foreach (var order in orders)
+        {
+            var dishId = await _context.OrdersDishes
+                .Where(o => o.OrderId == order.Id)
+                .Select(o => o.DishId)
+                .FirstOrDefaultAsync();
+            var menuId = await _context.MenusDishes
+                .Where(o => o.DishId == dishId)
+                .Select(o => o.MenuId)
+                .FirstOrDefaultAsync();
+            var restaurantId = await _context.Menus
+                .Where(m => m.Id == menuId)
+                .Select(m => m.RestaurantId)
+                .FirstOrDefaultAsync();
+
+            if (restaurantId == cook.RestaurantId)
+            {
+                ordersForCooking.Add(order);
+            }
+        }
+
+        return ordersForCooking;
+    }
+
+    //проверить
+    public async Task<List<OrderDTO>> GetListActiveOrderForCook(Guid cookId)
+    {
+        var cook = await _context.Cooks
+            .Where(c => c.Id == cookId)
+            .FirstOrDefaultAsync();
+
+        if (cook == null)
+        {
+            throw new NotFoundException($"Не найден повар с id = {cookId}");
+        }
+        
+        var orders = await _context.Orders
+            .Where(o => (o.Status == OrderStatus.Kitchen || 
+                         o.Status == OrderStatus.Packaging) 
+                        && o.CookId == cookId)
+            .Select(o => new OrderDTO
+            {
+                Id = o.Id,
+                NumberOrder = o.NumberOrder,
+                DeliveryTime = o.DeliveryTime,
+                OrderTime = o.OrderTime,
+                Price = o.Price,
+                Address = o.Address,
+                Status = o.Status
+            })
+            .ToListAsync();
+
+        return orders;
+    }
+    
+    
+    //проверить
+    public async Task<List<OrderDTO>> GetListOrderForManager(
+        Guid managerId,
+        int page,
+        OrderStatus? status,
+        DateTime? startOrderTime, 
+        DateTime? endOrderTime,
+        DateTime? startDeliveryTime, 
+        DateTime? endDeliveryTime,
+        long? numberOrder)
+    {
+        if (page < 1)
+            throw new NotCorrectDataException(message: "Page value must be greater than 0");
+
+        var manager = await _context.Managers.FindAsync(managerId);
+
+        if (manager == null)
+            throw new NotFoundException($"Не найден менеджер с id = {managerId}");
+
+        var orders = await _context.Orders
+            .Where(o => o.Status == status)
+            .Select(order => new OrderDTO
+            {
+                DeliveryTime = order.DeliveryTime,
+                OrderTime = order.OrderTime,
+                Price = order.Price,
+                Address = order.Address,
+                Status = order.Status
+            })
+            .ToListAsync();
+        
+        foreach (var order in orders)
+        {
+            var dishId = await _context.OrdersDishes
+                .Where(o => o.OrderId == order.Id)
+                .Select(o => o.DishId)
+                .FirstOrDefaultAsync();
+            var menuId = await _context.MenusDishes
+                .Where(o => o.DishId == dishId)
+                .Select(o => o.MenuId)
+                .FirstOrDefaultAsync();
+            var restaurantId = await _context.Menus
+                .Where(m => m.Id == menuId)
+                .Select(m => m.RestaurantId)
+                .FirstOrDefaultAsync();
+
+            if (restaurantId != manager.RestaurantId)
+            {
+                orders.Remove(order);
+            }
+        }
+        
+        if (startOrderTime != null && endOrderTime == null)
+        {
+            orders = orders
+                .Where(order => order.OrderTime >= startOrderTime)
+                .ToList();
+        }
+
+        if (startOrderTime == null && endOrderTime != null)
+        {
+            orders = orders
+                .Where(order => order.OrderTime <= endOrderTime)
+                .ToList();
+        }
+        
+        if (startOrderTime != null && endOrderTime != null)
+        {
+            orders = orders
+                .Where(order => order.OrderTime <= endOrderTime && order.OrderTime >= startOrderTime)
+                .ToList();
+        }
+        
+        if (startDeliveryTime != null && endDeliveryTime == null)
+        {
+            orders = orders
+                .Where(order => order.DeliveryTime >= startDeliveryTime)
+                .ToList();
+        }
+
+        if (startDeliveryTime == null && endDeliveryTime != null)
+        {
+            orders = orders
+                .Where(order => order.DeliveryTime <= endDeliveryTime)
+                .ToList();
+        }
+        
+        if (startDeliveryTime != null && endDeliveryTime != null)
+        {
+            orders = orders
+                .Where(order => order.DeliveryTime <= endDeliveryTime && order.DeliveryTime >= startDeliveryTime)
+                .ToList();
+        }
+
+        orders = orders.Where(o => o.NumberOrder.ToString().ToLower().Contains(numberOrder?.ToString().Trim().ToLower() ?? string.Empty)).ToList();
+
         return orders;
     }
 
-    public Task<List<OrderDTO>> GetListOrderForCourier()
+    
+    //проверить
+    public async Task ChangeOrderStatus(Guid userId, Guid orderId, OrderStatus status)
     {
-        throw new NotImplementedException();
-    }
+        var order = await _context.Orders.FindAsync(orderId);
+        if (order == null)
+            throw new NotFoundException($"Заказ с id = {orderId} не найден");
+        
+        var customer = await _context.Customers.FindAsync(userId);
+        var cook = await _context.Cooks.FindAsync(userId);
+        var courier = await _context.Couriers.FindAsync(userId);
 
-    public Task<List<OrderDTO>> GetListLastOrderForCook()
-    {
-        throw new NotImplementedException();
+        switch (status)
+        {
+            case OrderStatus.Created:
+                throw new NotCorrectDataException("Невозможно вернуться к статусу 'Created'");
+            case OrderStatus.Kitchen:
+                if (cook != null)
+                {
+                    if (order.Status == OrderStatus.Created)
+                    {
+                        order.Status = OrderStatus.Kitchen;
+                        await AssignCookToOrder(cook, order);
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'Kithen' может быть установлен только если текущий статус заказа - 'Created'");
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException($"У пользователя с id = {userId} нет прав на изменение статуса заказа на статус 'Kitchen'");
+                }
+                break;
+            case OrderStatus.Packaging:
+                if (cook != null)
+                {
+                    if (order.Status == OrderStatus.Kitchen)
+                    {
+                        order.Status = OrderStatus.Packaging;
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'Packaging' может быть установлен только если текущий статус заказа - 'Kitchen'");
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException($"У пользователя с id = {userId} нет прав на изменение статуса заказа на статус 'Packaging'");
+                }
+                break;
+            case OrderStatus.WaitingCourier:
+                if (cook != null)
+                {
+                    if (order.Status == OrderStatus.Packaging)
+                    {
+                        order.Status = OrderStatus.WaitingCourier;
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'WaitingCourier' может быть установлен только если текущий статус заказа - 'Packaging'");
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException($"У пользователя с id = {userId} нет прав на изменение статуса заказа на статус 'WaitingCourier'");
+                }
+                break;
+            case OrderStatus.Delivery:
+                if (courier != null)
+                {
+                    if (order.Status == OrderStatus.WaitingCourier)
+                    {
+                        order.Status = OrderStatus.Delivery;
+                        await AssignCourierToOrder(courier, order);
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'Delivery' может быть установлен только если текущий статус заказа - 'WaitingCourier'");
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException($"У пользователя с id = {userId} нет прав на изменение статуса заказа на статус 'Delivery'");
+                }
+                break;
+            case OrderStatus.Delivered:
+                if (courier != null)
+                {
+                    if (order.Status == OrderStatus.Delivery)
+                    {
+                        order.Status = OrderStatus.Delivered;
+                    }
+                    else
+                    {
+                        throw new NotCorrectDataException("Статус 'Delivered' может быть установлен только если текущий статус заказа - 'Delivery'");
+                    }
+                }
+                else
+                {
+                    throw new ForbiddenException($"У пользователя с id = {userId} нет прав на изменение статуса заказа на статус 'Delivery'");
+                }
+                break;
+            case OrderStatus.Cancelled:
+                if (courier != null && order.Status == OrderStatus.Delivery)
+                {
+                    order.Status = OrderStatus.Cancelled;
+                }
+                else if (customer != null && order.Status == OrderStatus.Created)
+                {
+                    order.Status = OrderStatus.Cancelled;
+                }
+                else
+                {
+                    throw new ForbiddenException($"У пользователя с id = {userId} нет прав на изменение статуса заказа на статус 'Cancelled'");
+                }
+                break;
+            default:
+                throw new InvalidResponseException("Что-то пошло не так с проверкой статуса заказа");
+        }
     }
-
-    public Task<List<OrderDTO>> GetListActiveOrderForCook(Guid restaurantId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<OrderDTO>> GetListOrderForManager(Guid restaurantId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task ChangeOrderStatus(Guid orderId, OrderStatus status)
-    {
-        throw new NotImplementedException();
-    }
+    
     
     private async Task<double> SumPriceDishes(List<DishInCart> dishesInCart)
     {
@@ -251,9 +645,30 @@ public class OrderService: IOrderService
                 .Where(d => d.Id == dishInCart.DishId)
                 .FirstOrDefaultAsync();
 
-            price += dishInCart.Count * dish.Price;
+            if (dish != null) 
+                price += dishInCart.Count * dish.Price;
         }
         
         return price;
+    }
+
+    private async Task AssignCookToOrder(Cook cook, Order order)
+    {
+        order.Cook = cook;
+        
+        _context.Orders.Attach(order);
+        _context.Entry(order).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task AssignCourierToOrder(Courier courier, Order order)
+    {
+        order.Courier = courier;
+        
+        _context.Orders.Attach(order);
+        _context.Entry(order).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
     }
 }

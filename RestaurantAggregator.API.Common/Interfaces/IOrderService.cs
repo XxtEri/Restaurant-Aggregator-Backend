@@ -8,17 +8,28 @@ public interface IOrderService
 {
     Task<OrderPageListDTO> GetListLastOrderForCustomer(Guid userId, int page, DateTime? startDay, DateTime? endDay);
     Task<List<OrderDTO>> GetListActiveOrderForCustomer(Guid userId);
-    Task<OrderDTO> GetConcreteOrder(Guid userId, string numberOrder);
+    Task<OrderDTO> GetConcreteOrder(Guid userId, long numberOrder);
     Task CreateNewOrder(Guid userId, OrderCreateDTO model);
-    Task RepeatLastOrder(Guid orderId, OrderCreateDTO model);
+    Task RepeatLastOrder(Guid userId, long numberOrder, OrderCreateDTO model);
     
-    Task<List<OrderDTO>> GetActiveOrderForCourier(Guid userId);
-    Task<List<OrderDTO>> GetListOrderForCourier();
+    Task<List<OrderDTO>> GetOrdersForDelivery();
+    Task<List<OrderDTO>> GetActiveOrdersForCourier(Guid courierId);
+    Task<List<OrderDTO>> GetLastOrderForCourier(Guid courierId);
+
+    Task<List<OrderDTO>> GetListLastOrderForCook(Guid cookId);
+    Task<List<OrderDTO>> GetListOrderForCook(Guid cookId);
+    Task<List<OrderDTO>> GetListActiveOrderForCook(Guid cookId);
     
-    Task<List<OrderDTO>> GetListLastOrderForCook();
-    Task<List<OrderDTO>> GetListActiveOrderForCook(Guid restaurantId);
+    Task<List<OrderDTO>> GetListOrderForManager(
+        Guid managerId,
+        int page,
+        OrderStatus? status,
+        DateTime? startOrderTime, 
+        DateTime? endOrderTime,
+        DateTime? startDeliveryTime, 
+        DateTime? endDeliveryTime,
+        long? numberOrder
+    );
     
-    Task<List<OrderDTO>> GetListOrderForManager(Guid restaurantId);
-    
-    Task ChangeOrderStatus(Guid orderId, OrderStatus status);
+    Task ChangeOrderStatus(Guid userId, Guid orderId, OrderStatus status);
 }

@@ -10,7 +10,7 @@ public class OrderModel
     public Guid Id { get; set; }
     
     [Required]
-    public string NumberOrder { get; set; }
+    public long NumberOrder { get; set; }
     
     public DateTime DeliveryTime { get; set; }
     
