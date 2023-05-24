@@ -153,28 +153,49 @@ public class DishService: IDishService
         return dish;
     }
 
+    //TODO: проверить
     public async Task<bool> CheckCurrentUserSetRatingToDish(Guid userId, Guid dishId)
     {
-        var customer = await _context.Customers
-            .Where(c => c.Id == userId)
-            .FirstOrDefaultAsync();
+        var customer = await GetCustomer(userId);
 
         if (customer == null)
-            customer.Id = await _userService.AddNewCustomerToDb(userId);
+        {
+            throw new NotFoundException("Покупатель не найден");
+        }
 
-        //TODO: проверить заказывал ли блюдо
+        var dish = await _context.Dishes
+            .FindAsync(dishId);
 
-        return true;
+        if (dish == null)
+        {
+            throw new NotFoundException($"Блюдо с id = {dishId} не найдено в базе данных");
+        }
+        
+        var orderDishes = await _context.OrdersDishes
+            .Where(o => o.DishId == dishId)
+            .ToListAsync();
+
+        foreach (var orderDish in orderDishes)
+        {
+            var order = await _context.Orders
+                .FindAsync(orderDish.OrderId);
+
+            if (order?.CustomerId == userId && order.Status == OrderStatus.Delivered)
+                return true;
+        }
+
+        return false;
     }
 
+    //TODO: проверить
     public async Task SetRatingToDish(Guid userId, Guid dishId, int ratingScore)
     {
-        var customer = await _context.Customers
-            .Where(c => c.Id == userId)
-            .FirstOrDefaultAsync();
+        var customer = await GetCustomer(userId);
 
         if (customer == null)
-            customer.Id = await _userService.AddNewCustomerToDb(userId);
+        {
+            throw new NotFoundException($"Покупатель c id = {userId} не найден");
+        }
 
         var check = await CheckCurrentUserSetRatingToDish(userId, dishId);
 
@@ -188,6 +209,9 @@ public class DishService: IDishService
         if (rating != null)
         {
             rating.Value = ratingScore;
+            
+            _context.Ratings.Attach(rating);
+            _context.Entry(rating).State = EntityState.Modified;
         }
         else
         {
@@ -197,10 +221,9 @@ public class DishService: IDishService
                 DishId = dishId,
                 CustomerId = userId
             };
+
+            await _context.Ratings.AddAsync(rating);
         }
-        
-        _context.Ratings.Attach(rating);
-        _context.Entry(rating).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
     }
@@ -240,5 +263,18 @@ public class DishService: IDishService
         });
 
         await _context.SaveChangesAsync();
+    }
+
+    private async Task<Customer?> GetCustomer(Guid userId)
+    {
+        var customer = await _context.Customers
+            .FindAsync(userId);
+
+        if (customer != null) return customer;
+        var customerId = await _userService.AddNewCustomerToDb(userId);
+        customer = await _context.Customers
+            .FindAsync(customerId);
+
+        return customer;
     }
 }
