@@ -83,8 +83,8 @@ namespace RestaurantAggregator.API.DAL.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
+                    b.Property<double>("Rating")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -416,7 +416,8 @@ namespace RestaurantAggregator.API.DAL.Migrations
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Manager", b =>
                 {
-                    b.Navigation("Restaurant");
+                    b.Navigation("Restaurant")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RestaurantAggregator.API.DAL.Entities.Menu", b =>
