@@ -19,11 +19,11 @@ public class RegisterCustomerCredentialDto
     [Required]
     public Gender Gender { get; set; }
     
-    [MaybeNull]
-    public string Phone { get; set; }
+    [Phone]
+    public string? Phone { get; set; }
 
     [Required(ErrorMessage = "Password is required")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
     
     [Required] 
     public string Address { get; set; }

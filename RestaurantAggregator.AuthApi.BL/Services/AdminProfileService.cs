@@ -2,13 +2,11 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.AuthApi.Common.DTO;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Dto;
-using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.AuthApi.BL.Services;
@@ -49,7 +47,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (users == null)
         {
-            throw new NotFoundElementException("Не найдено ни одного пользователя");
+            throw new NotFoundException("Не найдено ни одного пользователя");
         }
         
         foreach (var user in users)
@@ -80,7 +78,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+            throw new NotFoundException($"Пользователь с id = {userId} не найден");
         }
         
         user.Roles = await GetRolesForUser(user.Id);
@@ -125,7 +123,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Не найдено пользователя с id = {userId}");
+            throw new NotFoundException($"Не найдено пользователя с id = {userId}");
         }
         
         user.Banned = user.Banned == false;
@@ -149,7 +147,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Ресторан для внесения изменений с id = {userId} не найден");
+            throw new NotFoundException($"Ресторан для внесения изменений с id = {userId} не найден");
         }
 
         user.UserName = model.Username;
@@ -186,7 +184,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (manager == null)
         {
-            throw new NotFoundElementException($"Не найден менеджер с id = {managerId}");
+            throw new NotFoundException($"Не найден менеджер с id = {managerId}");
         }
 
         manager.RestaurantId = restaurantId;
@@ -205,7 +203,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (cook == null)
         {
-            throw new NotFoundElementException($"Не найден менеджер с id = {cookId}");
+            throw new NotFoundException($"Не найден менеджер с id = {cookId}");
         }
 
         cook.RestaurantId = restaurantId;
@@ -228,7 +226,7 @@ public class AdminProfileService: IAdminProfileService
         var existingUser = await _userManager.FindByEmailAsync(model.Email);
         if (existingUser != null)
         {
-            throw new DataAlreadyUsedException("A user with this email already exists");
+            throw new DuplicateException("A user with this email already exists");
         }
 
         var user = new User
@@ -243,7 +241,7 @@ public class AdminProfileService: IAdminProfileService
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            throw new NotFoundElementException("Failed to register");
+            throw new NotFoundException("Failed to register");
         }
     }
 
@@ -255,7 +253,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+            throw new NotFoundException($"Пользователь с id = {userId} не найден");
         }
         
         await _userManager.AddToRoleAsync(user, UserRoles.Manager);
@@ -279,7 +277,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+            throw new NotFoundException($"Пользователь с id = {userId} не найден");
         }
         
         await _userManager.AddToRoleAsync(user, UserRoles.Cook);
@@ -303,7 +301,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+            throw new NotFoundException($"Пользователь с id = {userId} не найден");
         }
         
         await _userManager.AddToRoleAsync(user, UserRoles.Courier);
@@ -327,7 +325,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+            throw new NotFoundException($"Не удалось найти пользователя с id = {userId}");
         }
 
         var roles = await GetRolesForUser(user.Id);
@@ -363,7 +361,7 @@ public class AdminProfileService: IAdminProfileService
         
         if (user == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+            throw new NotFoundException($"Пользователь с id = {userId} не найден");
         }
 
         var roleIdManager = await _context.Roles
@@ -377,7 +375,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (roleManager == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль менеджера");
+            throw new NotFoundException($"Пользователь с id = {userId} не имеет роль менеджера");
         }
 
         var manager = await _context.Managers
@@ -386,7 +384,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (manager == null)
         {
-            throw new NotFoundElementException($"Менеджер с id = {userId} не найден");
+            throw new NotFoundException($"Менеджер с id = {userId} не найден");
         }
 
         return manager.RestaurantId;
@@ -400,7 +398,7 @@ public class AdminProfileService: IAdminProfileService
         
         if (user == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не найден");
+            throw new NotFoundException($"Пользователь с id = {userId} не найден");
         }
 
         var roleIdCook = await _context.Roles
@@ -414,7 +412,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (roleCook == null)
         {
-            throw new NotFoundElementException($"Пользователь с id = {userId} не имеет роль повара");
+            throw new NotFoundException($"Пользователь с id = {userId} не имеет роль повара");
         }
 
         var cook = await _context.Cooks
@@ -423,7 +421,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (cook == null)
         {
-            throw new NotFoundElementException($"Менеджер с id = {userId} не найден");
+            throw new NotFoundException($"Менеджер с id = {userId} не найден");
         }
 
         return cook.RestaurantId;
@@ -437,7 +435,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+            throw new NotFoundException($"Не удалось найти пользователя с id = {userId}");
         }
 
         await _userManager.RemoveFromRoleAsync(user, UserRoles.Manager);
@@ -454,7 +452,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+            throw new NotFoundException($"Не удалось найти пользователя с id = {userId}");
         }
 
         await _userManager.RemoveFromRoleAsync(user, UserRoles.Cook);
@@ -471,7 +469,7 @@ public class AdminProfileService: IAdminProfileService
 
         if (user == null)
         {
-            throw new NotFoundElementException($"Не удалось найти пользователя с id = {userId}");
+            throw new NotFoundException($"Не удалось найти пользователя с id = {userId}");
         }
 
         await _userManager.RemoveFromRoleAsync(user, UserRoles.Courier);

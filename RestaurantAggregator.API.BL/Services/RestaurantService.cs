@@ -3,7 +3,6 @@ using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.API.DAL;
 using RestaurantAggregator.API.DAL.Entities;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.CommonFiles.Dto;
 using RestaurantAggregator.CommonFiles.Exceptions;
 
@@ -109,7 +108,7 @@ public class RestaurantService: IRestaurantService
 
         if (restaurant == null)
         {
-            throw new NotFoundElementException($"Ресторан для внесения изменений с id = {id} не найден");
+            throw new NotFoundException($"Ресторан для внесения изменений с id = {id} не найден");
         }
 
         restaurant.Name = model.Name;

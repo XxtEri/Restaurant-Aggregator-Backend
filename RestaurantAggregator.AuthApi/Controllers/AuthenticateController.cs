@@ -1,17 +1,9 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using RestaurantAggregator.APIAuth.Models;
 using RestaurantAggregator.AuthApi.Common.DTO;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.AuthApi.Common.IServices;
-using RestaurantAggregator.AuthApi.DAL.DBContext;
-using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.APIAuth.Controllers;
 
@@ -48,58 +40,23 @@ public class AuthenticateController : ControllerBase
                 Message = "Model is not correct"
             });
         }
+        
+        var newTokenPair = await _authService.RegisterCustomer(new RegisterCustomerCredentialDto
+        {
+            Username = model.Username,
+            Email = model.Email,
+            BirthDate = model.BirthDate,
+            Gender = model.Gender,
+            Phone = model.Phone,
+            Password = model.Password,
+            Address = model.Address
+        });
 
-        try
+        return Ok(new TokenPairModel
         {
-            var newTokenPair = await _authService.RegisterCustomer(new RegisterCustomerCredentialDto
-            {
-                Username = model.Username,
-                Email = model.Email,
-                BirthDate = model.BirthDate,
-                Gender = model.Gender,
-                Phone = model.Phone,
-                Password = model.Password,
-                Address = model.Address
-            });
-
-            return Ok(new TokenPairModel
-            {
-                AccessToken = newTokenPair.AccessToken,
-                RefreshToken = newTokenPair.RefreshToken
-            });
-        }
-        catch (NotCorrectDataException e)
-        {
-            return StatusCode(400, new ResponseModel
-            {
-                Status = "400 error",
-                Message = e.Message
-            });
-        }
-        catch (DataAlreadyUsedException e)
-        {
-            return StatusCode(400, new ResponseModel
-            {
-                Status = "400 error",
-                Message = e.Message
-            });
-        }
-        catch (NotFoundElementException e)
-        {
-            return StatusCode(404, new ResponseModel
-            {
-                Status = "404 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+            AccessToken = newTokenPair.AccessToken,
+            RefreshToken = newTokenPair.RefreshToken
+        });
     }
     
     /// <summary>
@@ -120,46 +77,19 @@ public class AuthenticateController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
-        try
+        
+        var newTokenPair = await _authService.RegisterWorkerAsCustomer(new LoginCredentialDto
         {
-            var newTokenPair = await _authService.RegisterWorkerAsCustomer(new LoginCredentialDto
-            {
-                Email = model.Email,
-                Password = model.Password
+            Email = model.Email,
+            Password = model.Password
 
-            }, address);
+        }, address);
             
-            return Ok(new TokenPairModel
-            {
-                AccessToken = newTokenPair.AccessToken,
-                RefreshToken = newTokenPair.RefreshToken
-            });
-        }
-        catch (InvalidDataCustomException e)
+        return Ok(new TokenPairModel
         {
-            return StatusCode(401, new ResponseModel
-            {
-                Status = "401 error",
-                Message = e.Message
-            });
-        }
-        catch (DataAlreadyUsedException e)
-        {
-            return StatusCode(400, new ResponseModel
-            {
-                Status = "400 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+            AccessToken = newTokenPair.AccessToken,
+            RefreshToken = newTokenPair.RefreshToken
+        });
     }
 
     /// <summary>
@@ -184,45 +114,18 @@ public class AuthenticateController : ControllerBase
                 Message = ModelState.ToString()
             });
         }
+        
+        var tokenPair = await _authService.Login(new LoginCredentialDto
+        {
+            Email = model.Email,
+            Password = model.Password
+        });
 
-        try
+        return Ok(new TokenPairModel
         {
-            var tokenPair = await _authService.Login(new LoginCredentialDto
-            {
-                Email = model.Email,
-                Password = model.Password
-            });
-
-            return Ok(new TokenPairModel
-            {
-                AccessToken = tokenPair.AccessToken,
-                RefreshToken = tokenPair.RefreshToken
-            });
-        }
-        catch (InvalidDataCustomException e)
-        {
-            return StatusCode(401, new ResponseModel
-            {
-                Status = "401 error",
-                Message = e.Message
-            });
-        }
-        catch (NotPermissionAccountException e)
-        {
-            return StatusCode(401, new ResponseModel
-            {
-                Status = "401 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+            AccessToken = tokenPair.AccessToken,
+            RefreshToken = tokenPair.RefreshToken
+        });
     }
 
     /// <summary>
@@ -244,41 +147,18 @@ public class AuthenticateController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        try
+        var newTokenPair = await _authService.RefreshToken(new TokenPairDto
         {
-            var newTokenPair = await _authService.RefreshToken(new TokenPairDto
-            {
-                AccessToken = model.AccessToken,
-                RefreshToken = model.RefreshToken
-            });
+            AccessToken = model.AccessToken,
+            RefreshToken = model.RefreshToken
+        });
 
-            return Ok(new TokenPairModel
+        return Ok(new TokenPairModel
             {
                 AccessToken = newTokenPair.AccessToken,
                 RefreshToken = newTokenPair.RefreshToken
-            });
-        }
-        catch (InvalidDataCustomException e)
-        {
-            return StatusCode(401, new ResponseModel
-            {
-                Status = "401 error",
-                Message = e.Message
-            });
-        }
-        catch (NotPermissionAccountException e)
-        {
-            return StatusCode(401, new ResponseModel
-            {
-                Status = "401 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+            }
+        );
     }
     
     /// <summary>
@@ -298,28 +178,9 @@ public class AuthenticateController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+        
+        await _authService.Logout(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        try
-        {
-            await _authService.Logout(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            return Ok();
-        }
-        catch (InvalidDataCustomException e)
-        {
-            return StatusCode(401, new ResponseModel
-            {
-                Status = "401 error",
-                Message = e.Message
-            });
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseModel
-            {
-                Status = "500 error",
-                Message = e.Message
-            });
-        }
+        return Ok();
     }
 }

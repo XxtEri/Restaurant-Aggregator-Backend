@@ -1,9 +1,7 @@
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;

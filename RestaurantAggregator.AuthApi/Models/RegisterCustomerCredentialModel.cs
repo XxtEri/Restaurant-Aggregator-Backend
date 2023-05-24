@@ -19,9 +19,8 @@ public class RegisterCustomerCredentialModel
     [Required]
     public Gender Gender { get; set; }
     
-    [MaybeNull]
     [Phone]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     [Required(ErrorMessage = "Password is required")]
     [MinLength(6)]

@@ -1,4 +1,4 @@
-namespace RestaurantAggregator.AuthApi.Common.Exceptions;
+namespace RestaurantAggregator.CommonFiles.Exceptions;
 
 public class InvalidDataCustomException: Exception
 {

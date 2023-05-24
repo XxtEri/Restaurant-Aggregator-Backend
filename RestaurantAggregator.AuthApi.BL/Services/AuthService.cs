@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.AuthApi.BL.Managers;
 using RestaurantAggregator.AuthApi.Common.DTO;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
@@ -47,7 +46,7 @@ public class AuthService: IAuthService
             var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
-                throw new NotFoundElementException("Failed to register");
+                throw new NotFoundException("Failed to register");
             }
 
             await _userManager.AddToRoleAsync(user, UserRoles.Admin);
@@ -85,7 +84,7 @@ public class AuthService: IAuthService
         
         if (userId == null)
         {
-            throw new InvalidDataCustomException("Invalid token entered");
+            throw new NotCorrectDataException("Invalid token entered");
         }
 
         var user = await _userManager.FindByIdAsync(userId);
@@ -94,7 +93,7 @@ public class AuthService: IAuthService
             user.RefreshToken != oldTokens.RefreshToken ||
             user.RefreshTokenExpires <= DateTime.UtcNow)
         {
-            throw new InvalidDataCustomException("Invalid token entered");
+            throw new NotCorrectDataException("Invalid token entered");
         }
 
         if (user.Banned)
@@ -111,7 +110,7 @@ public class AuthService: IAuthService
 
         if (user == null)
         {
-            throw new InvalidDataCustomException("Invalid token entered");
+            throw new NotCorrectDataException("Invalid token entered");
         }
 
         user.RefreshToken = null;
@@ -130,7 +129,7 @@ public class AuthService: IAuthService
         var existingUser = await _userManager.FindByEmailAsync(model.Email);
         if (existingUser != null)
         {
-            throw new DataAlreadyUsedException("A user with this email already exists");
+            throw new DuplicateException("A user with this email already exists");
         }
 
         var user = new User()
@@ -149,7 +148,7 @@ public class AuthService: IAuthService
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
         {
-            throw new NotFoundElementException("Failed to register");
+            throw new NotFoundException("Failed to register");
         }
 
         await _userManager.AddToRoleAsync(user, UserRoles.Customer);
@@ -174,7 +173,7 @@ public class AuthService: IAuthService
         var exist = await _context.Customers.AnyAsync(c => c.Id == user.Id);
         if (exist)
         {
-            throw new DataAlreadyUsedException("You are already registered");
+            throw new DuplicateException("You are already registered");
         }
 
         user.Customer = new Customer

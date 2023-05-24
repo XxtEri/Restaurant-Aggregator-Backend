@@ -1,7 +1,6 @@
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.AdminPanel.BL.Services;

@@ -10,7 +10,9 @@ public class ExceptionStatusCodes
         { typeof(NotFoundException), HttpStatusCode.NotFound },
         { typeof(ForbiddenException), HttpStatusCode.Forbidden },
         { typeof(DuplicateException), HttpStatusCode.Conflict },
-        { typeof(InvalidResponseException), HttpStatusCode.BadRequest }
+        { typeof(InvalidResponseException), HttpStatusCode.BadRequest },
+        { typeof(NotPermissionAccountException), HttpStatusCode.Unauthorized },
+        { typeof(InvalidDataCustomException), HttpStatusCode.Unauthorized }
     };
 
     public static HttpStatusCode GetExceptionStatusCode(Exception exception)

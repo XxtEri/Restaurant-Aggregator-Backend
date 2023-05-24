@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.AdminPanel.Models;
 using RestaurantAggregator.API.Common.DTO;
-using RestaurantAggregator.APIAuth.Models;
-using RestaurantAggregator.AuthApi.Common.Exceptions;
 using RestaurantAggregator.CommonFiles;
 using RestaurantAggregator.CommonFiles.Dto;
 
