@@ -231,6 +231,7 @@ public class AuthenticateController : ControllerBase
     /// <returns>jwt tokens</returns>
     [HttpPost]
     [Route("refresh")]
+    [Authorize]
     [ProducesResponseType(typeof(TokenPairModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

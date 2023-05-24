@@ -48,12 +48,7 @@ public class TokenManager
         var principal = new JwtSecurityTokenHandler()
             .ValidateToken(oldJwtToken, tokenValidParams, out var securityToken);
 
-        if (securityToken is not JwtSecurityToken token)
-        {
-            return null;
-        }
-        
-        if (!token.Header.Alg.Equals(SecurityAlgorithms.Sha256, StringComparison.InvariantCultureIgnoreCase))
+        if (securityToken is not JwtSecurityToken token || !token.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
         {
             return null;
         }
