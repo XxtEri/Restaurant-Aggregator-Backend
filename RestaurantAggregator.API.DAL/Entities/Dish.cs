@@ -29,7 +29,7 @@ public class Dish
     public string Photo { get; set; }
     
     [DefaultValue(0)]
-    public int Rating { get; set; }
+    public double Rating { get; set; }
     
     public DishCategory Category { get; set; }
 

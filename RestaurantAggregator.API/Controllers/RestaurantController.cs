@@ -28,6 +28,11 @@ public class RestaurantController: ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RestaurantPagedListModel>> GetListRestaurant([FromQuery] string? nameRestaurant, [DefaultValue(1)] int page)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         var restaurantsDto = await _restaurantService.GetRestaurants(nameRestaurant ?? string.Empty, page);
 
         var restaurantsModel = new RestaurantPagedListModel

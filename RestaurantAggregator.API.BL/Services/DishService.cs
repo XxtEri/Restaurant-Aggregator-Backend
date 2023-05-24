@@ -71,9 +71,6 @@ public class DishService: IDishService
 
     public async Task<DishPagedListDTO> GetListDishesInMenu(Guid restaurantId, 
         Guid menuId,
-        List<DishCategory> categories, 
-        bool vegetarian,
-        SortingDish sorting,
         int page)
     {
         if (page < 1)
@@ -139,8 +136,7 @@ public class DishService: IDishService
         
         return dish;
     }
-
-    //TODO: проверить
+    
     public async Task<bool> CheckCurrentUserSetRatingToDish(Guid userId, Guid dishId)
     {
         var customer = await GetCustomer(userId);
@@ -173,8 +169,7 @@ public class DishService: IDishService
 
         return false;
     }
-
-    //TODO: проверить
+    
     public async Task SetRatingToDish(Guid userId, Guid dishId, int ratingScore)
     {
         var customer = await GetCustomer(userId);
@@ -189,6 +184,11 @@ public class DishService: IDishService
         if (!check)
             throw new ForbiddenException($"Покупатель с id = { userId } не может поставить рейтинг данному блюду, так как ниразу заказывал его");
 
+        var dish = await _context.Dishes.FindAsync(dishId);
+
+        if (dish == null)
+            throw new NotFoundException($"Блюдо с id = {dishId} не найдено");
+        
         var rating = await _context.Ratings
             .Where(r => r.DishId == dishId && r.CustomerId == userId)
             .FirstOrDefaultAsync();
@@ -212,6 +212,8 @@ public class DishService: IDishService
             await _context.Ratings.AddAsync(rating);
         }
 
+        dish.Rating = RecalculatingRatingOfDish(dishId);
+        
         await _context.SaveChangesAsync();
     }
 
@@ -251,6 +253,19 @@ public class DishService: IDishService
 
         await _context.SaveChangesAsync();
     }
+    
+    private double RecalculatingRatingOfDish(Guid dishId)
+    {
+        var ratings = _context.Ratings
+            .Where(r => r.DishId == dishId)
+            .Select(d => d.Value)
+            .ToList();
+        
+        var sumRatings = ratings.Aggregate<int, double>(0, (current, rating) => current + rating);
+
+        return sumRatings / ratings.Count;
+    }
+
 
     private async Task<Customer?> GetCustomer(Guid userId)
     {

@@ -14,9 +14,6 @@ public interface IDishService
         int page);
     Task<DishPagedListDTO> GetListDishesInMenu(Guid restaurantId, 
         Guid menuId,
-        List<DishCategory> categories, 
-        bool vegetarian,
-        SortingDish sorting,
         int page);
     Task<DishDTO> GetDishInformation(Guid dishId);
     Task<bool> CheckCurrentUserSetRatingToDish(Guid userId, Guid dishId);
