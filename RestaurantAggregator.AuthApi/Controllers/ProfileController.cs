@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using RestaurantAggregator.APIAuth.Models;
 using RestaurantAggregator.AuthApi.Common.DTO;
 using RestaurantAggregator.AuthApi.Common.IServices;
@@ -29,9 +30,15 @@ public class ProfileController: ControllerBase
     [Authorize(Roles = UserRoles.Customer)]
     public async Task<ActionResult<CustomerProfileDto>> GetProfile()
     {
-        var userId = Guid.Parse(User.Identity!.Name!);
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _profileService.GetUserIdFromToken(token);
 
-        var profile = await _profileService.GetCustomerProfile(userId);
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        var profile = await _profileService.GetCustomerProfile(new Guid(userId));
 
         return Ok(profile);
     }
@@ -50,15 +57,23 @@ public class ProfileController: ControllerBase
             return BadRequest(ModelState);
         }
 
-        var userId = Guid.Parse(User.Identity!.Name!);
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _profileService.GetUserIdFromToken(token);
 
-        await _profileService.ChangeInfoCustomerProfile(userId, new ChangeInfoCustomerProfileDto
+        if (userId == null)
         {
-            Username = model.Username,
-            BirthDate = model.BirthDate,
-            Gender = model.Gender,
-            Phone = model.Phone,
-            Address = model.Address
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        var profile = await _profileService.GetCustomerProfile(new Guid(userId));
+
+        await _profileService.ChangeInfoCustomerProfile(new Guid(userId), new ChangeInfoCustomerProfileDto
+        {
+            Username = profile.Username,
+            BirthDate = profile.BirthDate,
+            Gender = profile.Gender,
+            Phone = profile.Phone,
+            Address = profile.Address
         });
 
         return Ok();
@@ -78,9 +93,17 @@ public class ProfileController: ControllerBase
             return BadRequest(ModelState);
         }
         
-        var userId = Guid.Parse(User.Identity!.Name!);
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _profileService.GetUserIdFromToken(token);
 
-        await _profileService.ChangePassword(userId, new ChangePasswordDto
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+
+        var profile = await _profileService.GetCustomerProfile(new Guid(userId));
+
+        await _profileService.ChangePassword(new Guid(userId), new ChangePasswordDto
         {
             OldPassword = model.OldPassword,
             NewPassword = model.NewPassword

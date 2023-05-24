@@ -15,7 +15,7 @@ public class CustomerProfileDto
     [Required]
     public string Email { get; set; }
     
-    public DateTime? BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
     
     [Required]
     public Gender Gender { get; set; }

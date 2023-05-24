@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +23,6 @@ public class ProfileService: IProfileService
         _userManager = userManager;
     }
     
-    //TODO: проверить
     public async Task<CustomerProfileDto> GetCustomerProfile(Guid userId)
     {
         var customer = await _context.Customers.FindAsync(userId);
@@ -50,7 +51,6 @@ public class ProfileService: IProfileService
         };
     }
     
-    //TODO: проверить
     public async Task ChangeInfoCustomerProfile(Guid userId, ChangeInfoCustomerProfileDto model)
     {
         var customer = await _context.Customers.FindAsync(userId);
@@ -109,5 +109,14 @@ public class ProfileService: IProfileService
         {
             throw new InvalidResponseException("Что-то пошло не так при изменении пароля");
         }
+    }
+
+    public string? GetUserIdFromToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+        var userId = jwtToken?.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+
+        return userId;
     }
 }
