@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.AdminPanel.Models;
@@ -7,6 +8,7 @@ using RestaurantAggregator.CommonFiles.Enums;
 
 namespace RestaurantAggregator.AdminPanel.Controllers;
 
+[Authorize(Roles = UserRoles.Admin)]
 public class UsersController: Controller
 {
     private readonly IAdminUsersServices _adminUsersServices;

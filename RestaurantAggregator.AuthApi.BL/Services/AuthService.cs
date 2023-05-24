@@ -8,6 +8,7 @@ using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles;
+using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregator.CommonFiles.Exceptions;
 
 namespace RestaurantAggregator.AuthApi.BL.Services;
@@ -21,6 +22,55 @@ public class AuthService: IAuthService
     {
         _userManager = userManager;
         _context = context;
+    }
+
+    public async Task RegisterAdmin()
+    {
+        var existingUser = await _userManager.FindByEmailAsync("admin@gmail.com");
+        if (existingUser == null)
+        {
+            var user = new User()
+            {
+                Email = "admin@gmail.com",
+                UserName = "admin",
+                BirthDate = DateTime.UtcNow,
+                Gender = Gender.Female,
+                PhoneNumber = "12345678911"
+            };
+
+            var result = await _userManager.CreateAsync(user, "Admin1");
+            if (!result.Succeeded)
+            {
+                throw new NotFoundElementException("Failed to register");
+            }
+
+            await _userManager.AddToRoleAsync(user, UserRoles.Admin);
+        }
+    }
+
+    public async Task<ClaimsIdentity> LoginAdmin(LoginCredentialDto model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        
+        if (user == null)
+        {
+            throw new InvalidDataCustomException("Invalid username or password entered");
+        }
+
+        if (!await _userManager.CheckPasswordAsync(user, model.Password))
+        {
+            throw new InvalidDataCustomException("Invalid username or password entered");
+        }
+        
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        };
+        var roles = await _userManager.GetRolesAsync(user);
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        
+        return new ClaimsIdentity(claims, "Cookies");
     }
 
     public async Task<TokenPairDto> Login(LoginCredentialDto model)

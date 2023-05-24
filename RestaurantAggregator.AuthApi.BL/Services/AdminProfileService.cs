@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.AuthApi.Common.DTO;
@@ -16,11 +17,18 @@ public class AdminProfileService: IAdminProfileService
 {
     private readonly UserManager<User> _userManager;
     private readonly AuthDBContext _context;
+    private readonly IAuthService _authService;
 
-    public AdminProfileService(UserManager<User> userManager, AuthDBContext context)
+    public AdminProfileService(UserManager<User> userManager, AuthDBContext context, IAuthService authService)
     {
         _userManager = userManager;
         _context = context;
+        _authService = authService;
+    }
+
+    public async Task<ClaimsIdentity> LoginAdmin(LoginCredentialDto model)
+    {
+        return await _authService.LoginAdmin(model);
     }
 
     public async Task<List<UserDto>> GetUsers()
@@ -545,4 +553,6 @@ public class AdminProfileService: IAdminProfileService
 
         return roleNames;
     }
+    
+    
 }

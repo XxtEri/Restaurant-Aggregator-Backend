@@ -1,9 +1,12 @@
+using System.Security.Claims;
+using RestaurantAggregator.AdminPanel.Common.Dto;
 using RestaurantAggregator.CommonFiles.Dto;
 
 namespace RestaurantAggregator.AdminPanel.Common.Interfaces;
 
 public interface IAdminUsersServices
 {
+    Task<ClaimsIdentity> LoginAdmin(LoginCredentialDto model);
     Task<List<UserDto>> Select();
     Task<UserDto> Get(Guid id);
     Task Create(RegisterUserCredentialDto model);

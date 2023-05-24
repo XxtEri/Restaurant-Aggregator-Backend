@@ -1,12 +1,15 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.AdminPanel.Models;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.DAL.Entities;
+using RestaurantAggregator.CommonFiles;
 
 namespace RestaurantAggregator.AdminPanel.Controllers;
 
+[Authorize(Roles = UserRoles.Admin)]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

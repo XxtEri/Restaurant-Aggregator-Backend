@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using RestaurantAggregator.AuthApi.Common.DTO;
 using RestaurantAggregator.CommonFiles.Dto;
 
@@ -5,6 +6,7 @@ namespace RestaurantAggregator.AuthApi.Common.IServices;
 
 public interface IAdminProfileService
 {
+    Task<ClaimsIdentity> LoginAdmin(LoginCredentialDto model);
     Task<List<UserDto>> GetUsers();
     Task<UserDto> GetUser(Guid userId);
     Task ChangeUser(Guid userId, UpdateInfoUserProfileDto model);

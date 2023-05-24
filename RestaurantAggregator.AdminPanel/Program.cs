@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantAggregator.AdminPanel.BL.Services;
@@ -11,6 +12,8 @@ using RestaurantAggregator.AuthApi.Common.IServices;
 using RestaurantAggregator.AuthApi.DAL.DBContext;
 using RestaurantAggregator.AuthApi.DAL.Etities;
 using RestaurantAggregator.CommonFiles.Middlewares;
+using AuthService = RestaurantAggregator.AdminPanel.BL.Services.AuthService;
+using IAuthService = RestaurantAggregator.AdminPanel.Common.Interfaces.IAuthService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,13 +39,22 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
         
 }).AddEntityFrameworkStores<AuthDBContext>();
 
+//Configure other services
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 builder.Services.AddScoped<IAdminRestaurantsService, AdminRestaurantsService>();
 builder.Services.AddScoped<IAdminProfileService, AdminProfileService>();
 builder.Services.AddScoped<IAdminUsersServices, AdminUsersServices>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<RestaurantAggregator.AuthApi.Common.IServices.IAuthService, RestaurantAggregator.AuthApi.BL.Services.AuthService>();
 
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options => options.LoginPath = "/login");
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -71,5 +83,6 @@ app.MapControllerRoute(
     );
 
 await AuthConfiguration.SeedRoles(app.Services);
+await AuthConfiguration.SeedAdmin(app.Services);
 
 app.Run();

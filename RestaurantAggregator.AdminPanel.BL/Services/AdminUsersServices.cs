@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using RestaurantAggregator.AdminPanel.Common.Dto;
 using RestaurantAggregator.AdminPanel.Common.Interfaces;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.AuthApi.Common.IServices;
@@ -19,7 +21,16 @@ public class AdminUsersServices: IAdminUsersServices
         _adminRestaurantsService = adminRestaurantsService;
         _userService = userService;
     }
-    
+
+    public async Task<ClaimsIdentity> LoginAdmin(LoginCredentialDto model)
+    {
+        return await _profileService.LoginAdmin(new AuthApi.Common.DTO.LoginCredentialDto
+        {
+            Email = model.Email,
+            Password = model.Password
+        });
+    }
+
     public async Task<List<UserDto>> Select()
     {
         return await _profileService.GetUsers();
