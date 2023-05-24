@@ -88,7 +88,4 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificationHub>("/notification");
 
-// Connect to RabbitMQ
-// RabbitMqService.Connect();
-
 app.Run();
