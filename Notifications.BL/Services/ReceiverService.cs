@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Notifications.Common.Interfaces;
 using RabbitMQ.Client;
