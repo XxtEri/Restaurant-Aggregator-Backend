@@ -67,8 +67,10 @@ public class MenuService: IMenuService
         };
     }
     
-    public async Task AddMenuToRestaurant(Guid restaurantId, CreateMenuDto model)
+    public async Task AddMenuToRestaurant(Guid userId, Guid restaurantId, CreateMenuDto model)
     {
+        await CheckManager(restaurantId, userId);
+        
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
 
         if (restaurant == null)
@@ -96,8 +98,10 @@ public class MenuService: IMenuService
         await _context.SaveChangesAsync();
     }
 
-    public async  Task DeleteMenuFromRestaurant(Guid restaurantId, Guid menuId)
+    public async Task DeleteMenuFromRestaurant(Guid userId, Guid restaurantId, Guid menuId)
     {
+        await CheckManager(restaurantId, userId);
+        
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
 
         if (restaurant == null)
@@ -120,11 +124,31 @@ public class MenuService: IMenuService
 
         foreach (var menuDish in menusDishes)
         {
+            var dish = await _context.Dishes.FindAsync(menuDish.DishId);
+
+            if (dish == null) continue;
+            
             _context.MenusDishes.Remove(menuDish);
+            _context.Dishes.Remove(dish);
         }
         
         _context.Menus.Remove(menu);
         await _context.SaveChangesAsync();
 
+    }
+
+    private async Task CheckManager(Guid restaurantId, Guid managerId)
+    {
+        var manager = await _context.Managers.FindAsync(managerId);
+        
+        if (manager == null)
+        {
+            throw new NotFoundException($"Не найдено менеджера с id = {managerId}");
+        }
+
+        if (manager.RestaurantId != restaurantId)
+        {
+            throw new ForbiddenException($"У менеджера с id = {managerId} нет прав что-либо менять в ресторане с id = {restaurantId}, так как он там не работает");
+        }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
 using RestaurantAggregator.CommonFiles;
@@ -13,10 +14,12 @@ namespace RestaurantAggregatorService.Controllers;
 public class MenuController: ControllerBase
 {
     private readonly IMenuService _menuService;
+    private readonly IUserService _userService;
 
-    public MenuController(IMenuService menuService)
+    public MenuController(IMenuService menuService, IUserService userService)
     {
         _menuService = menuService;
+        _userService = userService;
     }
     
     /// <summary>
@@ -67,7 +70,20 @@ public class MenuController: ControllerBase
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<ActionResult<MenuModel>> AddMenu(Guid restaurantId, CreateMenuModel model)
     {
-        await _menuService.AddMenuToRestaurant(restaurantId, new CreateMenuDto
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        await _menuService.AddMenuToRestaurant(new Guid(userId), restaurantId, new CreateMenuDto
         {
             Name = model.Name
         });
@@ -88,7 +104,20 @@ public class MenuController: ControllerBase
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<ActionResult<MenuModel>> DeleteMenu(Guid restaurantId, Guid menuId)
     {
-        await _menuService.DeleteMenuFromRestaurant(restaurantId, menuId);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        await _menuService.DeleteMenuFromRestaurant(new Guid(userId), restaurantId, menuId);
         
         return Ok();
     }
