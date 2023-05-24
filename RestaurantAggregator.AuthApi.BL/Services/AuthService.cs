@@ -26,19 +26,25 @@ public class AuthService: IAuthService
 
     public async Task RegisterAdmin()
     {
-        var existingUser = await _userManager.FindByEmailAsync("admin@gmail.com");
+        const string email = "admin@gmail.com";
+
+        var existingUser = await _userManager.FindByEmailAsync(email);
         if (existingUser == null)
         {
+            const string username = "admin";
+            const string phone = "12345678911";
+            const string password = "Admin1";
+            
             var user = new User()
             {
-                Email = "admin@gmail.com",
-                UserName = "admin",
+                Email = email,
+                UserName = username,
                 BirthDate = DateTime.UtcNow,
                 Gender = Gender.Female,
-                PhoneNumber = "12345678911"
+                PhoneNumber = phone
             };
 
-            var result = await _userManager.CreateAsync(user, "Admin1");
+            var result = await _userManager.CreateAsync(user, password);
             if (!result.Succeeded)
             {
                 throw new NotFoundElementException("Failed to register");
@@ -52,23 +58,9 @@ public class AuthService: IAuthService
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         
-        if (user == null)
-        {
-            throw new InvalidDataCustomException("Invalid username or password entered");
-        }
-
-        if (!await _userManager.CheckPasswordAsync(user, model.Password))
-        {
-            throw new InvalidDataCustomException("Invalid username or password entered");
-        }
+        await CheckUserAndPassword(user, model.Password);
         
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-        };
-        var roles = await _userManager.GetRolesAsync(user);
-
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        var claims = await GetClaims(user);
         
         return new ClaimsIdentity(claims, "Cookies");
     }
@@ -77,15 +69,7 @@ public class AuthService: IAuthService
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         
-        if (user == null)
-        {
-            throw new InvalidDataCustomException("Invalid username or password entered");
-        }
-
-        if (!await _userManager.CheckPasswordAsync(user, model.Password))
-        {
-            throw new InvalidDataCustomException("Invalid username or password entered");
-        }
+        await CheckUserAndPassword(user, model.Password);
 
         if (user.Banned)
         {
@@ -207,13 +191,7 @@ public class AuthService: IAuthService
     
     private async Task<TokenPairDto> GetTokenPair(User user)
     {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-        };
-        var roles = await _userManager.GetRolesAsync(user);
-
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        var claims = await GetClaims(user);
 
         var accessToken = TokenManager.CreateAccessToken(claims);
         var refreshToken = TokenManager.CreateRefreshToken(claims);
@@ -228,5 +206,31 @@ public class AuthService: IAuthService
             AccessToken = accessToken,
             RefreshToken = refreshToken
         };
+    }
+
+    private async Task CheckUserAndPassword(User user, string password)
+    {
+        if (user == null)
+        {
+            throw new InvalidDataCustomException("Invalid username or password entered");
+        }
+
+        if (!await _userManager.CheckPasswordAsync(user, password))
+        {
+            throw new InvalidDataCustomException("Invalid username or password entered");
+        }
+    }
+
+    private async Task<List<Claim>> GetClaims(User user)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        };
+        var roles = await _userManager.GetRolesAsync(user);
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        return claims;
     }
 }
