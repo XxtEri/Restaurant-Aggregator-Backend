@@ -28,7 +28,7 @@ public class MenuController: ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [HttpGet("menus/{menuId}")]
+    [HttpGet("menus/{menuId:Guid}")]
     public async Task<ActionResult<MenuModel>> GetMenu(Guid restaurantId, Guid menuId)
     {
         var menuDto = await _menuService.GetMenuDto(restaurantId, menuId);
@@ -71,6 +71,24 @@ public class MenuController: ControllerBase
         {
             Name = model.Name
         });
+        
+        return Ok();
+    }
+    
+    /// <summary>
+    /// Удалить меню из ресторана
+    /// </summary>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpDelete("menus/{menuId:Guid}")]
+    [Authorize(Roles = UserRoles.Manager)]
+    public async Task<ActionResult<MenuModel>> DeleteMenu(Guid restaurantId, Guid menuId)
+    {
+        await _menuService.DeleteMenuFromRestaurant(restaurantId, menuId);
         
         return Ok();
     }

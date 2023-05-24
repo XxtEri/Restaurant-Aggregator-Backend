@@ -76,7 +76,9 @@ public class MenuService: IMenuService
             throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
         }
 
-        var menus = await _context.Menus.ToListAsync();
+        var menus = await _context.Menus
+            .Where(menu => menu.RestaurantId == restaurantId)
+            .ToListAsync();
 
         if (menus.Any(menu => menu.Name == model.Name))
         {
@@ -92,5 +94,37 @@ public class MenuService: IMenuService
         
         restaurant.Menus.Add(newMenu);
         await _context.SaveChangesAsync();
+    }
+
+    public async  Task DeleteMenuFromRestaurant(Guid restaurantId, Guid menuId)
+    {
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
+        }
+
+        var menu = await _context.Menus
+            .Where(menu => menu.Id == menuId && menu.RestaurantId == restaurantId)
+            .FirstOrDefaultAsync();
+
+        if (menu == null)
+        {
+            throw new NotFoundException($"Меню с id = {menuId}  у ресторана с id = {restaurantId} не найдено");
+        }
+
+        var menusDishes = await _context.MenusDishes
+            .Where(m => m.MenuId == menuId)
+            .ToListAsync();
+
+        foreach (var menuDish in menusDishes)
+        {
+            _context.MenusDishes.Remove(menuDish);
+        }
+        
+        _context.Menus.Remove(menu);
+        await _context.SaveChangesAsync();
+
     }
 }
