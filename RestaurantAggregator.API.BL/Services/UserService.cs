@@ -87,12 +87,24 @@ public class UserService: IUserService
         var cook = await _context.Cooks
             .Where(c => c.Id == cookId)
             .FirstOrDefaultAsync();
+
+        var restaurant = await _context.Restaurants
+            .Where(r => r.ManagerId == cook.Id)
+            .FirstOrDefaultAsync();
+
+        if (restaurant != null)
+        {
+            restaurant.CookId = null;
+            _context.Restaurants.Attach(restaurant);
+            _context.Entry(restaurant).State = EntityState.Modified;
+        }
         
         if (cook != null)
         {
             _context.Cooks.Remove(cook);
-            await _context.SaveChangesAsync();
         }
+        
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteManagerFromDb(Guid managerId)
@@ -101,11 +113,23 @@ public class UserService: IUserService
             .Where(m => m.Id == managerId)
             .FirstOrDefaultAsync();
         
+        var restaurant = await _context.Restaurants
+            .Where(r => r.ManagerId == manager.Id)
+            .FirstOrDefaultAsync();
+
+        if (restaurant != null)
+        {
+            restaurant.ManagerId = null;
+            _context.Restaurants.Attach(restaurant);
+            _context.Entry(restaurant).State = EntityState.Modified;
+        }
+        
         if (manager != null)
         {
             _context.Managers.Remove(manager);
-            await _context.SaveChangesAsync();
         }
+        
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteCourierFromDb(Guid courierId)

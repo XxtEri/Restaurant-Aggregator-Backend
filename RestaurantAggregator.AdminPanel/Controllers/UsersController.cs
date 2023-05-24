@@ -311,13 +311,12 @@ public class UsersController: Controller
         try
         {
             var restaurantId = await _adminUsersServices.GetRestaurantIdForManager(id);
-            var model = new ChangeRestaurantIdViewModel
+            
+            return View(new ChangeRestaurantIdModel
             {
                 UserId = id,
-                RestaurantId = restaurantId
-            };
-            
-            return View(model);
+                RestaurantId = restaurantId ?? Guid.Empty
+            });
         }
         catch (Exception e)
         {
@@ -334,6 +333,11 @@ public class UsersController: Controller
     [ValidateAntiForgeryToken]
     public async Task<ActionResult<UserDto>> EditRestaurantIdForManager(Guid id, ChangeRestaurantIdModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+        
         try
         {
             var user = await _adminUsersServices.Get(id);
@@ -359,13 +363,12 @@ public class UsersController: Controller
         try
         {
             var restaurantId = await _adminUsersServices.GetRestaurantIdForCook(id);
-            var model = new ChangeRestaurantIdViewModel
+
+            return View(new ChangeRestaurantIdModel
             {
                 UserId = id,
-                RestaurantId = restaurantId
-            };
-            
-            return View(model);
+                RestaurantId = restaurantId ?? Guid.Empty
+            });
         }
         catch (Exception e)
         {
@@ -382,6 +385,11 @@ public class UsersController: Controller
     [ValidateAntiForgeryToken]
     public async Task<ActionResult<UserDto>> EditRestaurantIdForCook(Guid id, ChangeRestaurantIdModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+        
         try
         {
             var user = await _adminUsersServices.Get(id);
