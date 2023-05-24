@@ -2,6 +2,7 @@ using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Interfaces;
+using RestaurantAggregator.CommonFiles.Enums;
 using RestaurantAggregatorService.Models;
 
 namespace RestaurantAggregatorService.Controllers;
@@ -23,8 +24,8 @@ public class RestaurantController: ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(RestaurantPagedListModel), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<RestaurantPagedListModel>> GetListRestaurant([FromQuery] string? nameRestaurant, [DefaultValue(1)] int page)
     {
         var restaurantsDto = await _restaurantService.GetRestaurants(nameRestaurant ?? string.Empty, page);
@@ -45,10 +46,10 @@ public class RestaurantController: ControllerBase
             var restaurantModel = new RestaurantModel
             {
                 Id = restaurant.Id,
-                Name = restaurant.Name,
+                Name = restaurant.Name
             };
 
-            if (restaurant.Menus != null)
+            if (restaurant.Menus.Any())
                 restaurantModel.Menus = GetMenusOfRestaurant(restaurant.Menus);
 
             restaurantsModel.Restaurants.Add(restaurantModel);
@@ -61,9 +62,9 @@ public class RestaurantController: ControllerBase
     /// Получение информации о конкретном ресторане
     /// </summary>
     [ProducesResponseType(typeof(RestaurantModel), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpGet("{restaurantId}")]
     public async Task<ActionResult<RestaurantModel>> GetInformationConcreteRestaurant(Guid restaurantId)
     {
@@ -86,8 +87,37 @@ public class RestaurantController: ControllerBase
         return Ok(restaurantModel);
     }
 
-    private static List<MenuModel> GetMenusOfRestaurant(IEnumerable<MenuDTO> menus)
+    private static List<MenuModel> GetMenusOfRestaurant(List<MenuDTO> menus)
     {
-        return menus.Select(menu => new MenuModel { Id = menu.Id, Name = menu.Name }).ToList();
+        var menusModel = new List<MenuModel>();
+        foreach (var menu in menus)
+        {
+            var menuModel = new MenuModel
+            {
+                Id = menu.Id,
+                Name = menu.Name
+            };
+
+            foreach (var dish in menu.Dishes)
+            {
+                var dishModel = new DishModel
+                {
+                    Id = dish.Id,
+                    Name = dish.Name,
+                    Price = dish.Price,
+                    Description = dish.Description,
+                    IsVegetarian = dish.IsVegetarian,
+                    Photo = dish.Photo,
+                    Rating = dish.Rating,
+                    Category = dish.Category
+                };
+                
+                menuModel.Dishes.Add(dishModel);
+            }
+            
+            menusModel.Add(menuModel);
+        }
+
+        return menusModel;
     }
 }

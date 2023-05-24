@@ -12,6 +12,10 @@ public class RestaurantDTO
     [Required]
     public string Name { get; set; }
     
-    [MaybeNull]
     public List<MenuDTO> Menus { get; set; }
+
+    public RestaurantDTO()
+    {
+        Menus = new List<MenuDTO>();
+    }
 }

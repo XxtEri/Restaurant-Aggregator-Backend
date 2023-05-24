@@ -29,7 +29,6 @@ public class MenuController: ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpGet("menus/{menuId}")]
-    [Authorize]
     public async Task<ActionResult<MenuModel>> GetMenu(Guid restaurantId, Guid menuId)
     {
         var menuDto = await _menuService.GetMenuDto(restaurantId, menuId);

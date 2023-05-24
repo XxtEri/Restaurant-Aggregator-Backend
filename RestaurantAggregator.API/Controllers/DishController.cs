@@ -29,9 +29,9 @@ public class DishController: ControllerBase
     /// </summary>
     [HttpGet("restaurants/{restaurantId}/dishes")]
     [ProducesResponseType(typeof(DishPagedListModel), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<DishPagedListModel>> GetListAllDishesInRestaurant(
         Guid restaurantId, 
         [FromQuery] List<DishCategory> categories, 
@@ -51,9 +51,9 @@ public class DishController: ControllerBase
     /// </summary>
     [HttpGet("restaurants/{restaurantId}/menus/{menuId}/dishes")]
     [ProducesResponseType(typeof(DishPagedListModel), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<DishPagedListModel>> GetListDishesInMenu(Guid restaurantId, 
         Guid menuId,
         [FromQuery] List<DishCategory> categories, 
@@ -72,9 +72,9 @@ public class DishController: ControllerBase
     /// Получение информации о конкретном блюде
     /// </summary>
     [ProducesResponseType(typeof(DishModel), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}")]
     public async Task<ActionResult<DishModel>> GetInformationConcreteDish(Guid dishId)
     {
@@ -98,11 +98,11 @@ public class DishController: ControllerBase
     /// Проверка на то, можно ли пользователь поставить оценку конкретному блюду
     /// </summary>
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpGet("dishes/{dishId}/check")]
     [Authorize(Roles = $"{UserRoles.Customer}, {UserRoles.Manager}")]
     public async Task<ActionResult<bool>> CheckCurrentUserSetRatingToDish(Guid dishId)
@@ -116,12 +116,12 @@ public class DishController: ControllerBase
     /// <summary>
     /// Поставить рейтинг блюду
     /// </summary>
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpPost("dishes/{dishId}/rating")]
     [Authorize(Roles = UserRoles.Customer)]
     public async Task<IActionResult> SetRatingToDish(Guid dishId, [Range(0,10)] int ratingScore)
@@ -163,12 +163,12 @@ public class DishController: ControllerBase
     /// <summary>
     /// Добавить блюдо в меню ресторана
     /// </summary>
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpPost("restaurants/{restaurantId}/menus/{menuId}/dishes")]
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<IActionResult> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)

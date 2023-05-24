@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using RestaurantAggregator.API.Common.DTO;
+using RestaurantAggregator.API.DAL.Entities;
 
 namespace RestaurantAggregatorService.Models;
 
@@ -11,4 +13,9 @@ public class MenuModel
     public string Name { get; set; }
     
     public List<DishModel> Dishes { get; set; }
+
+    public MenuModel()
+    {
+        Dishes = new List<DishModel>();
+    }
 }

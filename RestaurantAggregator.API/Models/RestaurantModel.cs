@@ -12,6 +12,10 @@ public class RestaurantModel
     [Required]
     public string Name { get; set; }
     
-    [MaybeNull]
     public List<MenuModel> Menus { get; set; }
+
+    public RestaurantModel()
+    {
+        Menus = new List<MenuModel>();
+    }
 }

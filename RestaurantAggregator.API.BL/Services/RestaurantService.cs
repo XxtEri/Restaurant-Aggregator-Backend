@@ -11,9 +11,11 @@ namespace RestaurantAggregator.API.BL.Services;
 public class RestaurantService: IRestaurantService
 {
     private readonly ApplicationDBContext _context;
+    private readonly IMenuService _menuService;
 
-    public RestaurantService(ApplicationDBContext context)
+    public RestaurantService(ApplicationDBContext context, IMenuService menuService)
     {
+        _menuService = menuService;
         _context = context;
     }
 
@@ -212,13 +214,17 @@ public class RestaurantService: IRestaurantService
 
     private async Task<List<MenuDTO>> GetMenus(Guid restaurantId)
     {
-        return await _context.Menus
+        var menusEntity = await _context.Menus
             .Where(menu => menu.RestaurantId == restaurantId)
-            .Select(menu => new MenuDTO
-            {
-                Id = menu.Id,
-                Name = menu.Name
-            })
             .ToListAsync();
+
+        var menusDto = new List<MenuDTO>();
+        foreach (var menuEntity in menusEntity)
+        {
+            var menuDto = await _menuService.GetMenuDto(restaurantId, menuEntity.Id);
+            menusDto.Add(menuDto);
+        }
+
+        return menusDto;
     }
 }

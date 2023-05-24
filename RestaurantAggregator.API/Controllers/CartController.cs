@@ -28,11 +28,11 @@ public class CartController: ControllerBase
     [HttpGet("dishes")]
     [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(typeof(List<DishInCartModel>), StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<DishInCartModel>>> GetListAllDishes()
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
@@ -96,11 +96,11 @@ public class CartController: ControllerBase
     [HttpPost("dishes/{dishId}")]
     [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddDishToBasket(Guid dishId)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
@@ -121,11 +121,11 @@ public class CartController: ControllerBase
     [HttpDelete("dishes/{dishId}")]
     [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status204NoContent)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteDishToBasket(Guid dishId)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
@@ -147,11 +147,11 @@ public class CartController: ControllerBase
     [HttpPut("dishes/{dishId}/increase")]
     [Authorize(Roles = UserRoles.Customer)]
     [ProducesResponseType(StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ChangeIncreaseDishInCart(Guid dishId, bool increase)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
@@ -172,12 +172,12 @@ public class CartController: ControllerBase
     /// </summary>
     [HttpPost("")]
     [Authorize(Roles = UserRoles.Customer)]
-    [ProducesResponseType(StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ResponseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ClearCart()
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
