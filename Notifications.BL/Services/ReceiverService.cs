@@ -1,6 +1,6 @@
 using System.Text;
 using Microsoft.Extensions.Configuration;
-using Notifications.Common.Dto;
+using Microsoft.Extensions.Logging;
 using Notifications.Common.Interfaces;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,54 +9,51 @@ namespace Notifications.BL.Services;
 
 public class ReceiverService: IReceiverService, IDisposable
 {
+    private readonly ILogger<ReceiverService> _logger;
     private readonly IModel _model;
     private readonly IConnection _connection;
     private readonly INotificationService _notificationService;
 
     private static string _queueName = null!;
-
-    public ReceiverService(IConfiguration configuration, INotificationService notificationService, IRabbitMqService rabbitMqService)
+    
+    public ReceiverService(IRabbitMqService rabbitMqService, INotificationService notificationService, ILogger<ReceiverService> logger)
     {
         _notificationService = notificationService;
-        //_queueName = configuration.GetSection("MyConfiguration:QueueName").Get<string>();
+        _logger = logger;
+        
         _connection = rabbitMqService.CreateChannel();
+
+        _queueName = "MyQueue";
+        
         _model = _connection.CreateModel();
         _model.QueueDeclare(
             _queueName,
-            durable: true,
+            durable: false,
             exclusive: false,
             autoDelete: false);
-        
-        // _model.ExchangeDeclare(
-        //     configuration.GetSection("MyConfiguration:ExchangeName").Get<string>(), 
-        //     ExchangeType.Fanout, 
-        //     durable: true, autoDelete: 
-        //     false);
-        
-        // _model.QueueBind(
-        //     _queueName, 
-        //     configuration.GetSection("MyConfiguration:ExchangeName").Get<string>(), 
-        //     string.Empty);
     }
-    
+
     public async Task ReadMessage()
     {
-        var consumer = new AsyncEventingBasicConsumer(_model);
-        consumer.Received += async (_, ea) =>
+        var consumer = new EventingBasicConsumer(_model);
+        consumer.Received += async (model, ea) =>
         {
             var body = ea.Body.ToArray();
-            var text = Encoding.UTF8.GetString(body);
+            var message = Encoding.UTF8.GetString(body);
 
-            await _notificationService.SendNotification(new ReceivedNotification
-            {
-                Text = text
-            });
+            await _notificationService.SendNotification(message);
+            
+            _logger.LogInformation("Message received from RabbitMQ: {0}", message);;
 
             await Task.CompletedTask;
             _model.BasicAck(ea.DeliveryTag, false);
         };
-
-        _model.BasicConsume(_queueName, false, consumer);
+        
+        _model.BasicConsume(
+            _queueName, 
+            false, 
+            consumer);
+        
         await Task.CompletedTask;
     }
 

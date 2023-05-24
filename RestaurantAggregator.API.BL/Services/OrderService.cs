@@ -13,12 +13,14 @@ public class OrderService: IOrderService
     private readonly ApplicationDBContext _context;
     private readonly IUserService _userService;
     private readonly ICartService _cartService;
+    private readonly IProducerService _producerService;
 
-    public OrderService(ApplicationDBContext context, IUserService userService, ICartService cartService)
+    public OrderService(ApplicationDBContext context, IUserService userService, ICartService cartService, IProducerService producerService)
     {
         _context = context;
         _userService = userService;
         _cartService = cartService;
+        _producerService = producerService;
     }
     
     public async Task<OrderPageListDTO> GetListLastOrderForCustomer (
@@ -533,6 +535,8 @@ public class OrderService: IOrderService
         var cook = await _context.Cooks.FindAsync(userId);
         var courier = await _context.Couriers.FindAsync(userId);
 
+        var isChangingStatusOrder = false;
+
         switch (status)
         {
             case OrderStatus.Created:
@@ -544,6 +548,7 @@ public class OrderService: IOrderService
                     {
                         order.Status = OrderStatus.Kitchen;
                         await AssignCookToOrder(cook, order);
+                        isChangingStatusOrder = true;
                     }
                     else
                     {
@@ -561,6 +566,7 @@ public class OrderService: IOrderService
                     if (order.Status == OrderStatus.Kitchen)
                     {
                         order.Status = OrderStatus.Packaging;
+                        isChangingStatusOrder = true;
                     }
                     else
                     {
@@ -578,6 +584,7 @@ public class OrderService: IOrderService
                     if (order.Status == OrderStatus.Packaging)
                     {
                         order.Status = OrderStatus.WaitingCourier;
+                        isChangingStatusOrder = true;
                     }
                     else
                     {
@@ -596,6 +603,7 @@ public class OrderService: IOrderService
                     {
                         order.Status = OrderStatus.Delivery;
                         await AssignCourierToOrder(courier, order);
+                        isChangingStatusOrder = true;
                     }
                     else
                     {
@@ -613,6 +621,7 @@ public class OrderService: IOrderService
                     if (order.Status == OrderStatus.Delivery)
                     {
                         order.Status = OrderStatus.Delivered;
+                        isChangingStatusOrder = true;
                     }
                     else
                     {
@@ -630,6 +639,7 @@ public class OrderService: IOrderService
                     if (order.Status == OrderStatus.Delivery)
                     {
                         order.Status = OrderStatus.Cancelled;
+                        isChangingStatusOrder = true;
                     }
                     else
                     {
@@ -660,6 +670,11 @@ public class OrderService: IOrderService
         _context.Entry(order).State = EntityState.Modified;
 
         await _context.SaveChangesAsync();
+
+        if (isChangingStatusOrder)
+        {
+            _producerService.SendMessage($"Статус заказа с номером {order.NumberOrder} был изменен на {order.Status}");
+        }
     }
     
     

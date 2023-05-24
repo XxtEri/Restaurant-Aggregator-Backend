@@ -75,14 +75,11 @@ public class CartService: ICartService
             throw new NotFoundException(message: $"Блюдо с id = {dishId} не найдено");
         }
 
-        var customer = await _context.Customers
-            .FindAsync(userId);
+        var customer = await GetCustomer(userId);
 
         if (customer == null)
         {
-            var customerId = await _userService.AddNewCustomerToDb(userId);
-            customer = await _context.Customers
-                .FindAsync(customerId);
+            throw new NotFoundException("Покупатель не найден");
         }
 
         await _context.DishesInCart.AddAsync(new DishInCart
@@ -193,5 +190,18 @@ public class CartService: ICartService
                 Category = dishForInfo.Category
             }
         };
+    }
+    
+    private async Task<Customer?> GetCustomer(Guid userId)
+    {
+        var customer = await _context.Customers
+            .FindAsync(userId);
+
+        if (customer != null) return customer;
+        var customerId = await _userService.AddNewCustomerToDb(userId);
+        customer = await _context.Customers
+            .FindAsync(customerId);
+
+        return customer;
     }
 }

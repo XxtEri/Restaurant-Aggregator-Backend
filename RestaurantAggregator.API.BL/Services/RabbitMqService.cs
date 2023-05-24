@@ -1,33 +1,25 @@
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
-using Notifications.BL.Hubs;
-using Notifications.Hubs;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RestaurantAggregator.API.BL.Configurations;
 using RestaurantAggregator.API.Common.Interfaces;
 
 namespace RestaurantAggregator.API.BL.Services;
 
 public class RabbitMqService: IRabbitMqService
 {
-    private readonly RabbitMqConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
     public RabbitMqService(IConfiguration configuration)
     {
-        _configuration = new RabbitMqConfiguration(
-            configuration.GetSection("RabbitMqConfiguration:HostName").Get<string>(),
-            configuration.GetSection("RabbitMqConfiguration:UserName").Get<string>(),
-            configuration.GetSection("RabbitMqConfiguration:Password").Get<string>());
+        _configuration = configuration;
     }
     
     public IConnection CreateChannel()
     {
         var connection = new ConnectionFactory
         {
-            HostName = _configuration.HostName,
-            UserName = _configuration.UserName,
-            Password = _configuration.Password,
+            HostName = _configuration["RabbitMQ:HostName"],
+            UserName = _configuration["RabbitMQ:UserName"],
+            Password = _configuration["RabbitMQ:Password"],
             VirtualHost = "/"
         };
 

@@ -1,6 +1,6 @@
 namespace RestaurantAggregator.API.Common.Interfaces;
 
-public class IProducerService
+public interface IProducerService
 {
-    
+    void SendMessage<T>(T message);
 }

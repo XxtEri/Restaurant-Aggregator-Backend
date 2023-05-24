@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
 using Notifications.BL.Hubs;
-using Notifications.Common.Dto;
 using Notifications.Common.Interfaces;
 
 namespace Notifications.BL.Services;
@@ -14,8 +13,8 @@ public class NotificationService: INotificationService
         _hubContext = hubContext;
     }
     
-    public async Task SendNotification(ReceivedNotification notification)
+    public async Task SendNotification(string message)
     {
-        await _hubContext.Clients.All.SendAsync("ReceiveMessage", notification);
+        await _hubContext.Clients.All.SendAsync("SendMessage", message);
     }
 }
