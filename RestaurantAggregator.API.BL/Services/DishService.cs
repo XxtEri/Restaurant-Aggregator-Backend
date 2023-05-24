@@ -217,8 +217,10 @@ public class DishService: IDishService
         await _context.SaveChangesAsync();
     }
 
-    public async Task AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishDto model)
+    public async Task AddDishToMenuOfRestaurant(Guid userId, Guid restaurantId, Guid menuId, CreateDishDto model)
     {
+        await CheckManager(restaurantId, userId);
+        
         var restaurant = await _context.Restaurants.FindAsync(restaurantId);
 
         if (restaurant == null)
@@ -253,7 +255,42 @@ public class DishService: IDishService
 
         await _context.SaveChangesAsync();
     }
-    
+
+    public async Task DeleteDishFromMenuOfRestaurant(Guid userId, Guid restaurantId, Guid menuId, Guid dishId)
+    {
+        await CheckManager(restaurantId, userId);
+        
+        var restaurant = await _context.Restaurants.FindAsync(restaurantId);
+
+        if (restaurant == null)
+        {
+            throw new NotFoundException($"Не найдено ресторана с id = {restaurantId}");
+        }
+        
+        var menu = await _context.Menus
+            .FirstOrDefaultAsync(m => m.Id == menuId && m.RestaurantId == restaurantId);
+
+        if (menu == null)
+        { 
+            throw new NotFoundException($"Не найдено меню с id = {menuId} в ресторане с id = {restaurantId}");
+        }
+
+        var menuDish = await _context.MenusDishes
+            .Where(m => m.MenuId == menuId && m.DishId == dishId)
+            .FirstOrDefaultAsync();
+
+        var dish = await _context.Dishes.FindAsync(dishId);
+        
+        if (menuDish == null || dish == null)
+        { 
+            throw new NotFoundException($"Не найдено блюдо с id = {dishId} в меню с id = {menuId} ресторане с id = {restaurantId}");
+        }
+
+        _context.MenusDishes.Remove(menuDish);
+        _context.Dishes.Remove(dish);
+        await _context.SaveChangesAsync();
+    }
+
     private double RecalculatingRatingOfDish(Guid dishId)
     {
         var ratings = _context.Ratings
@@ -314,5 +351,20 @@ public class DishService: IDishService
             SortingDish.RatingDesk => dishes.OrderByDescending(s => s.Rating),
             _ => dishes.OrderBy(s => s.Name)
         };
+    }
+    
+    private async Task CheckManager(Guid restaurantId, Guid managerId)
+    {
+        var manager = await _context.Managers.FindAsync(managerId);
+        
+        if (manager == null)
+        {
+            throw new NotFoundException($"Не найдено менеджера с id = {managerId}");
+        }
+
+        if (manager.RestaurantId != restaurantId)
+        {
+            throw new ForbiddenException($"У менеджера с id = {managerId} нет прав что-либо менять в ресторане с id = {restaurantId}, так как он там не работает");
+        }
     }
 }

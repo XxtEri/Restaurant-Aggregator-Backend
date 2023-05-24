@@ -185,7 +185,15 @@ public class DishController: ControllerBase
     [Authorize(Roles = UserRoles.Manager)]
     public async Task<IActionResult> AddDishToMenuOfRestaurant(Guid restaurantId, Guid menuId, CreateDishModel model)
     {
-        await _dishService.AddDishToMenuOfRestaurant(restaurantId, menuId, new CreateDishDto
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        await _dishService.AddDishToMenuOfRestaurant(new Guid(userId), restaurantId, menuId, new CreateDishDto
         {
             Name = model.Name,
             Price = model.Price,
@@ -194,6 +202,32 @@ public class DishController: ControllerBase
             Photo = model.Photo,
             Category = model.Category
         });
+        
+        return Ok();
+    }
+    
+    /// <summary>
+    /// Удалить блюдо из меню ресторана
+    /// </summary>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpDelete("restaurants/{restaurantId:Guid}/menus/{menuId:Guid}/dishes/{dishId:Guid}")]
+    [Authorize(Roles = UserRoles.Manager)]
+    public async Task<ActionResult<MenuModel>> DeleteMenu(Guid restaurantId, Guid menuId, Guid dishId)
+    {
+        var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+        var userId = _userService.GetUserIdFromToken(token);
+
+        if (userId == null)
+        {
+            return StatusCode(500, "Возникла ошибка при парсинге токена");
+        }
+        
+        await _dishService.DeleteDishFromMenuOfRestaurant(new Guid(userId), restaurantId, menuId, dishId);
         
         return Ok();
     }
