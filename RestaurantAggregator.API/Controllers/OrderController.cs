@@ -313,14 +313,19 @@ public class OrderController: ControllerBase
     /// </summary>
     [HttpGet("/cooks/orders/last")]
     [Authorize(Roles = UserRoles.Cook)]
-    [ProducesResponseType(typeof(List<OrderModel>), StatusCodes.Status200OK)] 
+    [ProducesResponseType(typeof(OrderPageListModel), StatusCodes.Status200OK)] 
     [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string),StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<OrderModel>>> GetListLastOrderForCook()
+    public async Task<ActionResult<List<OrderModel>>> GetListLastOrderForCook([DefaultValue(1)] int page, int? numberOrder)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
         var userId = _userService.GetUserIdFromToken(token);
 
@@ -329,20 +334,33 @@ public class OrderController: ControllerBase
             return StatusCode(500, "Возникла ошибка при парсинге токена");
         }
         
-        var ordersDto = await _orderService.GetListLastOrderForCook(new Guid(userId));
-
-        var ordersModel = ordersDto
-            .Select(o => new OrderModel
-            {
-                Id = o.Id,
-                NumberOrder = o.NumberOrder,
-                DeliveryTime = o.DeliveryTime,
-                OrderTime = o.OrderTime,
-                Price = o.Price,
-                Address = o.Address,
-                Status = o.Status
-            });
+        var ordersDto = await _orderService.GetListLastOrderForCook(new Guid(userId), page, numberOrder);
         
+        var ordersModel = new OrderPageListModel
+        {
+            Orders = new List<OrderModel>(),
+            PageInfoModel = new PageInfoModel(
+                ordersDto.PageInfoModel.Size, 
+                ordersDto.PageInfoModel.Count,
+                ordersDto.PageInfoModel.Current)
+        };
+
+        if (ordersDto.Orders == null) return Ok(ordersDto);
+        
+        foreach (var orderModel in ordersDto.Orders.Select(order => new OrderModel
+                 {
+                     Id = order.Id,
+                     NumberOrder = order.NumberOrder,
+                     DeliveryTime = order.DeliveryTime,
+                     OrderTime = order.OrderTime,
+                     Price = order.Price,
+                     Address = order.Address,
+                     Status = order.Status
+                 }))
+        {
+            ordersModel.Orders.Add(orderModel);
+        }
+
         return Ok(ordersModel);
     }
     

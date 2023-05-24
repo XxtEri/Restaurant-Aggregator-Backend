@@ -16,7 +16,7 @@ public interface IOrderService
     Task<OrderDTO?> GetActiveOrderForCourier(Guid courierId);
     Task<List<OrderDTO>> GetLastOrderForCourier(Guid courierId);
 
-    Task<List<OrderDTO>> GetListLastOrderForCook(Guid cookId);
+    Task<OrderPageListDTO> GetListLastOrderForCook(Guid cookId, int page, int? numberOrder);
     Task<List<OrderDTO>> GetListOrderForCook(Guid cookId);
     Task<List<OrderDTO>> GetListActiveOrderForCook(Guid cookId);
     

@@ -324,9 +324,14 @@ public class OrderService: IOrderService
     }
 
     
-    public async Task<List<OrderDTO>> GetListLastOrderForCook(Guid cookId)
+    public async Task<OrderPageListDTO> GetListLastOrderForCook(Guid cookId, int page, int? numberOrder)
     {
-        return await _context.Orders
+        if (page < 1)
+        {
+            throw new NotCorrectDataException(message: "Page value must be greater than 0");
+        }
+        
+        var orders = await _context.Orders
             .Where(order => (order.Status == OrderStatus.WaitingCourier || 
                              order.Status == OrderStatus.Delivery || 
                              order.Status == OrderStatus.Delivered) 
@@ -342,6 +347,30 @@ public class OrderService: IOrderService
                 Status = order.Status
             })
             .ToListAsync();
+        
+        if (numberOrder != null)
+        {
+            orders = orders.Where(r => r.NumberOrder.ToString().ToLower().Contains(numberOrder?.ToString().Trim().ToLower() ?? string.Empty)).ToList();
+        }
+        
+        const int pageSize = 5;
+        var restaurantsCount = orders.Count;
+        var count = restaurantsCount % pageSize < pageSize && restaurantsCount % pageSize != 0
+            ? restaurantsCount / 5 + 1
+            : restaurantsCount / 5;
+
+        if (page > count && orders.Any())
+        {
+            throw new NotCorrectDataException(message: "Invalid value for attribute page");
+        }
+
+        var items = orders.Skip((page - 1) * pageSize).Take((pageSize)).ToList();
+
+        return new OrderPageListDTO
+        {
+            Orders = items,
+            PageInfoModel = new PageInfoModelDTO(pageSize, orders.Count, page)
+        };
     }
     
     public async Task<List<OrderDTO>> GetListOrderForCook(Guid cookId)
