@@ -4,7 +4,7 @@ namespace RestaurantAggregator.AuthApi.Common.IServices;
 
 public interface IProfileService
 {
-    Task<CustomerProfileDto> GetCustomerProfile(string userId);
-    Task ChangeInfoCustomerProfile(string userId, ChangeInfoCustomerProfileDto model);
-    Task ChangePassword(string userId, ChangePasswordDto model);
+    Task<CustomerProfileDto> GetCustomerProfile(Guid userId);
+    Task ChangeInfoCustomerProfile(Guid userId, ChangeInfoCustomerProfileDto model);
+    Task ChangePassword(Guid userId, ChangePasswordDto model);
 }

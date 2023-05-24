@@ -21,26 +21,28 @@ public class ProfileController: ControllerBase
         _profileService = profileService;
     }
 
+    /// <summary>
+    /// Получение информации профиля пользователя с ролью Customer
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
+    [Authorize(Roles = UserRoles.Customer)]
     public async Task<ActionResult<CustomerProfileDto>> GetProfile()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
-        if (userId == null)
-        {
-            return StatusCode(403, new ResponseModel
-            {
-                Status = "403 error",
-                Message = ""
-            });
-        }
+        var userId = Guid.Parse(User.Identity!.Name!);
 
         var profile = await _profileService.GetCustomerProfile(userId);
 
         return Ok(profile);
     }
 
+    /// <summary>
+    /// Изменения информации профиля пользователя с ролью Customer
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPatch]
+    [Authorize(Roles = UserRoles.Customer)]
     public async Task<IActionResult> ChangeInfoProfile(ChangeIfoCustomerProfileModel model)
     {
         if (!ModelState.IsValid)
@@ -48,21 +50,11 @@ public class ProfileController: ControllerBase
             return BadRequest(ModelState);
         }
 
-        var userId = User.FindFirstValue((ClaimTypes.NameIdentifier));
-        
-        if (userId == null)
-        {
-            return StatusCode(403, new ResponseModel
-            {
-                Status = "403 error",
-                Message = ""
-            });
-        }
+        var userId = Guid.Parse(User.Identity!.Name!);
 
         await _profileService.ChangeInfoCustomerProfile(userId, new ChangeInfoCustomerProfileDto
         {
             Username = model.Username,
-            Email = model.Email,
             BirthDate = model.BirthDate,
             Gender = model.Gender,
             Phone = model.Phone,
@@ -72,7 +64,13 @@ public class ProfileController: ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Изменение пароля аккаунта пользователя с ролью Customer
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPut("password")]
+    [Authorize(Roles = UserRoles.Customer)]
     public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
     {
         if (!ModelState.IsValid)
@@ -80,16 +78,7 @@ public class ProfileController: ControllerBase
             return BadRequest(ModelState);
         }
         
-        var userId = User.FindFirstValue((ClaimTypes.NameIdentifier));
-        
-        if (userId == null)
-        {
-            return StatusCode(403, new ResponseModel
-            {
-                Status = "403 error",
-                Message = ""
-            });
-        }
+        var userId = Guid.Parse(User.Identity!.Name!);
 
         await _profileService.ChangePassword(userId, new ChangePasswordDto
         {

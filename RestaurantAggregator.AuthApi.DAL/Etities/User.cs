@@ -14,7 +14,7 @@ public class User: IdentityUser<Guid>
     public Gender Gender { get; set; }
 
     [MaybeNull]
-    public string RefreshToken { get; set; }
+    public string? RefreshToken { get; set; }
     
     public DateTime? RefreshTokenExpires { get; set; }
     

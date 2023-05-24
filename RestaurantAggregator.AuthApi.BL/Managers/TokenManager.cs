@@ -23,7 +23,7 @@ public class TokenManager
         return new JwtSecurityTokenHandler().WriteToken(jwt);
     }
     
-    public static string CreateRefreshToken(List<Claim> claims)
+    public static string? CreateRefreshToken(List<Claim> claims)
     {
         var number = new byte[64];
         using var randomNumber = RandomNumberGenerator.Create();
