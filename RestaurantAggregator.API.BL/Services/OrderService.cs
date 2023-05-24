@@ -571,6 +571,11 @@ public class OrderService: IOrderService
             case OrderStatus.Packaging:
                 if (cook != null)
                 {
+                    if (order.CookId != userId)
+                    {
+                        throw new ForbiddenException("У повара нет прав изменять статус данного заказа ");
+                    }
+
                     if (order.Status == OrderStatus.Kitchen)
                     {
                         order.Status = OrderStatus.Packaging;
@@ -589,6 +594,11 @@ public class OrderService: IOrderService
             case OrderStatus.WaitingCourier:
                 if (cook != null)
                 {
+                    if (order.CookId != userId)
+                    {
+                        throw new ForbiddenException("У повара нет прав изменять статус данного заказа ");
+                    }
+                    
                     if (order.Status == OrderStatus.Packaging)
                     {
                         order.Status = OrderStatus.WaitingCourier;
@@ -626,6 +636,11 @@ public class OrderService: IOrderService
             case OrderStatus.Delivered:
                 if (courier != null)
                 {
+                    if (order.CourierId != userId)
+                    {
+                        throw new ForbiddenException("У курьера нет прав изменять статус данного заказа ");
+                    }
+                    
                     if (order.Status == OrderStatus.Delivery)
                     {
                         order.Status = OrderStatus.Delivered;
@@ -644,6 +659,11 @@ public class OrderService: IOrderService
             case OrderStatus.Cancelled:
                 if (courier != null)
                 {
+                    if (order.CourierId != userId)
+                    {
+                        throw new ForbiddenException("У курьера нет прав изменять статус данного заказа ");
+                    }
+
                     if (order.Status == OrderStatus.Delivery)
                     {
                         order.Status = OrderStatus.Cancelled;
@@ -656,6 +676,11 @@ public class OrderService: IOrderService
                 }
                 else if (customer != null)
                 {
+                    if (order.CustomerId != userId)
+                    {
+                        throw new ForbiddenException("У продавца нет прав изменять статус данного заказа ");
+                    }
+                    
                     if (order.Status == OrderStatus.Created)
                     {
                         order.Status = OrderStatus.Cancelled;
