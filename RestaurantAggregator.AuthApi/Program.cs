@@ -93,5 +93,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 await AuthConfiguration.SeedRoles(app.Services);
+await AuthConfiguration.SeedAdmin(app.Services);
 
 app.Run();
