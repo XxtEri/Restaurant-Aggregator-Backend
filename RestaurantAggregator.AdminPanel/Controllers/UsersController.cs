@@ -161,7 +161,7 @@ public class UsersController: Controller
         {
             await _adminUsersServices.ChangeStatusBannedUser(id);
 
-            return View("Get");
+            return RedirectToAction("Get");
         }
         catch (Exception e)
         {
