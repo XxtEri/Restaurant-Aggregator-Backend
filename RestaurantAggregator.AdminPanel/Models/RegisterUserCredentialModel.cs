@@ -7,6 +7,7 @@ namespace RestaurantAggregator.AdminPanel.Models;
 public class RegisterUserCredentialModel
 {
     [Required(ErrorMessage = "Введите ваше имя")]
+    [RegularExpression(@"[A-Za-zА-Яа-я0-9]+$", ErrorMessage = "Имя должно состоять только из цифр или букв латинского или русского алфавита")]
     public string Username { get; set; }
 
     [EmailAddress]
