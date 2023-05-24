@@ -19,13 +19,14 @@ public class UserDto
     [Required]
     public string Email { get; set; }
     
-    public DateTime? BirthDate { get; set; }
+    [Required]
+    public DateTime BirthDate { get; set; }
     
     [Required]
     public Gender Gender { get; set; }
     
-    [MaybeNull]
     [Phone]
+    [Required]
     public string Phone { get; set; }
     
     [DefaultValue(false)]

@@ -6,22 +6,23 @@ namespace RestaurantAggregator.AdminPanel.Models;
 
 public class RegisterUserCredentialModel
 {
-    [Required(ErrorMessage = "Username is required")]
+    [Required(ErrorMessage = "Введите ваше имя")]
     public string Username { get; set; }
 
     [EmailAddress]
-    [Required(ErrorMessage = "Email is required")]
+    [Required(ErrorMessage = "Введите email")]
     public string Email { get; set; }
     
-    [Required]
+    [Required(ErrorMessage = "Введите дату рождения")]
     public DateTime BirthDate { get; set; }
     
-    [Required(ErrorMessage = "Gender is required")]
+    [Required(ErrorMessage = "Выберите ваш пол")]
     public Gender Gender { get; set; }
     
-    [Phone]
+    [Required(ErrorMessage = "Введите номер телефона")]
+    [RegularExpression(@"^\+?\d{0,2}\-?\d{3}\-?\d{3}\-?\d{2}\-?\d{2}$", ErrorMessage = "Введите правильный номер телефона")]
     public string? Phone { get; set; }
 
-    [Required(ErrorMessage = "Password is required")]
+    [Required(ErrorMessage = "Введите пароль")]
     public string Password { get; set; }
 }

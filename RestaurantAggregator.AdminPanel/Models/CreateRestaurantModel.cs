@@ -4,6 +4,7 @@ namespace RestaurantAggregator.AdminPanel.Models;
 
 public class CreateRestaurantModel
 {
-    [Required]
+    [Required(ErrorMessage = "Необходимо заполнить название ресторана")]
+    [MinLength(1)]
     public string Name { get; set; }
 }

@@ -1,4 +1,4 @@
-@model RestaurantAggregator.CommonFiles.Dto.UserDto
+@model UpdateInfoUserProfileModel
 
 @{
     ViewBag.Title = "Edit Users";
@@ -18,20 +18,20 @@
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="BirthDate" class="control-label"></label>
                 <input asp-for="BirthDate" class="form-control" />
                 <span asp-validation-for="BirthDate" class="text-danger"></span>
             </div>
+            <div style="padding: 5px"></div>
             <div class="form-group">
-                <label asp-for="Gender" class="control-label"></label>
-                <input asp-for="Gender" class="form-control" />
+                @Html.DropDownListFor(model => model.Gender, new SelectList(new[]
+                {
+                    new { Value = "Male", Text = "Мужской" },
+                    new { Value = "Female", Text = "Женский" }
+                }, "Value", "Text"), "Выберите пол")
                 <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
+            <div style="padding: 5px"></div>
             <div class="form-group">
                 <label asp-for="Phone" class="control-label"></label>
                 <input asp-for="Phone" class="form-control" />

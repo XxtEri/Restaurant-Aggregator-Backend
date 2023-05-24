@@ -7,22 +7,17 @@ namespace RestaurantAggregator.AdminPanel.Models;
 
 public class UpdateInfoUserProfileModel
 {
-    [Required]
-    [MinLength(1)]
+    [Required(ErrorMessage = "Введите ваше имя")]
     public string Username { get; set; }
 
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-    
-    [Required]
+    [Required(ErrorMessage = "Введите дату рождения")]
     public DateTime BirthDate { get; set; }
     
-    [Required]
+    [Required(ErrorMessage = "Выберите ваш пол")]
     public Gender Gender { get; set; }
     
-    [MaybeNull]
-    [Phone]
+    [Required(ErrorMessage = "Введите номер телефона")]
+    [RegularExpression(@"^\+?\d{0,2}\-?\d{3}\-?\d{3}\-?\d{2}\-?\d{2}$", ErrorMessage = "Введите правильный номер телефона")]
     public string Phone { get; set; }
     
     public string? Address { get; set; }

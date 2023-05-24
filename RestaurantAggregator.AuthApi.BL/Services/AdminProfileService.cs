@@ -145,7 +145,6 @@ public class AdminProfileService: IAdminProfileService
         }
 
         user.UserName = model.Username;
-        user.Email = model.Email;
         user.PhoneNumber = model.Phone;
         user.BirthDate = model.BirthDate;
         user.Gender = model.Gender;

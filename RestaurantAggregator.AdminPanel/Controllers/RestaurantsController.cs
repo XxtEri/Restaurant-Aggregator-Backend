@@ -53,7 +53,11 @@ public class RestaurantsController: Controller
         {
             var restaurant = await _adminRestaurantsService.Get(id);
 
-            return View(restaurant);
+            return View(new UpdateInfoRestaurantModel
+            {
+                RestaurantId = restaurant.Id,
+                Name = restaurant.Name
+            });
         }
         catch (Exception e)
         {
@@ -68,17 +72,12 @@ public class RestaurantsController: Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, [Bind("Name")] UpdateInfoRestaurantModel
+    public async Task<IActionResult> Edit(Guid id, UpdateInfoRestaurantModel
         restaurantModel)
     {
         if (!ModelState.IsValid)
         {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = "Error"
-            };
-            
-            return View("Error", errorModel);
+            return View(restaurantModel);
         }
 
         try
@@ -149,12 +148,7 @@ public class RestaurantsController: Controller
     {
         if (!ModelState.IsValid)
         {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = ModelState.ToString()
-            };
-            
-            return View("Error", errorModel);
+            return View(restaurantModel);
         }
 
         try

@@ -47,12 +47,7 @@ public class UsersController: Controller
     {
         if (!ModelState.IsValid)
         {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = ModelState.ToString()
-            };
-            
-            return View("Error", errorModel);
+            return View(model);
         }
 
         try
@@ -87,7 +82,14 @@ public class UsersController: Controller
         {
             var user = await _adminUsersServices.Get(id);
             
-            return View(user);
+            return View(new UpdateInfoUserProfileModel
+            {
+                Username = user.Username,
+                BirthDate = user.BirthDate,
+                Gender = user.Gender,
+                Phone = user.Phone,
+                Address = user.Address
+            });
         }
         catch (Exception e)
         {
@@ -106,12 +108,7 @@ public class UsersController: Controller
     {
         if (!ModelState.IsValid)
         {
-            var errorModel = new ErrorViewModel
-            {
-                RequestId = ModelState.ToString()
-            };
-            
-            return View("Error", errorModel);
+            return View(model);
         }
 
         try
@@ -119,7 +116,6 @@ public class UsersController: Controller
             await _adminUsersServices.ChangeInfoUserProfile(id, new UpdateInfoUserProfileDto
             {
                 Username = model.Username,
-                Email = model.Email,
                 BirthDate = model.BirthDate,
                 Gender = model.Gender,
                 Phone = model.Phone,
