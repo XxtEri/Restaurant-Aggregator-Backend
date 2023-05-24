@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RestaurantAggregator.API.Common.DTO;
 using RestaurantAggregator.API.Common.Enums;
 using RestaurantAggregator.API.Common.Interfaces;
@@ -39,6 +40,11 @@ public class DishController: ControllerBase
         SortingDish sorting, 
         [DefaultValue(1)] int page)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         var dishesDto =
             await _dishService.GetListAllDishesInRestaurant(restaurantId, categories, vegetarian, sorting, page);
         var dishesModel = GetDishPagedListModel(dishesDto);

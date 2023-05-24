@@ -43,22 +43,9 @@ public class DishService: IDishService
         var dishesInRestaurant = new List<DishDTO>();
         foreach (var menu in menus)
         {
-            var dishes = await _context.MenusDishes
-                .Where(e => e.MenuId == menu.Id)
-                .Select(e => e.Dish)
-                .Select(d => new DishDTO
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Price = d.Price,
-                    Description = d.Description,
-                    IsVegetarian = d.IsVegetarian,
-                    Photo = d.Photo,
-                    Rating = d.Rating,
-                    Category = d.Category
-                })
-                .ToListAsync();
-
+            var dishes = GetListDishDto(categories, vegetarian, menu.Id);
+            dishes = SortingDishes(dishes, sorting);
+            
             dishesInRestaurant.AddRange(dishes);
         }
         
@@ -252,7 +239,7 @@ public class DishService: IDishService
             Description = model.Description,
             IsVegetarian = model.IsVegetarian,
             Photo = model.Photo,
-            Category = DishCategory.Wok
+            Category = model.Category
         };
 
         await _context.Dishes.AddAsync(dish);
@@ -276,5 +263,41 @@ public class DishService: IDishService
             .FindAsync(customerId);
 
         return customer;
+    }
+    
+    private IQueryable<DishDTO> GetListDishDto(List<DishCategory> categories, bool vegetarian, Guid menuId)
+    {
+        var isEmptyCategories = categories.Count == 0;
+        
+        var dishes = _context.MenusDishes
+            .Where(e => e.MenuId == menuId)
+            .Select(e => e.Dish)
+            .Where(d => d.IsVegetarian == vegetarian && (isEmptyCategories || categories.Contains(d.Category)))
+            .Select(d => new DishDTO
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Price = d.Price,
+                Description = d.Description,
+                IsVegetarian = d.IsVegetarian,
+                Photo = d.Photo,
+                Rating = d.Rating,
+                Category = d.Category
+            });
+        
+        return dishes;
+    }
+    
+    private IQueryable<DishDTO> SortingDishes(IQueryable<DishDTO> dishes, SortingDish sorting)
+    {
+        return sorting switch
+        {
+            SortingDish.NameDesk => dishes.OrderByDescending(s => s.Name),
+            SortingDish.PriceAsk => dishes.OrderBy(s => s.Price),
+            SortingDish.PriceDesk => dishes.OrderByDescending(s => s.Price),
+            SortingDish.RatingAsk => dishes.OrderBy(s => s.Rating),
+            SortingDish.RatingDesk => dishes.OrderByDescending(s => s.Rating),
+            _ => dishes.OrderBy(s => s.Name)
+        };
     }
 }

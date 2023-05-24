@@ -47,6 +47,7 @@ builder.Services.AddScoped<IAdminUsersServices, AdminUsersServices>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<RestaurantAggregator.AuthApi.Common.IServices.IAuthService, RestaurantAggregator.AuthApi.BL.Services.AuthService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
 
 builder.Services.AddAuthentication(options =>
     {

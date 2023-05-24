@@ -5,8 +5,8 @@ namespace RestaurantAggregator.CommonFiles.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DishCategory
 {
-    Wok,
     Pizza,
+    Wok,
     Soup,
     Dessert,
     Drink
