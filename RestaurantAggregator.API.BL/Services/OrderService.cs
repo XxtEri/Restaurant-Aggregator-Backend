@@ -26,6 +26,7 @@ public class OrderService: IOrderService
     public async Task<OrderPageListDTO> GetListLastOrderForCustomer (
         Guid userId, 
         int page, 
+        int? numberOrder,
         DateTime? startDay, 
         DateTime? endDay)
     {
@@ -38,6 +39,8 @@ public class OrderService: IOrderService
             .Where(order => order.CustomerId == userId && order.Status == OrderStatus.Delivered)
             .Select(order => new OrderDTO
             {
+                Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
@@ -45,6 +48,11 @@ public class OrderService: IOrderService
                 Status = order.Status
             })
             .ToListAsync();
+        
+        if (numberOrder != null)
+        {
+            orders = orders.Where(r => r.NumberOrder.ToString().ToLower().Contains(numberOrder?.ToString().Trim().ToLower() ?? string.Empty)).ToList();
+        }
         
         if (startDay != null && endDay == null)
         {

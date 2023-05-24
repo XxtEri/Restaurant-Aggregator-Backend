@@ -35,7 +35,7 @@ public class OrderController: ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<OrderPageListModel>> GetListLastOrderForCustomer([DefaultValue(1)] int page, DateTime? startDay, DateTime? endDay)
+    public async Task<ActionResult<OrderPageListModel>> GetListLastOrderForCustomer([FromQuery] int? numberOrder, [DefaultValue(1)] int page, DateTime? startDeliveryTime, DateTime? endDeliveryTime)
     {
         var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
         var userId = _userService.GetUserIdFromToken(token);
@@ -44,12 +44,14 @@ public class OrderController: ControllerBase
         {
             return StatusCode(500, "Возникла ошибка при парсинге токена");
         }
-        
-        var orders = await _orderService.GetListLastOrderForCustomer(new Guid(userId), page, startDay, endDay);
+
+        var orders = await _orderService.GetListLastOrderForCustomer(new Guid(userId), page, numberOrder,
+            startDeliveryTime, endDeliveryTime);
         var ordersModel = orders.Orders!
             .Select(order => new OrderModel
             {
                 Id = order.Id,
+                NumberOrder = order.NumberOrder,
                 DeliveryTime = order.DeliveryTime,
                 OrderTime = order.OrderTime,
                 Price = order.Price,
