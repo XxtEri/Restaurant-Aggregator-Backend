@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Notifications.API\Notifications.API.csproj" />
+        <ProjectReference Include="..\RestaurantAggregator.API.Common\RestaurantAggregator.API.Common.csproj" />
+        <ProjectReference Include="..\RestaurantAggregator.API.DAL\RestaurantAggregator.API.DAL.csproj" />
+        <ProjectReference Include="..\RestaurantAggregator.AuthApi.Common\RestaurantAggregator.AuthApi.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="RabbitMQ.Client">
+        <HintPath>..\..\..\..\..\.nuget\packages\rabbitmq.client\6.5.0\lib\netstandard2.0\RabbitMQ.Client.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

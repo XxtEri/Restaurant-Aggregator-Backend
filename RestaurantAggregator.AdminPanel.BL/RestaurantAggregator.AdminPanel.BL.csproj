@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RestaurantAggregator.AdminPanel.Common\RestaurantAggregator.AdminPanel.Common.csproj" />
+      <ProjectReference Include="..\RestaurantAggregator.API.Common\RestaurantAggregator.API.Common.csproj" />
+      <ProjectReference Include="..\RestaurantAggregator.AuthApi.Common\RestaurantAggregator.AuthApi.Common.csproj" />
+    </ItemGroup>
+
+</Project>
